@@ -1,0 +1,6 @@
+{
+  "name": "IES IEDC",
+  "description": "Innovation and Entrepreneurship Development Centre (IEDC) of IES College of Engineering. Official web platform and content management system.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

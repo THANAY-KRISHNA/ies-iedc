@@ -1,0 +1,1381 @@
+import {
+  AcademicYear,
+  Department,
+  TeamMember,
+  EventItem,
+  Achievement,
+  StudentIdea,
+  StartupItem,
+  WorkshopItem,
+  ResourceItem,
+  GalleryAlbum,
+  NewsItem,
+  SiteSettings,
+  User
+} from '../types';
+
+export const INITIAL_USERS: User[] = [
+  {
+    id: 'usr_super',
+    name: 'Prof. Shahaziya Parvez',
+    email: 'nodal.officer@iesce.info',
+    role: 'Super Admin',
+    lastLogin: '2026-09-04T08:30:00Z'
+  },
+  {
+    id: 'usr_content',
+    name: 'Content Administrator',
+    email: 'content.iedc@iesce.info',
+    role: 'Content Admin',
+    lastLogin: '2026-09-03T14:15:00Z'
+  },
+  {
+    id: 'usr_team',
+    name: 'Team Coordinator',
+    email: 'team.iedc@iesce.info',
+    role: 'Team Admin',
+    lastLogin: '2026-09-02T11:00:00Z'
+  },
+  {
+    id: 'usr_achieve',
+    name: 'Achievements Verification Lead',
+    email: 'achievements.iedc@iesce.info',
+    role: 'Achievement Admin',
+    lastLogin: '2026-08-30T09:45:00Z'
+  }
+];
+
+export const INITIAL_ACADEMIC_YEARS: AcademicYear[] = [
+  { id: 'ay_25_26', year: '2025–26', isCurrent: true, notes: 'Current Academic Year (Recruitment & planning in progress)' },
+  { id: 'ay_24_25', year: '2024–25', isCurrent: false, notes: 'Previous Academic Year' },
+  { id: 'ay_23_24', year: '2023–24', isCurrent: false, notes: 'Archived Academic Year' }
+];
+
+export const INITIAL_DEPARTMENTS: Department[] = [
+  { id: 'dept_ce', code: 'CE', name: 'Civil Engineering' },
+  { id: 'dept_me', code: 'ME', name: 'Mechanical Engineering' },
+  { id: 'dept_cse', code: 'CSE', name: 'Computer Science & Engineering' },
+  { id: 'dept_eee', code: 'EEE', name: 'Electrical & Electronics Engineering' },
+  { id: 'dept_ece', code: 'ECE', name: 'Electronics & Communication Engineering' },
+  { id: 'dept_rai', code: 'R&AI', name: 'Robotics & Artificial Intelligence' },
+  { id: 'dept_ds', code: 'DS', name: 'Data Science' },
+  { id: 'dept_sh', code: 'S&H', name: 'Science & Humanities' }
+];
+
+export const ROLE_RESPONSIBILITIES: Record<string, string> = {
+  'Nodal Officer': 'Coordinates IEDC activities.',
+  'Assistant Nodal Officer': 'Assists with coordination and implementation of activities.',
+  'Department Coordinators': 'Coordinate IEDC activities within their respective departments.',
+  'IEDC Lead': 'An alumni/Ex-CEO role that guides and supports IEDC activities.',
+  'CEO': 'Overall coordination of student activities.',
+  'CFO': 'Handles financial activities.',
+  'CMO': 'Handles publicity through appropriate channels such as notice boards, social media and newspapers.',
+  'COO': 'Handles file management, email communication, reports, permission letters and related operational work.',
+  'CTO': 'Handles forms/technical coordination and KSUM-related technical links where applicable.',
+  'CCO': 'Maintains IEDC branding assets such as logo/poster/social media materials.',
+  'IPR & Research Lead': 'Creates awareness regarding startup IPR and research-related matters.',
+  'Women Innovation Lead': 'Encourages and supports participation of women students in innovation activities.',
+  'Community Lead': 'Builds and nurtures the student, alumni and mentor community.'
+};
+
+export const INITIAL_TEAM_MEMBERS: TeamMember[] = [
+  // ----------------------------------------------------
+  // 2024–25 TEAM DATA (Verified)
+  // ----------------------------------------------------
+  {
+    id: 'tm_24_01',
+    academicYear: '2024–25',
+    name: 'Shahaziya Parvez',
+    roleType: 'Nodal Officer',
+    position: 'Nodal Officer',
+    department: 'R&AI',
+    designation: 'HOD / Assistant Professor',
+    responsibility: 'Coordinates IEDC activities.',
+    sortOrder: 1,
+    status: 'Published'
+  },
+  {
+    id: 'tm_24_02',
+    academicYear: '2024–25',
+    name: 'Prabhavathi P',
+    roleType: 'Assistant Nodal Officer',
+    position: 'Assistant Nodal Officer',
+    department: 'S&H',
+    designation: 'Assistant Professor',
+    responsibility: 'Assists with coordination and implementation of activities.',
+    sortOrder: 2,
+    status: 'Published'
+  },
+  // Department Coordinators 2024-25
+  {
+    id: 'tm_24_dept_ce',
+    academicYear: '2024–25',
+    name: 'Angela C Joy',
+    roleType: 'Department Coordinator',
+    position: 'Department Coordinator',
+    department: 'CE',
+    responsibility: 'Coordinate IEDC activities within CE department.',
+    sortOrder: 3,
+    status: 'Published'
+  },
+  {
+    id: 'tm_24_dept_me',
+    academicYear: '2024–25',
+    name: 'Anil D Coola',
+    roleType: 'Department Coordinator',
+    position: 'Department Coordinator',
+    department: 'ME',
+    responsibility: 'Coordinate IEDC activities within ME department.',
+    sortOrder: 4,
+    status: 'Published'
+  },
+  {
+    id: 'tm_24_dept_cse',
+    academicYear: '2024–25',
+    name: 'Athira E P',
+    roleType: 'Department Coordinator',
+    position: 'Department Coordinator',
+    department: 'CSE',
+    responsibility: 'Coordinate IEDC activities within CSE department.',
+    sortOrder: 5,
+    status: 'Published'
+  },
+  {
+    id: 'tm_24_dept_eee',
+    academicYear: '2024–25',
+    name: 'Nivya K Venu',
+    roleType: 'Department Coordinator',
+    position: 'Department Coordinator',
+    department: 'EEE',
+    responsibility: 'Coordinate IEDC activities within EEE department.',
+    sortOrder: 6,
+    status: 'Published'
+  },
+  {
+    id: 'tm_24_dept_ece',
+    academicYear: '2024–25',
+    name: 'Bency Varghese A',
+    roleType: 'Department Coordinator',
+    position: 'Department Coordinator',
+    department: 'ECE',
+    responsibility: 'Coordinate IEDC activities within ECE department.',
+    sortOrder: 7,
+    status: 'Published'
+  },
+  {
+    id: 'tm_24_dept_rai',
+    academicYear: '2024–25',
+    name: 'Amitha M J',
+    roleType: 'Department Coordinator',
+    position: 'Department Coordinator',
+    department: 'R&AI',
+    responsibility: 'Coordinate IEDC activities within R&AI department.',
+    sortOrder: 8,
+    status: 'Published'
+  },
+  {
+    id: 'tm_24_dept_ds',
+    academicYear: '2024–25',
+    name: 'Priya',
+    roleType: 'Department Coordinator',
+    position: 'Department Coordinator',
+    department: 'DS',
+    responsibility: 'Coordinate IEDC activities within DS department.',
+    sortOrder: 9,
+    status: 'Published'
+  },
+  // Student Leadership 2024-25
+  {
+    id: 'tm_24_stu_01',
+    academicYear: '2024–25',
+    name: 'Edwin Joy',
+    roleType: 'IEDC Lead',
+    position: 'IEDC Lead',
+    responsibility: 'An alumni/Ex-CEO role that guides and supports IEDC activities.',
+    sortOrder: 10,
+    status: 'Published'
+  },
+  {
+    id: 'tm_24_stu_02',
+    academicYear: '2024–25',
+    name: 'Fathima Dilsha',
+    roleType: 'IEDC Lead',
+    position: 'IEDC Lead',
+    responsibility: 'An alumni/Ex-CEO role that guides and supports IEDC activities.',
+    sortOrder: 11,
+    status: 'Published'
+  },
+  {
+    id: 'tm_24_stu_03',
+    academicYear: '2024–25',
+    name: 'Ajmal P R',
+    roleType: 'Student Lead',
+    position: 'Student Lead I',
+    responsibility: 'Overall coordination of student activities.',
+    sortOrder: 12,
+    status: 'Published'
+  },
+  {
+    id: 'tm_24_stu_04',
+    academicYear: '2024–25',
+    name: 'Rudhra V S',
+    roleType: 'Student Lead',
+    position: 'Student Lead II',
+    responsibility: 'Overall coordination of student activities.',
+    sortOrder: 13,
+    status: 'Published'
+  },
+  {
+    id: 'tm_24_stu_05',
+    academicYear: '2024–25',
+    name: 'Nidha',
+    roleType: 'Women Lead',
+    position: "Women's Lead",
+    responsibility: 'Encourages and supports participation of women students in innovation activities.',
+    sortOrder: 14,
+    status: 'Published'
+  },
+  {
+    id: 'tm_24_stu_06',
+    academicYear: '2024–25',
+    name: 'Govind P S',
+    roleType: 'Executive Lead',
+    position: 'Quality & Operations',
+    responsibility: 'Handles file management, email communication, reports, permission letters and related operational work.',
+    sortOrder: 15,
+    status: 'Published'
+  },
+  {
+    id: 'tm_24_stu_07',
+    academicYear: '2024–25',
+    name: 'Faraz',
+    roleType: 'Executive Lead',
+    position: 'Quality & Operations',
+    responsibility: 'Handles operational workflows, reports, and coordination.',
+    sortOrder: 16,
+    status: 'Published'
+  },
+  {
+    id: 'tm_24_stu_08',
+    academicYear: '2024–25',
+    name: 'Liya Siswana',
+    roleType: 'Executive Lead',
+    position: 'Finance',
+    responsibility: 'Handles financial activities and budget management.',
+    sortOrder: 17,
+    status: 'Published'
+  },
+  {
+    id: 'tm_24_stu_09',
+    academicYear: '2024–25',
+    name: 'Vishnu',
+    roleType: 'Executive Lead',
+    position: 'Finance',
+    responsibility: 'Handles financial activities.',
+    sortOrder: 18,
+    status: 'Published'
+  },
+  {
+    id: 'tm_24_stu_10',
+    academicYear: '2024–25',
+    name: 'Aliya K Ansari',
+    roleType: 'Executive Lead',
+    position: 'IPR & Research',
+    responsibility: 'Creates awareness regarding startup IPR and research-related matters.',
+    sortOrder: 19,
+    status: 'Published'
+  },
+  {
+    id: 'tm_24_stu_11',
+    academicYear: '2024–25',
+    name: 'Abhinav',
+    roleType: 'Executive Lead',
+    position: 'IPR & Research',
+    responsibility: 'Creates awareness regarding startup IPR and research-related matters.',
+    sortOrder: 20,
+    status: 'Published'
+  },
+  {
+    id: 'tm_24_stu_12',
+    academicYear: '2024–25',
+    name: 'Ajay Ramesh',
+    roleType: 'Executive Lead',
+    position: 'Creative & Innovation',
+    responsibility: 'Maintains branding assets and creative student engagement.',
+    sortOrder: 21,
+    status: 'Published'
+  },
+  {
+    id: 'tm_24_stu_13',
+    academicYear: '2024–25',
+    name: 'Muneef',
+    roleType: 'Executive Lead',
+    position: 'Creative & Innovation',
+    responsibility: 'Maintains branding assets and creative student engagement.',
+    sortOrder: 22,
+    status: 'Published'
+  },
+
+  // ----------------------------------------------------
+  // 2023–24 TEAM DATA (Verified)
+  // ----------------------------------------------------
+  {
+    id: 'tm_23_01',
+    academicYear: '2023–24',
+    name: 'Shahaziya Parvez',
+    roleType: 'Nodal Officer',
+    position: 'Nodal Officer',
+    responsibility: 'Coordinates IEDC activities.',
+    sortOrder: 1,
+    status: 'Published'
+  },
+  {
+    id: 'tm_23_02',
+    academicYear: '2023–24',
+    name: 'Prabhavathi P',
+    roleType: 'Assistant Nodal Officer',
+    position: 'Assistant Nodal Officer',
+    responsibility: 'Assists with coordination and implementation of activities.',
+    sortOrder: 2,
+    status: 'Published'
+  },
+  // Department Coordinators 2023-24
+  {
+    id: 'tm_23_dept_ce',
+    academicYear: '2023–24',
+    name: 'Oshin Ann Mathew',
+    roleType: 'Department Coordinator',
+    position: 'Department Coordinator',
+    department: 'CE',
+    responsibility: 'Coordinate IEDC activities within CE department.',
+    sortOrder: 3,
+    status: 'Published'
+  },
+  {
+    id: 'tm_23_dept_me',
+    academicYear: '2023–24',
+    name: 'Anil D Coola',
+    roleType: 'Department Coordinator',
+    position: 'Department Coordinator',
+    department: 'ME',
+    responsibility: 'Coordinate IEDC activities within ME department.',
+    sortOrder: 4,
+    status: 'Published'
+  },
+  {
+    id: 'tm_23_dept_cse',
+    academicYear: '2023–24',
+    name: 'Anaswara Dinesh',
+    roleType: 'Department Coordinator',
+    position: 'Department Coordinator',
+    department: 'CSE',
+    responsibility: 'Coordinate IEDC activities within CSE department.',
+    sortOrder: 5,
+    status: 'Published'
+  },
+  {
+    id: 'tm_23_dept_eee',
+    academicYear: '2023–24',
+    name: 'Anitha Mathew',
+    roleType: 'Department Coordinator',
+    position: 'Department Coordinator',
+    department: 'EEE',
+    responsibility: 'Coordinate IEDC activities within EEE department.',
+    sortOrder: 6,
+    status: 'Published'
+  },
+  {
+    id: 'tm_23_dept_ece',
+    academicYear: '2023–24',
+    name: 'Bency Varghese A',
+    roleType: 'Department Coordinator',
+    position: 'Department Coordinator',
+    department: 'ECE',
+    responsibility: 'Coordinate IEDC activities within ECE department.',
+    sortOrder: 7,
+    status: 'Published'
+  },
+  // IEDC Leads 2023-24
+  {
+    id: 'tm_23_lead_01',
+    academicYear: '2023–24',
+    name: 'Shabeer Mohammed',
+    roleType: 'IEDC Lead',
+    position: 'Alumni IEDC Lead',
+    responsibility: 'An alumni/Ex-CEO role that guides and supports IEDC activities.',
+    sortOrder: 8,
+    status: 'Published'
+  },
+  {
+    id: 'tm_23_lead_02',
+    academicYear: '2023–24',
+    name: 'Nafih Najeeb',
+    roleType: 'IEDC Lead',
+    position: 'Alumni IEDC Lead',
+    responsibility: 'An alumni/Ex-CEO role that guides and supports IEDC activities.',
+    sortOrder: 9,
+    status: 'Published'
+  },
+  {
+    id: 'tm_23_stu_01',
+    academicYear: '2023–24',
+    name: 'Shabir Ibrahim KB',
+    roleType: 'Student Lead',
+    position: 'EEE Student Lead I',
+    department: 'EEE',
+    responsibility: 'Overall coordination of student activities.',
+    sortOrder: 10,
+    status: 'Published'
+  },
+  {
+    id: 'tm_23_stu_02',
+    academicYear: '2023–24',
+    name: 'Leslin',
+    roleType: 'Women Lead',
+    position: 'EEE Student Women Lead / Craft Allies',
+    department: 'EEE',
+    responsibility: 'Encourages and supports participation of women students in innovation activities.',
+    sortOrder: 11,
+    status: 'Published'
+  },
+  {
+    id: 'tm_23_stu_03',
+    academicYear: '2023–24',
+    name: 'Angio James',
+    roleType: 'Executive Lead',
+    position: 'Quality & Operations',
+    responsibility: 'Handles file management, email communication, reports, permission letters and operational work.',
+    sortOrder: 12,
+    status: 'Published'
+  },
+  {
+    id: 'tm_23_stu_04',
+    academicYear: '2023–24',
+    name: 'Abin',
+    roleType: 'Executive Lead',
+    position: 'Quality & Operations',
+    responsibility: 'Handles operational workflows and documentation.',
+    sortOrder: 13,
+    status: 'Published'
+  },
+  {
+    id: 'tm_23_stu_05',
+    academicYear: '2023–24',
+    name: 'Amaldeep Biju',
+    roleType: 'Executive Lead',
+    position: 'Finance',
+    responsibility: 'Handles financial activities.',
+    sortOrder: 14,
+    status: 'Published'
+  },
+  {
+    id: 'tm_23_stu_06',
+    academicYear: '2023–24',
+    name: 'Godwin CS',
+    roleType: 'Executive Lead',
+    position: 'Finance',
+    responsibility: 'Handles financial activities.',
+    sortOrder: 15,
+    status: 'Published'
+  },
+  {
+    id: 'tm_23_stu_07',
+    academicYear: '2023–24',
+    name: 'Sandra P S',
+    roleType: 'Executive Lead',
+    position: 'IPR & Research',
+    responsibility: 'Creates awareness regarding startup IPR and research-related matters.',
+    sortOrder: 16,
+    status: 'Published'
+  },
+  {
+    id: 'tm_23_stu_08',
+    academicYear: '2023–24',
+    name: 'Agnel Christy Raison',
+    roleType: 'Executive Lead',
+    position: 'Creative & Innovation',
+    responsibility: 'Creative ideation and brand coordination.',
+    sortOrder: 17,
+    status: 'Published'
+  },
+  {
+    id: 'tm_23_stu_09',
+    academicYear: '2023–24',
+    name: 'Abhinav V R',
+    roleType: 'Executive Lead',
+    position: 'Creative & Innovation',
+    responsibility: 'Creative ideation and brand coordination.',
+    sortOrder: 18,
+    status: 'Published'
+  },
+  {
+    id: 'tm_23_stu_10',
+    academicYear: '2023–24',
+    name: 'Himal Bentom',
+    roleType: 'Executive Lead',
+    position: 'Community',
+    responsibility: 'Builds and nurtures the student, alumni and mentor community.',
+    sortOrder: 19,
+    status: 'Published'
+  },
+  {
+    id: 'tm_23_stu_11',
+    academicYear: '2023–24',
+    name: 'Joel Joby',
+    roleType: 'Executive Lead',
+    position: 'Community',
+    responsibility: 'Builds and nurtures the student, alumni and mentor community.',
+    sortOrder: 20,
+    status: 'Published'
+  },
+  {
+    id: 'tm_23_stu_12',
+    academicYear: '2023–24',
+    name: 'Kebin',
+    roleType: 'Executive Lead',
+    position: 'Technology',
+    responsibility: 'Handles forms/technical coordination and KSUM-related technical links where applicable.',
+    sortOrder: 21,
+    status: 'Published'
+  },
+  {
+    id: 'tm_23_stu_13',
+    academicYear: '2023–24',
+    name: 'Harikrishnan T B',
+    roleType: 'Executive Lead',
+    position: 'Technology',
+    responsibility: 'Handles forms/technical coordination and technical links.',
+    sortOrder: 22,
+    status: 'Published'
+  },
+  {
+    id: 'tm_23_stu_14',
+    academicYear: '2023–24',
+    name: 'Mohammed Salman',
+    roleType: 'Executive Lead',
+    position: 'Branding & Marketing',
+    responsibility: 'Handles publicity through appropriate channels such as notice boards, social media and newspapers.',
+    sortOrder: 23,
+    status: 'Published'
+  },
+  {
+    id: 'tm_23_stu_15',
+    academicYear: '2023–24',
+    name: 'Joel',
+    roleType: 'Executive Lead',
+    position: 'Branding & Marketing',
+    responsibility: 'Handles publicity through notice boards, social media, and publications.',
+    sortOrder: 24,
+    status: 'Published'
+  },
+  {
+    id: 'tm_23_stu_16',
+    academicYear: '2023–24',
+    name: 'Shaikha',
+    roleType: 'Core Member',
+    position: 'Craft Allies',
+    responsibility: 'Supports community innovation initiatives.',
+    sortOrder: 25,
+    status: 'Published'
+  },
+  {
+    id: 'tm_23_stu_17',
+    academicYear: '2023–24',
+    name: 'Aliya',
+    roleType: 'Core Member',
+    position: 'Craft Allies',
+    responsibility: 'Supports community innovation initiatives.',
+    sortOrder: 26,
+    status: 'Published'
+  },
+  {
+    id: 'tm_23_stu_18',
+    academicYear: '2023–24',
+    name: 'Ananthakrishnan K U',
+    roleType: 'Executive Lead',
+    position: 'Web Development',
+    responsibility: 'Develops and maintains digital tools and technical web portals.',
+    sortOrder: 27,
+    status: 'Published'
+  },
+  {
+    id: 'tm_23_stu_19',
+    academicYear: '2023–24',
+    name: 'Fariz',
+    roleType: 'Executive Lead',
+    position: 'Web Development',
+    responsibility: 'Develops and maintains digital tools and web portals.',
+    sortOrder: 28,
+    status: 'Published'
+  }
+  // Note: 2025–26 team is open for administrator entry; no members invented.
+];
+
+export const INITIAL_EVENTS: EventItem[] = [
+  // ----------------------------------------------------
+  // 2023–24 EVENTS
+  // ----------------------------------------------------
+  {
+    id: 'evt_23_01',
+    slug: 'iedc-fest-2024',
+    name: 'IEDC Fest',
+    academicYear: '2023–24',
+    date: '08/04/2024 – 09/04/2024',
+    startDate: '2024-04-08',
+    endDate: '2024-04-09',
+    venue: 'IES College of Engineering',
+    isOnline: false,
+    organizer: 'IES IEDC',
+    category: 'Other',
+    description: 'Flagship annual celebration showcasing innovation, entrepreneurship showcases, and student project demonstrations at IES College of Engineering.',
+    status: 'Completed',
+    published: true
+  },
+  {
+    id: 'evt_23_02',
+    slug: 'ipr-webinar-2024',
+    name: 'IPR Webinar',
+    academicYear: '2023–24',
+    date: '26/03/2024',
+    startDate: '2024-03-26',
+    venue: 'Online',
+    isOnline: true,
+    organizer: 'IES IEDC',
+    resourcePersons: ['Dr Joe Gnanaraj'],
+    category: 'Webinar',
+    description: 'Specialized online session focused on Intellectual Property Rights (IPR), patent filings, and protecting student innovations.',
+    status: 'Completed',
+    published: true
+  },
+  {
+    id: 'evt_23_03',
+    slug: 'energy-conservation-power-quality',
+    name: 'Energy Conservation through Power Quality',
+    academicYear: '2023–24',
+    date: '25/03/2024',
+    startDate: '2024-03-25',
+    venue: 'EEE Seminar Hall',
+    isOnline: false,
+    organizer: 'IES IEDC',
+    category: 'Seminar',
+    description: 'Technical lecture and discussion on electrical power quality optimization, modern green technologies, and conservation engineering.',
+    status: 'Completed',
+    published: true
+  },
+  {
+    id: 'evt_23_04',
+    slug: 'industrial-visit-2024',
+    name: 'Industrial Visit',
+    academicYear: '2023–24',
+    date: '23/03/2024',
+    startDate: '2024-03-23',
+    venue: 'Industry Partner Facility',
+    isOnline: false,
+    organizer: 'IES IEDC',
+    category: 'Industry Visit',
+    description: 'Practical industry exposure providing students direct observation of modern industrial processes, automation, and operational management.',
+    status: 'Completed',
+    published: true
+  },
+  {
+    id: 'evt_23_05',
+    slug: '3d-printing-workshop-2024',
+    name: '3D Printing Workshop',
+    academicYear: '2023–24',
+    date: '22/03/2024 – 23/03/2024',
+    startDate: '2024-03-22',
+    endDate: '2024-03-23',
+    venue: 'CSE Lab 2',
+    isOnline: false,
+    organizer: 'IES IEDC',
+    resourcePersons: ['Harikrishna', 'Abilash PS', 'Abhijith NS'],
+    category: 'Workshop',
+    description: 'Two-day immersive hands-on training on additive manufacturing, 3D CAD modeling, slicing software, and prototype fabrication.',
+    participantsCount: 95,
+    status: 'Completed',
+    published: true
+  },
+  {
+    id: 'evt_23_06',
+    slug: 'generative-ai-prompt-engineering-2024',
+    name: 'Generative AI and Prompt Engineering',
+    academicYear: '2023–24',
+    date: '01/03/2024',
+    startDate: '2024-03-01',
+    venue: 'Room 307',
+    isOnline: false,
+    organizer: 'IES IEDC',
+    category: 'Workshop',
+    description: 'Hands-on technical workshop on large language models, prompt crafting, and applied generative artificial intelligence for engineering productivity.',
+    participantsCount: 42,
+    status: 'Completed',
+    published: true
+  },
+
+  // ----------------------------------------------------
+  // 2024–25 EVENTS
+  // ----------------------------------------------------
+  {
+    id: 'evt_24_01',
+    slug: 'idea-pitching-2025',
+    name: 'Idea Pitching',
+    academicYear: '2024–25',
+    date: '22/03/2025',
+    startDate: '2025-03-22',
+    venue: 'IEDC Room',
+    isOnline: false,
+    organizer: 'IES IEDC',
+    category: 'Ideation',
+    description: 'Competitive idea presentation and feedback evaluation session featuring shortlisted student innovation teams.',
+    teamsCount: 10,
+    status: 'Completed',
+    published: true
+  },
+  {
+    id: 'evt_24_02',
+    slug: 'web-development-workshop-2025',
+    name: 'Web Development Workshop',
+    academicYear: '2024–25',
+    date: '06/03/2025',
+    startDate: '2025-03-06',
+    venue: 'CSE Lab 2',
+    isOnline: false,
+    organizer: 'IES IEDC',
+    resourcePersons: ['Nijo Nelson', 'Michelle Aijo'],
+    category: 'Workshop',
+    description: 'Comprehensive practical training on modern web architectures, interface building, and responsive web programming.',
+    participantsCount: 55,
+    status: 'Completed',
+    published: true
+  },
+  {
+    id: 'evt_24_03',
+    slug: 'ipr-session-2025',
+    name: 'IPR Session',
+    academicYear: '2024–25',
+    date: '25/02/2025',
+    startDate: '2025-02-25',
+    venue: 'Online',
+    isOnline: true,
+    organizer: 'IES IEDC',
+    resourcePersons: ['Dr Joe Gnanaraj'],
+    category: 'Webinar',
+    description: 'Specialized online session guiding student innovators on intellectual property strategies, prior art searches, and patent documentation.',
+    participantsCount: 30,
+    status: 'Completed',
+    published: true
+  },
+  {
+    id: 'evt_24_04',
+    slug: 'linkedin-workshop-13-jan-2025',
+    name: 'LinkedIn Workshop',
+    academicYear: '2024–25',
+    date: '13/01/2025',
+    startDate: '2025-01-13',
+    venue: 'Room 323',
+    isOnline: false,
+    organizer: 'IES IEDC',
+    category: 'Workshop',
+    description: 'Practical training on professional networking, digital presence optimization, and student career visibility through LinkedIn.',
+    status: 'Completed',
+    published: true
+  },
+  {
+    id: 'evt_24_05',
+    slug: 'linkedin-workshop-18-jan-2025',
+    name: 'LinkedIn Workshop',
+    academicYear: '2024–25',
+    date: '18/01/2025',
+    startDate: '2025-01-18',
+    venue: 'Room 323',
+    isOnline: false,
+    organizer: 'IES IEDC',
+    category: 'Workshop',
+    description: 'Advanced follow-up hands-on lab on professional profile building, networking outreach, and content publishing for technopreneurs.',
+    status: 'Completed',
+    published: true
+  },
+  {
+    id: 'evt_24_06',
+    slug: 'leadership-training-2024',
+    name: 'Leadership Training',
+    academicYear: '2024–25',
+    date: '26/12/2024',
+    startDate: '2024-12-26',
+    venue: 'IES College of Engineering',
+    isOnline: false,
+    organizer: 'IES IEDC',
+    category: 'Training',
+    description: 'Executive development session on team orchestration, organizational resilience, and innovation project management.',
+    status: 'Completed',
+    published: true
+  },
+  {
+    id: 'evt_24_07',
+    slug: 'ai-seminar-2024',
+    name: 'AI Seminar',
+    academicYear: '2024–25',
+    date: '28/11/2024',
+    startDate: '2024-11-28',
+    venue: 'College Seminar Hall',
+    isOnline: false,
+    organizer: 'IES IEDC',
+    category: 'Seminar',
+    description: 'Exploring the future horizon of artificial intelligence, real-world deployment cases, and startup opportunities in machine learning.',
+    status: 'Completed',
+    published: true
+  },
+  {
+    id: 'evt_24_08',
+    slug: 'linkedin-programme-nov-2024',
+    name: 'LinkedIn Programme',
+    academicYear: '2024–25',
+    date: '18/11/2024',
+    startDate: '2024-11-18',
+    venue: 'IES College of Engineering',
+    isOnline: false,
+    organizer: 'IES IEDC',
+    category: 'Training',
+    description: 'Foundational orientation on career branding and personal branding for engineering and technopreneurial students.',
+    status: 'Completed',
+    published: true
+  },
+  {
+    id: 'evt_24_09',
+    slug: 'orientation-programme-2024',
+    name: 'Orientation Programme',
+    academicYear: '2024–25',
+    date: '29/10/2024 – 30/10/2024',
+    startDate: '2024-10-29',
+    endDate: '2024-10-30',
+    venue: 'College Auditorium',
+    isOnline: false,
+    organizer: 'IES IEDC',
+    category: 'Orientation',
+    description: 'Two-day foundational onboarding for new students, introducing IEDC culture, KSUM support frameworks, and innovation pathways.',
+    status: 'Completed',
+    published: true
+  },
+  {
+    id: 'evt_24_10',
+    slug: 'sih-internal-hackathon-2024',
+    name: 'SIH Internal Hackathon',
+    academicYear: '2024–25',
+    date: '12/09/2024',
+    startDate: '2024-09-12',
+    venue: 'Room 108',
+    isOnline: false,
+    organizer: 'IES IEDC',
+    category: 'Hackathon',
+    description: 'Internal evaluation hackathon for Smart India Hackathon (SIH) selection. 32 student teams competed, resulting in 12 nominated teams.',
+    teamsCount: 32,
+    teamsSelectedCount: 12,
+    status: 'Completed',
+    published: true
+  },
+  {
+    id: 'evt_24_11',
+    slug: '3d-printing-workshop-oct-2024',
+    name: '3D Printing Workshop',
+    academicYear: '2024–25',
+    date: '16/10/2024',
+    startDate: '2024-10-16',
+    venue: 'Room 117',
+    isOnline: false,
+    organizer: 'IES IEDC',
+    resourcePersons: ['Abilash PS', 'Abhijith NS'],
+    category: 'Workshop',
+    description: 'Rapid prototyping workshop covering rapid additive tooling, material selection, and fabrication principles.',
+    participantsCount: 17,
+    status: 'Completed',
+    published: true
+  },
+  {
+    id: 'evt_24_12',
+    slug: 'robotics-ai-orientation-2024',
+    name: 'Robotics / AI Orientation',
+    academicYear: '2024–25',
+    date: '12/09/2024',
+    startDate: '2024-09-12',
+    venue: 'Seminar Hall',
+    isOnline: false,
+    organizer: 'IES IEDC',
+    category: 'Orientation',
+    description: 'Introduction to interdisciplinary robotics, autonomous controls, and AI hardware integration for prospective student project teams.',
+    status: 'Completed',
+    published: true
+  },
+  {
+    id: 'evt_24_13',
+    slug: 'iedc-camp-aug-2024',
+    name: 'IEDC Camp',
+    academicYear: '2024–25',
+    date: '17/08/2024 – 18/08/2024',
+    startDate: '2024-08-17',
+    endDate: '2024-08-18',
+    venue: 'IES Campus',
+    isOnline: false,
+    organizer: 'IES IEDC',
+    category: 'Camp',
+    description: 'Immersive weekend bootcamp on design thinking, ideation, team building, and rapid prototype validation.',
+    participantsCount: 60,
+    status: 'Completed',
+    published: true
+  },
+
+  // ----------------------------------------------------
+  // 2025–26 EVENTS
+  // ----------------------------------------------------
+  {
+    id: 'evt_25_01',
+    slug: 'orientation-2026',
+    name: 'Orientation',
+    academicYear: '2025–26',
+    date: '21/03/2026',
+    startDate: '2026-03-21',
+    venue: 'EEE Seminar Hall',
+    isOnline: false,
+    organizer: 'IES IEDC',
+    category: 'Orientation',
+    description: 'Comprehensive orientation programme for student innovators and aspiring technopreneurs.',
+    participantsCount: 104,
+    status: 'Upcoming',
+    published: true
+  },
+  {
+    id: 'evt_25_02',
+    slug: 'innovation-workshop-2026',
+    name: 'Innovation Workshop',
+    academicYear: '2025–26',
+    date: '28/02/2026',
+    startDate: '2026-02-28',
+    venue: 'Online',
+    isOnline: true,
+    organizer: 'IES IEDC',
+    category: 'Workshop',
+    description: 'Hands-on interactive virtual workshop exploring innovation frameworks and problem discovery.',
+    participantsCount: 50,
+    status: 'Completed',
+    published: true
+  },
+  {
+    id: 'evt_25_03',
+    slug: 'hobbie-hub-workshop-2026',
+    name: 'HOBBIE HUB Workshop',
+    academicYear: '2025–26',
+    date: '21/02/2026',
+    startDate: '2026-02-21',
+    venue: 'EEE Seminar Hall',
+    isOnline: false,
+    organizer: 'IES IEDC',
+    category: 'Workshop',
+    description: 'Creative maker workshop dedicated to student passion projects and hands-on maker skills.',
+    participantsCount: 40,
+    status: 'Completed',
+    published: true
+  },
+  {
+    id: 'evt_25_04',
+    slug: 'ai-empowerment-ai-tools-2026',
+    name: 'AI Empowerment & AI Tools',
+    academicYear: '2025–26',
+    date: '17/02/2026',
+    startDate: '2026-02-17',
+    venue: 'Online',
+    isOnline: true,
+    organizer: 'IES IEDC',
+    category: 'Workshop',
+    description: 'Exploring state-of-the-art AI developer tools, workflow automation, and student research leverage.',
+    participantsCount: 30,
+    status: 'Completed',
+    published: true
+  },
+  {
+    id: 'evt_25_05',
+    slug: '3d-printing-workshop-2026',
+    name: '3D Printing Workshop',
+    academicYear: '2025–26',
+    date: '07/02/2026',
+    startDate: '2026-02-07',
+    venue: 'CSE Lab 2',
+    isOnline: false,
+    organizer: 'IES IEDC',
+    category: 'Workshop',
+    description: 'Hands-on CAD design and physical 3D print slicing workshop for engineering prototypes.',
+    participantsCount: 40,
+    status: 'Completed',
+    published: true
+  },
+  {
+    id: 'evt_25_06',
+    slug: 'ipr-workshop-2026',
+    name: 'IPR Workshop',
+    academicYear: '2025–26',
+    date: '28/01/2026',
+    startDate: '2026-01-28',
+    venue: 'Online',
+    isOnline: true,
+    organizer: 'IES IEDC',
+    resourcePersons: ['Dr Biju K'],
+    category: 'Workshop',
+    description: 'In-depth seminar addressing intellectual property rights, copyright, and patent application procedures.',
+    participantsCount: 100,
+    status: 'Completed',
+    published: true
+  },
+  {
+    id: 'evt_25_07',
+    slug: 'iedc-camp-2026',
+    name: 'IEDC Camp',
+    academicYear: '2025–26',
+    // SOURCE INCONSISTENCY PRESERVED EXACTLY AS MANDATED
+    date: '09/01/2026 – 10/01/2025',
+    startDate: '2026-01-09',
+    endDate: '2025-01-10',
+    venue: 'IES Campus',
+    isOnline: false,
+    organizer: 'IES IEDC',
+    category: 'Camp',
+    description: 'Innovation and entrepreneurship orientation camp for student innovators.',
+    status: 'Completed',
+    needsAdminReview: true,
+    adminReviewNote: 'Notice: The source document recorded the date range as "09/01/2026 – 10/01/2025". As required by content accuracy policies, this entry is preserved verbatim and marked as Needs Admin Review.',
+    published: true
+  },
+  {
+    id: 'evt_25_08',
+    slug: 'prompt-engineering-2026',
+    name: 'Prompt Engineering',
+    academicYear: '2025–26',
+    date: '03/01/2026',
+    startDate: '2026-01-03',
+    venue: 'EEE Seminar Hall',
+    isOnline: false,
+    organizer: 'IES IEDC',
+    resourcePersons: ['MS Angel Babu'],
+    category: 'Workshop',
+    description: 'Practical training on system prompts, context window optimization, and prompt craft for engineering tasks.',
+    participantsCount: 58,
+    status: 'Completed',
+    published: true
+  },
+  {
+    id: 'evt_25_09',
+    slug: 'open-source-contribution-session-2025',
+    name: 'Open-source Contribution Session',
+    academicYear: '2025–26',
+    date: '13/12/2025',
+    startDate: '2025-12-13',
+    venue: 'Online',
+    isOnline: true,
+    organizer: 'IES IEDC',
+    resourcePersons: ['Harinandhan K'],
+    category: 'Workshop',
+    description: 'Guiding student engineers through Git workflows, open-source repositories, and effective pull request contributions.',
+    participantsCount: 35,
+    status: 'Completed',
+    published: true
+  },
+  {
+    id: 'evt_25_10',
+    slug: 'leadership-training-programmes-2025',
+    name: 'Leadership Training Programmes',
+    academicYear: '2025–26',
+    date: 'October/November 2025',
+    startDate: '2025-10-01',
+    endDate: '2025-11-30',
+    venue: 'IES College of Engineering',
+    isOnline: false,
+    organizer: 'IES IEDC',
+    category: 'Training',
+    description: 'Executive leadership and organizational training series conducted during October and November 2025.',
+    status: 'Completed',
+    needsAdminReview: true,
+    adminReviewNote: 'Structure created for leadership training programmes conducted during October/November 2025. Specific dates, venues and participant statistics will be updated by the administrator.',
+    published: true
+  }
+];
+
+// ACHIEVEMENTS: Initial list is deliberately empty as mandated by Rule 6:
+// "DO NOT INVENT ACHIEVEMENTS. Only publish achievements that are verified and entered by an administrator.
+// If no verified achievement data is available, show a professional empty state such as:
+// 'Achievements will be updated by the IEDC team.'"
+export const INITIAL_ACHIEVEMENTS: Achievement[] = [];
+
+// STARTUPS: Initial list is deliberately empty as mandated by Rule 8:
+// "DO NOT INVENT STARTUPS. Allow administrators to add verified startups later."
+export const INITIAL_STARTUPS: StartupItem[] = [];
+
+export const INITIAL_STUDENT_IDEAS: StudentIdea[] = [
+  {
+    id: 'idea_seed_01',
+    projectName: 'Autonomous Irrigation & Soil Analysis Module',
+    studentName: 'Mohammed Rayan & Team',
+    studentEmail: 'rayan.student@iesce.info',
+    department: 'EEE',
+    academicYear: '2024–25',
+    problem: 'Excessive water consumption and delayed nutrient diagnostics in local agricultural farmland.',
+    proposedSolution: 'Solar-powered IoT probe unit delivering wireless micro-irrigation regulation based on real-time soil impedance.',
+    technology: 'ESP32, LoRaWAN, Soil Moisture & NPK Sensors, Mobile Web Dashboard',
+    description: 'Designed under the IEDC Ideation progression vertical. Submitted for initial testing in campus greenhouse.',
+    status: 'Developing',
+    adminNotes: 'Prototype reviewed by EEE faculty coordinator. Hardware lab access approved.',
+    submittedAt: '2024-11-20T10:00:00Z'
+  }
+];
+
+export const INITIAL_WORKSHOPS: WorkshopItem[] = [
+  {
+    id: 'ws_01',
+    title: 'Hands-on Rapid 3D Prototyping & Additive Manufacturing',
+    academicYear: '2025–26',
+    date: '07/02/2026',
+    venue: 'CSE Lab 2',
+    isOnline: false,
+    speakers: ['Harikrishna', 'Abhijith NS'],
+    description: 'Intensive workshop teaching digital 3D model slicing, filament calibration, and converting concept sketches into tangible physical prototypes.',
+    topicsCovered: ['Computer Aided Design (CAD)', 'Slicing Engines', 'FDM 3D Printers', 'Physical Prototyping'],
+    certificateProvided: true,
+    status: 'Past',
+    published: true
+  },
+  {
+    id: 'ws_02',
+    title: 'Intellectual Property Rights & Patent Filing Strategy',
+    academicYear: '2025–26',
+    date: '28/01/2026',
+    venue: 'Virtual Classroom (Online)',
+    isOnline: true,
+    speakers: ['Dr Biju K'],
+    description: 'Masterclass on understanding patents, trademark distinctions, prior-art research databases, and securing startup intellectual capital.',
+    topicsCovered: ['IPR Fundamentals', 'Provisional Patent Drafting', 'Prior Art Search', 'KSUM IPR Support'],
+    certificateProvided: true,
+    status: 'Past',
+    published: true
+  },
+  {
+    id: 'ws_03',
+    title: 'AI Empowerment & Modern Engineering Toolchains',
+    academicYear: '2025–26',
+    date: '17/02/2026',
+    venue: 'Virtual Classroom (Online)',
+    isOnline: true,
+    speakers: ['MS Angel Babu', 'Harinandhan K'],
+    description: 'Practical training on leveraging modern prompt engineering, automated testing workflows, and LLM-assisted codebases.',
+    topicsCovered: ['Prompt Architecture', 'System Prompting', 'Code Synthesizers', 'Ethical AI Practices'],
+    certificateProvided: true,
+    status: 'Past',
+    published: true
+  }
+];
+
+export const INITIAL_RESOURCES: ResourceItem[] = [
+  {
+    id: 'res_01',
+    title: 'Kerala Startup Mission (KSUM) Scheme Guidelines',
+    category: 'KSUM Resources',
+    description: 'Official overview of Kerala Startup Mission grant mechanisms, innovation grants, and incubation pathways for student technopreneurs.',
+    authorOrSource: 'Kerala Startup Mission',
+    dateAdded: '2024-08-15',
+    published: true
+  },
+  {
+    id: 'res_02',
+    title: 'Business Model Canvas (BMC) Standard Worksheet',
+    category: 'Business Model Canvas',
+    description: 'Structured 9-box framework mapping customer segments, value propositions, channels, cost structures, and revenue streams for student ventures.',
+    authorOrSource: 'IES IEDC Mentorship Desk',
+    dateAdded: '2024-09-10',
+    published: true
+  },
+  {
+    id: 'res_03',
+    title: 'Design Thinking & Human-Centric Problem Discovery',
+    category: 'Design Thinking',
+    description: 'Step-by-step workbook outlining the Empathize, Define, Ideate, Prototype, and Test stages of product realization.',
+    authorOrSource: 'IES IEDC Innovation Hub',
+    dateAdded: '2024-10-05',
+    published: true
+  },
+  {
+    id: 'res_04',
+    title: 'IPR & Patent Filing Checklist for College Innovators',
+    category: 'IPR Resources',
+    description: 'Document outlining novelty standards, non-obviousness criteria, prior-art search resources, and patent documentation essentials.',
+    authorOrSource: 'IES IEDC IPR & Research Cell',
+    dateAdded: '2025-01-20',
+    published: true
+  },
+  {
+    id: 'res_05',
+    title: 'Investor Pitch Deck Structure for Student Technopreneurs',
+    category: 'Pitch Deck Resources',
+    description: '10-slide architectural outline for presenting problem statements, product demos, market sizing, traction metrics, and funding asks.',
+    authorOrSource: 'IES IEDC Mentorship Desk',
+    dateAdded: '2025-02-12',
+    published: true
+  },
+  {
+    id: 'res_06',
+    title: 'National Hackathon Preparation & Submission Playbook',
+    category: 'Hackathon Resources',
+    description: 'Field guide on assembling multidisciplinary teams, rapid prototyping under time pressure, and presenting winning code demos.',
+    authorOrSource: 'IES IEDC Technical Committee',
+    dateAdded: '2024-09-02',
+    published: true
+  },
+  {
+    id: 'res_07',
+    title: 'MSME & EDI India Entrepreneurship Scheme Compendium',
+    category: 'Funding Information',
+    description: 'Information regarding Ministry of MSME incubation schemes, EDI India programs, and financial assistance schemes for student innovators.',
+    authorOrSource: 'MSME / EDI India',
+    dateAdded: '2024-11-15',
+    published: true
+  }
+];
+
+export const INITIAL_GALLERY_ALBUMS: GalleryAlbum[] = [
+  {
+    id: 'alb_01',
+    title: 'IEDC Fest Showcase & Competitions',
+    academicYear: '2023–24',
+    category: 'IEDC Fest',
+    coverImageUrl: 'https://images.unsplash.com/photo-1540575467063-178a50c2df87?auto=format&fit=crop&w=1000&q=80',
+    published: true,
+    createdAt: '2024-04-10T10:00:00Z',
+    images: [
+      {
+        id: 'img_01_1',
+        albumId: 'alb_01',
+        imageUrl: 'https://images.unsplash.com/photo-1540575467063-178a50c2df87?auto=format&fit=crop&w=1200&q=80',
+        caption: 'Inaugural address and student technological project display at IEDC Fest.',
+        sortOrder: 1
+      },
+      {
+        id: 'img_01_2',
+        albumId: 'alb_01',
+        imageUrl: 'https://images.unsplash.com/photo-1511578314322-379afb476865?auto=format&fit=crop&w=1200&q=80',
+        caption: 'Interactive student entrepreneurship session and product review.',
+        sortOrder: 2
+      }
+    ]
+  },
+  {
+    id: 'alb_02',
+    title: '3D Printing & Additive Manufacturing Lab',
+    academicYear: '2024–25',
+    category: 'Workshops',
+    coverImageUrl: 'https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&w=1000&q=80',
+    published: true,
+    createdAt: '2024-10-18T10:00:00Z',
+    images: [
+      {
+        id: 'img_02_1',
+        albumId: 'alb_02',
+        imageUrl: 'https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&w=1200&q=80',
+        caption: 'Hands-on CAD modeling and physical prototype fabrication in CSE Lab.',
+        sortOrder: 1
+      },
+      {
+        id: 'img_02_2',
+        albumId: 'alb_02',
+        imageUrl: 'https://images.unsplash.com/photo-1581092335397-9583fe92d232?auto=format&fit=crop&w=1200&q=80',
+        caption: 'Resource persons mentoring students on filament slicing configurations.',
+        sortOrder: 2
+      }
+    ]
+  },
+  {
+    id: 'alb_03',
+    title: 'Smart India Hackathon (SIH) Internal Evaluation',
+    academicYear: '2024–25',
+    category: 'Hackathons',
+    coverImageUrl: 'https://images.unsplash.com/photo-1531482615713-2afd69097998?auto=format&fit=crop&w=1000&q=80',
+    published: true,
+    createdAt: '2024-09-14T10:00:00Z',
+    images: [
+      {
+        id: 'img_03_1',
+        albumId: 'alb_03',
+        imageUrl: 'https://images.unsplash.com/photo-1531482615713-2afd69097998?auto=format&fit=crop&w=1200&q=80',
+        caption: 'Internal SIH evaluation in Room 108 — 32 student teams evaluated by faculty panel.',
+        sortOrder: 1
+      }
+    ]
+  }
+];
+
+export const INITIAL_NEWS: NewsItem[] = [
+  {
+    id: 'news_01',
+    slug: 'orientation-programme-2025-26',
+    title: 'IEDC Orientation Programme Scheduled at EEE Seminar Hall',
+    category: 'Announcement',
+    excerpt: 'IES IEDC announces the comprehensive student innovation orientation programme at the EEE Seminar Hall with 104 registered participants.',
+    content: 'The Innovation and Entrepreneurship Development Centre (IEDC) of IES College of Engineering is holding an orientation programme for students interested in technology innovation, design thinking, and early-stage startup ventures. Students will receive guidance on KSUM flagship initiatives, mentorship opportunities, and hardware prototype incubation facilities.',
+    author: 'IEDC Editorial Cell',
+    publicationDate: '2026-03-10',
+    academicYear: '2025–26',
+    status: 'Published'
+  },
+  {
+    id: 'news_02',
+    slug: 'sih-internal-hackathon-results-2024-25',
+    title: 'Smart India Hackathon Internal Evaluation: 12 Teams Selected',
+    category: 'Result',
+    excerpt: 'Following the internal hackathon held in Room 108 with 32 competing teams, 12 high-potential teams have been nominated for national round progression.',
+    content: 'IES IEDC successfully coordinated the institutional internal evaluation for Smart India Hackathon (SIH). A total of 32 student project teams across all engineering departments presented their hardware and software solutions to internal faculty panels and external mentors. Twelve teams demonstrating superior problem clarity, technical execution, and commercial viability were selected to represent IES College of Engineering.',
+    author: 'Technology & Web Lead',
+    publicationDate: '2024-09-15',
+    academicYear: '2024–25',
+    status: 'Published'
+  },
+  {
+    id: 'news_03',
+    slug: 'executive-team-recruitment-2025-26',
+    title: 'Call for Student Coordinators: 2025–26 IEDC Executive Team',
+    category: 'Opportunity',
+    excerpt: 'Applications are formally open for student leads across Quality & Operations, Finance, Technology, Creative, and Women Innovation verticals.',
+    content: 'IES IEDC announces the initiation of executive recruitment for the 2025–26 academic year. Dedicated engineering students with passion for technology, community leadership, and entrepreneurship are invited to apply via the official Join IEDC portal.',
+    author: 'Nodal Officer Desk',
+    publicationDate: '2026-01-15',
+    academicYear: '2025–26',
+    status: 'Published'
+  }
+];
+
+export const INITIAL_SITE_SETTINGS: SiteSettings = {
+  institutionName: 'IES College of Engineering',
+  iedcName: 'IES IEDC',
+  establishedYear: 2016,
+  tagline: 'Innovate • Create • Entrepreneur',
+  vision: 'To inculcate an innovation culture among the students, to create future entrepreneurs and position the institution as a learning, innovation and entrepreneurial hub.',
+  mission: 'To establish an innovation platform by introducing the State-of-the-art technologies through promoting innovation and entrepreneurship.',
+  nodalOfficerName: 'Shahaziya Parvez',
+  assistantNodalOfficerName: 'Prabhavathi P',
+  officialEmail: 'iedc@iesce.info',
+  officialPhone: '+91 (0) 487 2309999',
+  officeLocation: 'IEDC Innovation Cell, IES College of Engineering',
+  address: 'IES College of Engineering, Chittilappilly, Thrissur, Kerala — 680551',
+  ksumUrl: 'https://startupmission.kerala.gov.in',
+  instagramUrl: '',
+  linkedinUrl: '',
+  heroHeading: 'Innovation and Entrepreneurship Development Centre',
+  heroSubtitle: 'A flagship initiative of Kerala Startup Mission (KSUM) at IES College of Engineering, nurturing student technopreneurs through practical innovation and experiential learning.',
+  heroCtaText: 'Explore Events & Activities',
+  heroSecondaryCtaText: 'Submit Your Idea',
+  sectionVisibility: {
+    hero: true,
+    visionMission: true,
+    whatWeDo: true,
+    events: true,
+    achievements: true,
+    ideas: true,
+    startups: true,
+    workshops: true,
+    gallery: true,
+    news: true,
+    cta: true
+  }
+};
