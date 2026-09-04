@@ -1361,7 +1361,7 @@ export const INITIAL_SITE_SETTINGS: SiteSettings = {
   ksumUrl: 'https://startupmission.kerala.gov.in',
   instagramUrl: '',
   linkedinUrl: '',
-  heroHeading: 'Innovation and Entrepreneurship Development Centre',
+  heroHeading: 'IES IEDC',
   heroSubtitle: 'A flagship initiative of Kerala Startup Mission (KSUM) at IES College of Engineering, nurturing student technopreneurs through practical innovation and experiential learning.',
   heroCtaText: 'Explore Events & Activities',
   heroSecondaryCtaText: 'Submit Your Idea',
