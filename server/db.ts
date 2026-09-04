@@ -404,6 +404,16 @@ class DatabaseEngine {
 
     if (isSupabaseConfigured()) {
       try {
+        if (newMember.academicYear) {
+          try {
+            await supabaseAdmin.from('academic_years').upsert({
+              id: newMember.academicYear,
+              year_name: newMember.academicYear,
+              is_current: false
+            });
+          } catch (e) {}
+        }
+
         const dbRow = mapTeamMemberToDb(newMember);
         const { data: insertedRow, error } = await supabaseAdmin
           .from('team_members')

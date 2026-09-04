@@ -640,6 +640,22 @@
       "sortOrder": 1,
       "isFeatured": false,
       "id": "tm_1788546780489_hdyc"
+    },
+    {
+      "name": "hj,xstsmukarmsmk",
+      "roleType": "CEO",
+      "position": "CEO",
+      "department": "CSE",
+      "designation": "",
+      "responsibility": "Overall coordination of student activities.",
+      "email": "",
+      "linkedinUrl": "",
+      "photoUrl": "",
+      "academicYear": "2025–26",
+      "status": "Published",
+      "sortOrder": 1,
+      "isFeatured": false,
+      "id": "tm_1788550923997_s019"
     }
   ],
   "events": [
@@ -1395,6 +1411,16 @@
   ],
   "submissions": [],
   "activityLogs": [
+    {
+      "userName": "Prof. Shahaziya Parvez",
+      "userRole": "Team Admin",
+      "action": "Created",
+      "contentType": "Team Member",
+      "contentId": "tm_1788550923997_s019",
+      "contentSummary": "Added team member hj,xstsmukarmsmk (CEO, 2025–26)",
+      "id": "log_1788550923997_rrr1",
+      "timestamp": "2026-09-04T19:42:03.997Z"
+    },
     {
       "userName": "Prof. Shahaziya Parvez",
       "userRole": "Team Admin",
