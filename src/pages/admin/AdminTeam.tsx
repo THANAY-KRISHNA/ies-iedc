@@ -227,7 +227,11 @@ export const AdminTeam: React.FC = () => {
         await api.adminAddTeamMember(payload);
       }
       setIsModalOpen(false);
-      loadTeam();
+      if (formData.academicYear !== selectedYear) {
+        setSelectedYear(formData.academicYear);
+      } else {
+        loadTeam();
+      }
     } catch (err) {
       console.error('Failed to save team member:', err);
       alert('Error saving team member. Please try again.');

@@ -90,11 +90,11 @@ export const api = {
   // --- PUBLIC ---
   getSettings: () => request<SiteSettings>('/public/settings', undefined, INITIAL_SITE_SETTINGS),
   getAcademicYears: () => request<AcademicYear[]>('/public/academic-years', undefined, INITIAL_ACADEMIC_YEARS),
-  // Team Local Storage Methods (100% reactive & persistent)
+  // Team Methods (Connected to API backend with reactive local storage fallback)
   getTeam: async (year?: string): Promise<TeamMember[]> => {
     try {
       const serverRes = await request<TeamMember[]>(`/public/team${year ? `?year=${encodeURIComponent(year)}` : ''}`);
-      if (serverRes && Array.isArray(serverRes) && serverRes.length > 0) return serverRes;
+      if (serverRes && Array.isArray(serverRes)) return serverRes;
     } catch (e) {}
     let list = getStoredTeam();
     if (year) {
@@ -105,8 +105,8 @@ export const api = {
 
   adminGetTeam: async (year?: string): Promise<TeamMember[]> => {
     try {
-      const serverRes = await request<TeamMember[]>(`/admin/team${year ? `?year=${encodeURIComponent(year)}` : ''}`);
-      if (serverRes && Array.isArray(serverRes) && serverRes.length > 0) return serverRes;
+      const serverRes = await request<TeamMember[]>(`/admin/team${year && year !== 'all' ? `?year=${encodeURIComponent(year)}` : ''}`);
+      if (serverRes && Array.isArray(serverRes)) return serverRes;
     } catch (e) {}
     let list = getStoredTeam();
     if (year && year !== 'all') {
@@ -116,6 +116,21 @@ export const api = {
   },
 
   adminAddTeamMember: async (data: Partial<TeamMember>): Promise<TeamMember> => {
+    try {
+      const serverMember = await request<TeamMember>('/admin/team', {
+        method: 'POST',
+        body: JSON.stringify(data)
+      });
+      if (serverMember && serverMember.id) {
+        const list = getStoredTeam();
+        list.unshift(serverMember);
+        saveStoredTeam(list);
+        return serverMember;
+      }
+    } catch (e) {
+      console.warn('Backend add team member failed, falling back to local storage', e);
+    }
+
     const newMember: TeamMember = {
       id: `tm_${Date.now()}`,
       academicYear: data.academicYear || '2025–26',
@@ -138,6 +153,26 @@ export const api = {
   },
 
   adminUpdateTeamMember: async (id: string, updates: Partial<TeamMember>): Promise<TeamMember> => {
+    try {
+      const serverMember = await request<TeamMember>(`/admin/team/${id}`, {
+        method: 'PUT',
+        body: JSON.stringify(updates)
+      });
+      if (serverMember && serverMember.id) {
+        const list = getStoredTeam();
+        const idx = list.findIndex(m => m.id === id);
+        if (idx !== -1) {
+          list[idx] = { ...list[idx], ...serverMember };
+        } else {
+          list.unshift(serverMember);
+        }
+        saveStoredTeam(list);
+        return serverMember;
+      }
+    } catch (e) {
+      console.warn('Backend update team member failed, falling back to local storage', e);
+    }
+
     const list = getStoredTeam();
     const idx = list.findIndex(m => m.id === id);
     if (idx !== -1) {
@@ -149,10 +184,21 @@ export const api = {
   },
 
   adminDeleteTeamMember: async (id: string): Promise<{ message: string }> => {
-    let list = getStoredTeam();
-    list = list.filter(m => m.id !== id);
-    saveStoredTeam(list);
-    return { message: 'Member deleted successfully' };
+    try {
+      const res = await request<{ message: string }>(`/admin/team/${id}`, {
+        method: 'DELETE'
+      });
+      let list = getStoredTeam();
+      list = list.filter(m => m.id !== id);
+      saveStoredTeam(list);
+      return res;
+    } catch (e) {
+      console.warn('Backend delete team member failed, falling back to local storage', e);
+      let list = getStoredTeam();
+      list = list.filter(m => m.id !== id);
+      saveStoredTeam(list);
+      return { message: 'Member deleted successfully' };
+    }
   },
   getEvents: (params?: { year?: string; category?: string; status?: string; search?: string }) => {
     const searchParams = new URLSearchParams();
