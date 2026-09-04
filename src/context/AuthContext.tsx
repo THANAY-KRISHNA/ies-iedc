@@ -5,7 +5,9 @@ import { api } from '../services/api';
 interface AuthContextType {
   user: User | null;
   token: string | null;
+  isAuthenticated: boolean;
   isLoading: boolean;
+  loading: boolean;
   login: (email: string) => Promise<boolean>;
   logout: () => void;
   switchRoleUser: (role: UserRole) => Promise<void>;
@@ -30,7 +32,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         if (res?.user) {
           setUser(res.user);
         } else {
-          // Token invalid
           localStorage.removeItem('iedc_admin_token');
           setToken(null);
         }
@@ -88,8 +89,22 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return allowedRoles.includes(user.role);
   };
 
+  const isAuthenticated = !!user;
+
   return (
-    <AuthContext.Provider value={{ user, token, isLoading, login, logout, switchRoleUser, hasRole }}>
+    <AuthContext.Provider
+      value={{
+        user,
+        token,
+        isAuthenticated,
+        isLoading,
+        loading: isLoading,
+        login,
+        logout,
+        switchRoleUser,
+        hasRole
+      }}
+    >
       {children}
     </AuthContext.Provider>
   );

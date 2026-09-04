@@ -1,17 +1,13 @@
 import React, { useEffect, useState } from 'react';
-import { useAuth } from '../../context/AuthContext';
-import { Badge } from '../../components/ui/Badge';
-import { Button } from '../../components/ui/Button';
-import { Modal } from '../../components/ui/Modal';
-import { SearchFilterBar } from '../../components/ui/SearchFilterBar';
-import { LoadingState } from '../../components/ui/LoadingState';
+import { useSearchParams } from 'react-router-dom';
+import { AdminLayout } from '../../components/admin/AdminLayout';
 import { api } from '../../services/api';
 import { TeamMember, AcademicYear } from '../../types';
 import { INITIAL_DEPARTMENTS } from '../../data/initialData';
-import { Plus, Edit2, Trash2, Shield, Users, Mail } from 'lucide-react';
+import { Plus, Edit, Trash2, Users, Search, Eye, EyeOff, User } from 'lucide-react';
 
 export const AdminTeam: React.FC = () => {
-  const { hasRole } = useAuth();
+  const [searchParams] = useSearchParams();
   const [academicYears, setAcademicYears] = useState<AcademicYear[]>([]);
   const [selectedYear, setSelectedYear] = useState<string>('2025–26');
   const [teamMembers, setTeamMembers] = useState<TeamMember[]>([]);
@@ -33,15 +29,18 @@ export const AdminTeam: React.FC = () => {
     designation: '',
     responsibility: '',
     email: '',
+    linkedinUrl: '',
+    photoUrl: '',
     academicYear: '2025–26',
     status: 'Published' as TeamMember['status'],
     sortOrder: 10
   });
 
-  const isAuthorized = hasRole(['Team Admin']);
-
   useEffect(() => {
     loadAcademicYears();
+    if (searchParams.get('action') === 'new') {
+      handleOpenAdd();
+    }
   }, []);
 
   useEffect(() => {
@@ -52,8 +51,11 @@ export const AdminTeam: React.FC = () => {
     try {
       const years = await api.getAcademicYears();
       setAcademicYears(years);
+      if (years.length > 0 && !years.some(y => y.year === selectedYear)) {
+        setSelectedYear(years[0].year);
+      }
     } catch (err) {
-      console.error('Failed to load years:', err);
+      console.error('Failed to load academic years:', err);
     }
   }
 
@@ -63,7 +65,7 @@ export const AdminTeam: React.FC = () => {
       const members = await api.adminGetTeam(selectedYear);
       setTeamMembers(members);
     } catch (err) {
-      console.error('Failed to load team:', err);
+      console.error('Failed to load team members:', err);
     } finally {
       setLoading(false);
     }
@@ -79,6 +81,8 @@ export const AdminTeam: React.FC = () => {
       designation: '',
       responsibility: '',
       email: '',
+      linkedinUrl: '',
+      photoUrl: '',
       academicYear: selectedYear,
       status: 'Published',
       sortOrder: teamMembers.length + 1
@@ -96,6 +100,8 @@ export const AdminTeam: React.FC = () => {
       designation: member.designation || '',
       responsibility: member.responsibility || '',
       email: member.email || '',
+      linkedinUrl: member.linkedinUrl || '',
+      photoUrl: member.photoUrl || '',
       academicYear: member.academicYear,
       status: member.status,
       sortOrder: member.sortOrder || 10
@@ -121,12 +127,12 @@ export const AdminTeam: React.FC = () => {
   };
 
   const handleDelete = async (id: string) => {
-    if (!window.confirm('Are you sure you want to remove this team member record?')) return;
+    if (!window.confirm('Are you sure you want to remove this team member?')) return;
     try {
       await api.adminDeleteTeamMember(id);
       loadTeam();
     } catch (err) {
-      console.error('Failed to delete member:', err);
+      console.error('Failed to delete team member:', err);
     }
   };
 
@@ -134,7 +140,7 @@ export const AdminTeam: React.FC = () => {
     e.preventDefault();
     if (!newYearName) return;
     try {
-      await api.adminAddAcademicYear({ year: newYearName, notes: 'Archived Academic Cycle' });
+      await api.adminAddAcademicYear({ year: newYearName, isCurrent: false });
       setIsYearModalOpen(false);
       setNewYearName('');
       loadAcademicYears();
@@ -143,328 +149,331 @@ export const AdminTeam: React.FC = () => {
     }
   };
 
-  const filteredMembers = teamMembers.filter(m => {
-    return (
+  const filteredMembers = teamMembers.filter(
+    m =>
       m.name.toLowerCase().includes(search.toLowerCase()) ||
       m.position.toLowerCase().includes(search.toLowerCase()) ||
       (m.department && m.department.toLowerCase().includes(search.toLowerCase()))
-    );
-  });
+  );
 
   return (
-    <div className="space-y-8">
-      {/* Top Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-[#D8D8D3]">
-        <div>
-          <h1 className="text-2xl font-black text-[#161616] tracking-tight">
-            Team &amp; Academic Archives
-          </h1>
-          <p className="text-xs text-[#777777] mt-1">
-            Manage institutional nodal officers, department faculty coordinators, and student leads.
-          </p>
-        </div>
+    <AdminLayout>
+      <div className="space-y-6 font-sans">
+        {/* Header */}
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-[#D8D8D3]">
+          <div>
+            <h1 className="text-2xl font-bold text-[#161616] tracking-tight">Team Management</h1>
+            <p className="text-xs text-[#777777] mt-1">
+              Manage executive leads, nodal officers, faculty coordinators, and student teams across academic years.
+            </p>
+          </div>
 
-        <div className="flex items-center gap-2">
-          {isAuthorized && (
-            <>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setIsYearModalOpen(true)}
-                icon={<Plus className="w-3.5 h-3.5" />}
-              >
-                New Academic Year
-              </Button>
-              <Button
-                variant="primary"
-                size="sm"
-                onClick={handleOpenAdd}
-                icon={<Plus className="w-3.5 h-3.5" />}
-              >
-                Add Member
-              </Button>
-            </>
-          )}
-        </div>
-      </div>
-
-      {/* Year Selection & Search */}
-      <div className="space-y-4">
-        <div className="flex flex-wrap items-center gap-2">
-          <span className="text-xs font-bold text-[#777777] uppercase mr-2">Cycle:</span>
-          {academicYears.map(y => (
+          <div className="flex gap-2">
             <button
-              key={y.id}
-              onClick={() => setSelectedYear(y.year)}
-              className={`px-3 py-1.5 text-xs font-semibold rounded-lg transition-all cursor-pointer ${
-                selectedYear === y.year
-                  ? 'neu-button'
-                  : 'neu-raised-soft text-[#4A4A4A] hover:text-[#161616]'
-              }`}
+              onClick={() => setIsYearModalOpen(true)}
+              className="px-3 py-2 bg-[#F0F0ED] hover:bg-[#EBEBE8] border border-[#D8D8D3] rounded text-xs font-semibold text-[#242424] cursor-pointer"
             >
-              {y.year}
-              {y.isCurrent && (
-                <span className="ml-1 text-[10px] px-1 py-0.2 bg-[#242424] text-white rounded">
-                  Current
-                </span>
-              )}
+              + Add Academic Year
             </button>
-          ))}
-        </div>
-
-        <SearchFilterBar
-          searchValue={search}
-          onSearchChange={setSearch}
-          searchPlaceholder="Filter members in this cycle by name, position, or department..."
-        />
-      </div>
-
-      {/* Table of Team Members */}
-      {loading ? (
-        <LoadingState message="Loading team member records..." />
-      ) : (
-        <div className="neu-raised rounded-xl overflow-hidden border border-[#D8D8D3]">
-          <div className="overflow-x-auto">
-            <table className="w-full text-left border-collapse text-xs">
-              <thead>
-                <tr className="border-b border-[#D8D8D3] bg-[#EBEBE8]/50 text-[#777777] uppercase tracking-wider text-[10px]">
-                  <th className="p-3.5 font-bold">Member Name</th>
-                  <th className="p-3.5 font-bold">Role Type</th>
-                  <th className="p-3.5 font-bold">Position</th>
-                  <th className="p-3.5 font-bold">Department</th>
-                  <th className="p-3.5 font-bold">Status</th>
-                  <th className="p-3.5 font-bold text-right">Actions</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-[#EBEBE8]">
-                {filteredMembers.map(member => (
-                  <tr key={member.id} className="hover:bg-[#EBEBE8]/20 transition-colors">
-                    <td className="p-3.5 font-bold text-[#161616]">
-                      {member.name}
-                      {member.email && (
-                        <span className="block text-[10px] text-[#777777] font-normal">
-                          {member.email}
-                        </span>
-                      )}
-                    </td>
-                    <td className="p-3.5">
-                      <Badge variant="outline" size="sm">
-                        {member.roleType}
-                      </Badge>
-                    </td>
-                    <td className="p-3.5 font-medium text-[#242424]">{member.position}</td>
-                    <td className="p-3.5 text-[#4A4A4A]">{member.department || '—'}</td>
-                    <td className="p-3.5">
-                      <Badge
-                        variant={
-                          member.status === 'Published'
-                            ? 'success'
-                            : member.status === 'Archived'
-                            ? 'neutral'
-                            : 'warning'
-                        }
-                        size="sm"
-                      >
-                        {member.status}
-                      </Badge>
-                    </td>
-                    <td className="p-3.5 text-right space-x-2">
-                      <button
-                        onClick={() => handleOpenEdit(member)}
-                        className="p-1 text-[#4A4A4A] hover:text-[#161616] cursor-pointer"
-                        title="Edit Member"
-                      >
-                        <Edit2 className="w-4 h-4 inline" />
-                      </button>
-                      <button
-                        onClick={() => handleDelete(member.id)}
-                        className="p-1 text-red-700 hover:text-red-900 cursor-pointer"
-                        title="Delete Member"
-                      >
-                        <Trash2 className="w-4 h-4 inline" />
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </div>
-      )}
-
-      {/* Add/Edit Modal */}
-      <Modal
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-        title={editingMember ? 'Edit Team Member' : 'Add Team Member'}
-        subtitle={`Academic Year Cycle: ${selectedYear}`}
-      >
-        <form onSubmit={handleSaveMember} className="space-y-4 text-xs">
-          <div className="space-y-1">
-            <label className="font-bold text-[#242424]">Full Name *</label>
-            <input
-              type="text"
-              required
-              value={formData.name}
-              onChange={e => setFormData({ ...formData, name: e.target.value })}
-              className="w-full px-3 py-2 neu-inset rounded-lg text-xs"
-            />
-          </div>
-
-          <div className="grid grid-cols-2 gap-3">
-            <div className="space-y-1">
-              <label className="font-bold text-[#242424]">Role Category</label>
-              <select
-                value={formData.roleType}
-                onChange={e =>
-                  setFormData({ ...formData, roleType: e.target.value as TeamMember['roleType'] })
-                }
-                className="w-full px-3 py-2 neu-raised-soft border border-[#D8D8D3] rounded-lg text-xs"
-              >
-                <option value="Nodal Officer">Nodal Officer</option>
-                <option value="Assistant Nodal Officer">Assistant Nodal Officer</option>
-                <option value="Department Coordinator">Department Coordinator</option>
-                <option value="IEDC Lead">IEDC Lead</option>
-                <option value="Student Lead">Student Lead</option>
-                <option value="Executive Member">Executive Member</option>
-              </select>
-            </div>
-
-            <div className="space-y-1">
-              <label className="font-bold text-[#242424]">Position Title *</label>
-              <input
-                type="text"
-                required
-                placeholder="e.g. Creative Lead / Nodal Officer"
-                value={formData.position}
-                onChange={e => setFormData({ ...formData, position: e.target.value })}
-                className="w-full px-3 py-2 neu-inset rounded-lg text-xs"
-              />
-            </div>
-          </div>
-
-          <div className="grid grid-cols-2 gap-3">
-            <div className="space-y-1">
-              <label className="font-bold text-[#242424]">Department</label>
-              <select
-                value={formData.department}
-                onChange={e => setFormData({ ...formData, department: e.target.value })}
-                className="w-full px-3 py-2 neu-raised-soft border border-[#D8D8D3] rounded-lg text-xs"
-              >
-                {INITIAL_DEPARTMENTS.map(d => (
-                  <option key={d.id} value={d.code}>
-                    {d.code} - {d.name}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            <div className="space-y-1">
-              <label className="font-bold text-[#242424]">Designation / Sem</label>
-              <input
-                type="text"
-                placeholder="e.g. Assistant Professor, CSE or S5 CSE"
-                value={formData.designation}
-                onChange={e => setFormData({ ...formData, designation: e.target.value })}
-                className="w-full px-3 py-2 neu-inset rounded-lg text-xs"
-              />
-            </div>
-          </div>
-
-          <div className="space-y-1">
-            <label className="font-bold text-[#242424]">Institutional Email</label>
-            <input
-              type="email"
-              placeholder="name@iesce.info"
-              value={formData.email}
-              onChange={e => setFormData({ ...formData, email: e.target.value })}
-              className="w-full px-3 py-2 neu-inset rounded-lg text-xs"
-            />
-          </div>
-
-          <div className="space-y-1">
-            <label className="font-bold text-[#242424]">Key Responsibilities / Role Description</label>
-            <textarea
-              rows={2}
-              placeholder="Brief description of duties..."
-              value={formData.responsibility}
-              onChange={e => setFormData({ ...formData, responsibility: e.target.value })}
-              className="w-full px-3 py-2 neu-inset rounded-lg text-xs"
-            />
-          </div>
-
-          <div className="grid grid-cols-2 gap-3">
-            <div className="space-y-1">
-              <label className="font-bold text-[#242424]">Status</label>
-              <select
-                value={formData.status}
-                onChange={e =>
-                  setFormData({ ...formData, status: e.target.value as TeamMember['status'] })
-                }
-                className="w-full px-3 py-2 neu-raised-soft border border-[#D8D8D3] rounded-lg text-xs"
-              >
-                <option value="Published">Published</option>
-                <option value="Draft">Draft</option>
-                <option value="Archived">Archived</option>
-              </select>
-            </div>
-
-            <div className="space-y-1">
-              <label className="font-bold text-[#242424]">Display Sort Order</label>
-              <input
-                type="number"
-                value={formData.sortOrder}
-                onChange={e => setFormData({ ...formData, sortOrder: parseInt(e.target.value) || 10 })}
-                className="w-full px-3 py-2 neu-inset rounded-lg text-xs"
-              />
-            </div>
-          </div>
-
-          <div className="pt-3 flex justify-end gap-2">
-            <Button type="button" variant="outline" size="sm" onClick={() => setIsModalOpen(false)}>
-              Cancel
-            </Button>
-            <Button type="submit" variant="primary" size="sm">
-              Save Record
-            </Button>
-          </div>
-        </form>
-      </Modal>
-
-      {/* Add Academic Year Modal */}
-      <Modal
-        isOpen={isYearModalOpen}
-        onClose={() => setIsYearModalOpen(false)}
-        title="Add Academic Year Archive"
-        subtitle="Create an academic cycle archive for team leadership and events."
-      >
-        <form onSubmit={handleAddYear} className="space-y-4 text-xs">
-          <div className="space-y-1">
-            <label className="font-bold text-[#242424]">Academic Year Format *</label>
-            <input
-              type="text"
-              required
-              placeholder="e.g. 2026–27"
-              value={newYearName}
-              onChange={e => setNewYearName(e.target.value)}
-              className="w-full px-3 py-2 neu-inset rounded-lg text-xs"
-            />
-          </div>
-          <div className="flex justify-end gap-2 pt-2">
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              onClick={() => setIsYearModalOpen(false)}
+            <button
+              onClick={handleOpenAdd}
+              className="px-4 py-2 bg-[#161616] hover:bg-[#242424] text-white rounded text-xs font-semibold flex items-center gap-1.5 cursor-pointer"
             >
-              Cancel
-            </Button>
-            <Button type="submit" variant="primary" size="sm">
-              Create Year
-            </Button>
+              <Plus className="w-4 h-4" />
+              <span>+ Add Team Member</span>
+            </button>
           </div>
-        </form>
-      </Modal>
-    </div>
+        </div>
+
+        {/* Academic Years Selector */}
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div className="flex items-center gap-2 flex-wrap">
+            <span className="text-xs font-semibold text-[#777777]">Academic Year History:</span>
+            {academicYears.map(y => (
+              <button
+                key={y.id}
+                onClick={() => setSelectedYear(y.year)}
+                className={`px-3 py-1.5 text-xs font-medium rounded cursor-pointer transition-colors ${
+                  selectedYear === y.year
+                    ? 'bg-[#242424] text-white font-semibold'
+                    : 'bg-[#F0F0ED] text-[#4A4A4A] hover:bg-[#EBEBE8]'
+                }`}
+              >
+                {y.year}
+              </button>
+            ))}
+          </div>
+
+          <div className="relative w-full sm:w-64">
+            <input
+              type="text"
+              placeholder="Search team member..."
+              value={search}
+              onChange={e => setSearch(e.target.value)}
+              className="w-full pl-8 pr-3 py-1.5 bg-[#FFFFFF] border border-[#D8D8D3] rounded text-xs text-[#242424] focus:outline-none focus:border-[#161616]"
+            />
+            <Search className="w-4 h-4 text-[#777777] absolute left-2.5 top-2" />
+          </div>
+        </div>
+
+        {/* Team Table */}
+        {loading ? (
+          <div className="py-12 text-center text-xs text-[#777777]">Loading team roster...</div>
+        ) : filteredMembers.length === 0 ? (
+          <div className="bg-[#FFFFFF] border border-[#D8D8D3] rounded p-12 text-center space-y-3">
+            <p className="text-sm font-semibold text-[#242424]">No team members for {selectedYear}</p>
+            <p className="text-xs text-[#777777]">Add team members for this academic year cycle.</p>
+            <button
+              onClick={handleOpenAdd}
+              className="px-4 py-2 bg-[#161616] text-white rounded text-xs font-semibold cursor-pointer"
+            >
+              + Add Team Member
+            </button>
+          </div>
+        ) : (
+          <div className="bg-[#FFFFFF] border border-[#D8D8D3] rounded overflow-hidden">
+            <div className="overflow-x-auto">
+              <table className="w-full text-left border-collapse text-xs">
+                <thead>
+                  <tr className="border-b border-[#D8D8D3] bg-[#F5F5F3] text-[#777777] font-semibold text-[11px]">
+                    <th className="p-3.5">Member</th>
+                    <th className="p-3.5">Role Type</th>
+                    <th className="p-3.5">Position Title</th>
+                    <th className="p-3.5">Department</th>
+                    <th className="p-3.5">Status</th>
+                    <th className="p-3.5 text-right">Actions</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-[#EBEBE8]">
+                  {filteredMembers.map(member => (
+                    <tr key={member.id} className="hover:bg-[#F0F0ED]/50 transition-colors">
+                      <td className="p-3.5 flex items-center gap-3">
+                        <div className="w-8 h-8 rounded-full bg-[#F0F0ED] border border-[#D8D8D3] overflow-hidden flex items-center justify-center shrink-0">
+                          {member.photoUrl ? (
+                            <img src={member.photoUrl} alt={member.name} className="w-full h-full object-cover" />
+                          ) : (
+                            <User className="w-4 h-4 text-[#777777]" />
+                          )}
+                        </div>
+                        <div>
+                          <p className="font-bold text-[#161616]">{member.name}</p>
+                          <p className="text-[11px] text-[#777777]">{member.email || '—'}</p>
+                        </div>
+                      </td>
+                      <td className="p-3.5">
+                        <span className="px-2 py-0.5 bg-[#F0F0ED] rounded text-[10px] font-medium text-[#4A4A4A]">
+                          {member.roleType}
+                        </span>
+                      </td>
+                      <td className="p-3.5 font-medium text-[#242424]">{member.position}</td>
+                      <td className="p-3.5 text-[#4A4A4A]">{member.department || '—'}</td>
+                      <td className="p-3.5">
+                        <span
+                          className={`px-2 py-0.5 rounded text-[10px] font-bold ${
+                            member.status === 'Published'
+                              ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
+                              : 'bg-amber-50 text-amber-700 border border-amber-200'
+                          }`}
+                        >
+                          {member.status}
+                        </span>
+                      </td>
+                      <td className="p-3.5 text-right space-x-1">
+                        <button
+                          onClick={() => handleOpenEdit(member)}
+                          className="p-1 text-[#4A4A4A] hover:text-[#161616] cursor-pointer"
+                        >
+                          <Edit className="w-4 h-4 inline" />
+                        </button>
+                        <button
+                          onClick={() => handleDelete(member.id)}
+                          className="p-1 text-red-600 hover:text-red-800 cursor-pointer"
+                        >
+                          <Trash2 className="w-4 h-4 inline" />
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        )}
+
+        {/* Modal Form */}
+        {isModalOpen && (
+          <div className="fixed inset-0 z-50 bg-black/60 flex items-center justify-center p-4 overflow-y-auto">
+            <div className="bg-white rounded border border-[#D8D8D3] w-full max-w-lg max-h-[90vh] overflow-y-auto p-6 space-y-4">
+              <div className="flex items-center justify-between border-b border-[#EBEBE8] pb-3">
+                <h3 className="font-bold text-base text-[#161616]">
+                  {editingMember ? 'Edit Team Member' : 'Add Team Member'}
+                </h3>
+                <button
+                  onClick={() => setIsModalOpen(false)}
+                  className="text-xs text-[#777777] hover:text-[#161616] cursor-pointer"
+                >
+                  Cancel
+                </button>
+              </div>
+
+              <form onSubmit={handleSaveMember} className="space-y-4 text-xs">
+                <div className="space-y-1.5">
+                  <label className="font-semibold text-[#242424]">Full Name *</label>
+                  <input
+                    type="text"
+                    required
+                    placeholder="e.g. Prof. Shahaziya Parvez"
+                    value={formData.name}
+                    onChange={e => setFormData({ ...formData, name: e.target.value })}
+                    className="w-full px-3 py-2 bg-[#F5F5F3] border border-[#D8D8D3] rounded text-xs text-[#242424]"
+                  />
+                </div>
+
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="space-y-1.5">
+                    <label className="font-semibold text-[#242424]">Role Category</label>
+                    <select
+                      value={formData.roleType}
+                      onChange={e =>
+                        setFormData({ ...formData, roleType: e.target.value as TeamMember['roleType'] })
+                      }
+                      className="w-full px-3 py-2 bg-[#F5F5F3] border border-[#D8D8D3] rounded text-xs"
+                    >
+                      <option value="Nodal Officer">Nodal Officer</option>
+                      <option value="Assistant Nodal Officer">Assistant Nodal Officer</option>
+                      <option value="Department Coordinator">Department Coordinator</option>
+                      <option value="IEDC Lead">IEDC Lead</option>
+                      <option value="Student Lead">Student Lead</option>
+                      <option value="Women Lead">Women Lead</option>
+                      <option value="Executive Lead">Executive Lead</option>
+                      <option value="Core Member">Core Member</option>
+                    </select>
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <label className="font-semibold text-[#242424]">Position Title *</label>
+                    <input
+                      type="text"
+                      required
+                      placeholder="e.g. Nodal Officer / Finance Lead"
+                      value={formData.position}
+                      onChange={e => setFormData({ ...formData, position: e.target.value })}
+                      className="w-full px-3 py-2 bg-[#F5F5F3] border border-[#D8D8D3] rounded text-xs"
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="space-y-1.5">
+                    <label className="font-semibold text-[#242424]">Department</label>
+                    <select
+                      value={formData.department}
+                      onChange={e => setFormData({ ...formData, department: e.target.value })}
+                      className="w-full px-3 py-2 bg-[#F5F5F3] border border-[#D8D8D3] rounded text-xs"
+                    >
+                      {INITIAL_DEPARTMENTS.map(d => (
+                        <option key={d.id} value={d.code}>
+                          {d.code} - {d.name}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <label className="font-semibold text-[#242424]">Academic Year</label>
+                    <select
+                      value={formData.academicYear}
+                      onChange={e => setFormData({ ...formData, academicYear: e.target.value })}
+                      className="w-full px-3 py-2 bg-[#F5F5F3] border border-[#D8D8D3] rounded text-xs"
+                    >
+                      {academicYears.map(y => (
+                        <option key={y.id} value={y.year}>
+                          {y.year}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+
+                <div className="space-y-1.5">
+                  <label className="font-semibold text-[#242424]">Photo URL</label>
+                  <input
+                    type="text"
+                    placeholder="https://..."
+                    value={formData.photoUrl}
+                    onChange={e => setFormData({ ...formData, photoUrl: e.target.value })}
+                    className="w-full px-3 py-2 bg-[#F5F5F3] border border-[#D8D8D3] rounded text-xs"
+                  />
+                </div>
+
+                <div className="space-y-1.5">
+                  <label className="font-semibold text-[#242424]">Responsibility / Overview</label>
+                  <input
+                    type="text"
+                    placeholder="Key responsibilities..."
+                    value={formData.responsibility}
+                    onChange={e => setFormData({ ...formData, responsibility: e.target.value })}
+                    className="w-full px-3 py-2 bg-[#F5F5F3] border border-[#D8D8D3] rounded text-xs"
+                  />
+                </div>
+
+                <div className="pt-3 border-t border-[#EBEBE8] flex justify-end gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setIsModalOpen(false)}
+                    className="px-4 py-2 bg-[#F0F0ED] hover:bg-[#EBEBE8] rounded text-xs font-semibold"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    className="px-4 py-2 bg-[#161616] hover:bg-[#242424] text-white rounded text-xs font-semibold"
+                  >
+                    Save Member
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        )}
+
+        {/* Add Academic Year Modal */}
+        {isYearModalOpen && (
+          <div className="fixed inset-0 z-50 bg-black/60 flex items-center justify-center p-4">
+            <div className="bg-white rounded border border-[#D8D8D3] w-full max-w-sm p-6 space-y-4">
+              <h3 className="font-bold text-sm text-[#161616]">Add Academic Year Cycle</h3>
+              <form onSubmit={handleAddYear} className="space-y-4 text-xs">
+                <div className="space-y-1.5">
+                  <label className="font-semibold text-[#242424]">Academic Year Format *</label>
+                  <input
+                    type="text"
+                    required
+                    placeholder="e.g. 2026–27"
+                    value={newYearName}
+                    onChange={e => setNewYearName(e.target.value)}
+                    className="w-full px-3 py-2 bg-[#F5F5F3] border border-[#D8D8D3] rounded text-xs"
+                  />
+                </div>
+                <div className="flex justify-end gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setIsYearModalOpen(false)}
+                    className="px-3 py-1.5 bg-[#F0F0ED] rounded text-xs font-semibold"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    className="px-4 py-1.5 bg-[#161616] text-white rounded text-xs font-semibold"
+                  >
+                    Create Year
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        )}
+      </div>
+    </AdminLayout>
   );
 };

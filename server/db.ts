@@ -680,6 +680,22 @@ class DatabaseEngine {
     return this.state.galleryAlbums[idx];
   }
 
+  public deleteGalleryAlbum(id: string, actor = 'Admin'): boolean {
+    const alb = this.state.galleryAlbums.find(a => a.id === id);
+    if (!alb) return false;
+    this.state.galleryAlbums = this.state.galleryAlbums.filter(a => a.id !== id);
+    this.logActivity({
+      userName: actor,
+      userRole: 'Content Admin',
+      action: 'Deleted',
+      contentType: 'Gallery Album',
+      contentId: id,
+      contentSummary: `Deleted album "${alb.title}"`
+    });
+    this.save(this.state);
+    return true;
+  }
+
   // --- NEWS ---
   public getNews(options?: { status?: string; search?: string; publishedOnly?: boolean }): NewsItem[] {
     let list = this.state.news;
@@ -738,6 +754,22 @@ class DatabaseEngine {
     });
     this.save(this.state);
     return this.state.news[idx];
+  }
+
+  public deleteNews(id: string, actor = 'Admin'): boolean {
+    const news = this.state.news.find(n => n.id === id);
+    if (!news) return false;
+    this.state.news = this.state.news.filter(n => n.id !== id);
+    this.logActivity({
+      userName: actor,
+      userRole: 'Content Admin',
+      action: 'Deleted',
+      contentType: 'News Article',
+      contentId: id,
+      contentSummary: `Deleted news article "${news.title}"`
+    });
+    this.save(this.state);
+    return true;
   }
 
   // --- SUBMISSIONS (JOIN IEDC) ---

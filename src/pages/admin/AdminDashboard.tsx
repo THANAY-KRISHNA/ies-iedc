@@ -1,241 +1,172 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { useAuth } from '../../context/AuthContext';
-import { Badge } from '../../components/ui/Badge';
-import { Button } from '../../components/ui/Button';
-import { LoadingState } from '../../components/ui/LoadingState';
 import { api } from '../../services/api';
 import { ActivityLog } from '../../types';
 import {
   Calendar,
+  Image as ImageIcon,
+  Newspaper,
   Users,
   Award,
-  Sparkles,
-  Inbox,
-  AlertCircle,
+  Home,
   Plus,
-  History,
-  ArrowRight,
-  ShieldCheck,
-  ExternalLink,
-  CheckCircle2,
-  FileText
+  Clock,
+  ArrowRight
 } from 'lucide-react';
 
 export const AdminDashboard: React.FC = () => {
-  const { user } = useAuth();
-  const [stats, setStats] = useState<any>(null);
   const [logs, setLogs] = useState<ActivityLog[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    async function loadDashboard() {
+    async function loadDashboardData() {
       try {
-        const [st, lg] = await Promise.all([api.getStats(), api.getAuditLogs()]);
-        setStats(st);
-        setLogs(lg.slice(0, 8));
+        const activity = await api.getAuditLogs();
+        setLogs(activity.slice(0, 10));
       } catch (err) {
-        console.error('Failed to load admin stats:', err);
+        console.error('Failed to load recent updates:', err);
       } finally {
         setLoading(false);
       }
     }
-    loadDashboard();
+    loadDashboardData();
   }, []);
 
-  if (loading) {
-    return <LoadingState message="Loading CMS analytics and audit logs..." />;
-  }
+  const quickActions = [
+    {
+      title: 'Add Event',
+      desc: 'Publish upcoming workshop, webinar, hackathon or session.',
+      icon: <Calendar className="w-5 h-5 text-[#242424]" />,
+      link: '/admin/events?action=new',
+      btnText: '+ Add Event'
+    },
+    {
+      title: 'Upload Gallery Photos',
+      desc: 'Create event album and bulk upload 20/30/50 photos.',
+      icon: <ImageIcon className="w-5 h-5 text-[#242424]" />,
+      link: '/admin/gallery?action=new',
+      btnText: '+ Upload Gallery Photos'
+    },
+    {
+      title: 'Upload Posters & Flyers',
+      desc: 'Upload event posters, flyers, banners, and documents.',
+      icon: <ImageIcon className="w-5 h-5 text-[#242424]" />,
+      link: '/admin/posters',
+      btnText: '+ Upload Posters & Flyers'
+    },
+    {
+      title: 'Add Announcement',
+      desc: 'Post latest news, call for ideas, or result notice.',
+      icon: <Newspaper className="w-5 h-5 text-[#242424]" />,
+      link: '/admin/news?action=new',
+      btnText: '+ Add Announcement'
+    },
+    {
+      title: 'Add Team Member',
+      desc: 'Add executive lead, coordinator, or nodal officer.',
+      icon: <Users className="w-5 h-5 text-[#242424]" />,
+      link: '/admin/team?action=new',
+      btnText: '+ Add Team Member'
+    },
+    {
+      title: 'Add Achievement',
+      desc: 'Record student win, patent, grant, or competition result.',
+      icon: <Award className="w-5 h-5 text-[#242424]" />,
+      link: '/admin/achievements?action=new',
+      btnText: '+ Add Achievement'
+    },
+    {
+      title: 'Edit Homepage',
+      desc: 'Update hero text, vision, mission, and featured content.',
+      icon: <Home className="w-5 h-5 text-[#242424]" />,
+      link: '/admin/homepage',
+      btnText: 'Edit Homepage'
+    }
+  ];
 
   return (
     <div className="space-y-8 font-sans">
-      {/* Welcome Banner */}
-      <div className="bg-white rounded-sm p-6 sm:p-8 border border-[#D5D9E0] shadow-neu-card flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-        <div className="space-y-1">
-          <div className="flex items-center gap-2">
-            <span className="text-[10px] px-2 py-0.5 rounded bg-[#10B981]/10 text-[#10B981] font-mono font-bold uppercase border border-[#10B981]/20">
-              {user?.role || 'Super Admin'}
-            </span>
-            <span className="text-xs text-[#5F6B7D] font-mono">• Authenticated Nodal Session</span>
-          </div>
-          <h1 className="text-2xl sm:text-3xl font-extrabold text-[#1A365D] tracking-tight font-display">
-            Welcome, {user?.name || 'Prof. Shahaziya Parvez'}
-          </h1>
-          <p className="text-xs text-[#5F6B7D]">
-            IES IEDC Institutional Management System • IES College of Engineering (Nodal Code: KL-TCR-IES-2016)
-          </p>
-        </div>
-
-        <div className="flex items-center gap-2">
-          <Link to="/">
-            <button className="px-4 py-2 rounded-sm bg-[#F1F2F5] hover:bg-[#E9EBEF] border border-[#D5D9E0] text-xs font-semibold text-[#1A365D] uppercase tracking-wider flex items-center gap-1.5 transition-all shadow-neu-button">
-              <span>View Public Portal</span>
-              <ExternalLink className="w-3.5 h-3.5 text-[#10B981]" />
-            </button>
-          </Link>
-        </div>
+      {/* Header */}
+      <div>
+        <h1 className="text-2xl font-bold text-[#161616] tracking-tight">
+          IES IEDC Content Manager
+        </h1>
+        <p className="text-xs text-[#777777] mt-1">
+          Manage and update your website content from one place.
+        </p>
       </div>
 
-      {/* Discrepancy Callout */}
-      {stats?.needsReviewCount > 0 && (
-        <div className="p-4 bg-[#FFF8E7] border border-[#F59E0B]/40 rounded-sm flex items-start gap-3 shadow-sm">
-          <AlertCircle className="w-5 h-5 text-[#F59E0B] shrink-0 mt-0.5" />
-          <div className="space-y-1 text-xs text-[#1A2232]">
-            <p className="font-bold text-[#1A365D]">
-              {stats.needsReviewCount} Record Flagged for Statutory Audit Reconciliation
-            </p>
-            <p className="leading-relaxed text-[#5F6B7D]">
-              Historical document inconsistency annotated: [Residential IEDC Innovation Camp - Date Inconsistency in Source Record].
-            </p>
-            <Link
-              to="/admin/events"
-              className="inline-block font-semibold text-[#1A365D] underline hover:text-[#10B981] pt-1"
-            >
-              Open Events Audit Manager →
-            </Link>
-          </div>
-        </div>
-      )}
-
-      {/* Metric KPI Cards */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-5">
-        <div className="bg-white rounded-sm p-5 border border-[#D5D9E0] shadow-neu-card space-y-2">
-          <div className="flex items-center justify-between text-[#5F6B7D]">
-            <span className="text-xs font-bold uppercase tracking-wider text-[#1A365D]">Events &amp; Bootcamps</span>
-            <Calendar className="w-4 h-4 text-[#10B981]" />
-          </div>
-          <p className="text-3xl font-extrabold text-[#1A365D] font-display">{stats?.eventsCount ?? 0}</p>
-          <Link
-            to="/admin/events"
-            className="text-[11px] text-[#5F6B7D] hover:text-[#1A365D] font-medium flex items-center gap-1 pt-1"
-          >
-            <span>Manage Records</span>
-            <ArrowRight className="w-3 h-3 text-[#10B981]" />
-          </Link>
-        </div>
-
-        <div className="bg-white rounded-sm p-5 border border-[#D5D9E0] shadow-neu-card space-y-2">
-          <div className="flex items-center justify-between text-[#5F6B7D]">
-            <span className="text-xs font-bold uppercase tracking-wider text-[#1A365D]">Accredited Team</span>
-            <Users className="w-4 h-4 text-[#1A365D]" />
-          </div>
-          <p className="text-3xl font-extrabold text-[#1A365D] font-display">{stats?.teamMembersCount ?? 0}</p>
-          <Link
-            to="/admin/team"
-            className="text-[11px] text-[#5F6B7D] hover:text-[#1A365D] font-medium flex items-center gap-1 pt-1"
-          >
-            <span>Manage Executive Roster</span>
-            <ArrowRight className="w-3 h-3 text-[#10B981]" />
-          </Link>
-        </div>
-
-        <div className="bg-white rounded-sm p-5 border border-[#D5D9E0] shadow-neu-card space-y-2">
-          <div className="flex items-center justify-between text-[#5F6B7D]">
-            <span className="text-xs font-bold uppercase tracking-wider text-[#1A365D]">Student Proposals</span>
-            <Sparkles className="w-4 h-4 text-[#FF6B35]" />
-          </div>
-          <p className="text-3xl font-extrabold text-[#1A365D] font-display">{stats?.ideasCount ?? 0}</p>
-          <Link
-            to="/admin/ideas"
-            className="text-[11px] text-[#5F6B7D] hover:text-[#1A365D] font-medium flex items-center gap-1 pt-1"
-          >
-            <span>Review Intake Queue</span>
-            <ArrowRight className="w-3 h-3 text-[#10B981]" />
-          </Link>
-        </div>
-
-        <div className="bg-white rounded-sm p-5 border border-[#D5D9E0] shadow-neu-card space-y-2">
-          <div className="flex items-center justify-between text-[#5F6B7D]">
-            <span className="text-xs font-bold uppercase tracking-wider text-[#1A365D]">Join Submissions</span>
-            <Inbox className="w-4 h-4 text-[#F59E0B]" />
-          </div>
-          <p className="text-3xl font-extrabold text-[#1A365D] font-display">{stats?.submissionsCount ?? 0}</p>
-          <Link
-            to="/admin/submissions"
-            className="text-[11px] text-[#5F6B7D] hover:text-[#1A365D] font-medium flex items-center gap-1 pt-1"
-          >
-            <span>Review Applicants</span>
-            <ArrowRight className="w-3 h-3 text-[#10B981]" />
-          </Link>
-        </div>
-      </div>
-
-      {/* Quick Actions */}
-      <div className="bg-white rounded-sm p-6 border border-[#D5D9E0] shadow-neu-card space-y-4">
-        <h3 className="text-sm font-bold text-[#1A365D] uppercase tracking-wider font-display">
-          Administrative Quick Actions
-        </h3>
-        <div className="flex flex-wrap gap-3">
-          <Link to="/admin/events?action=new">
-            <button className="px-4 py-2 rounded-sm bg-[#1A365D] hover:bg-[#1A2232] text-white text-xs font-semibold uppercase tracking-wider flex items-center gap-1.5 shadow-neu-button cursor-pointer">
-              <Plus className="w-3.5 h-3.5 text-[#10B981]" />
-              <span>Create Event Record</span>
-            </button>
-          </Link>
-          <Link to="/admin/team?action=new">
-            <button className="px-4 py-2 rounded-sm bg-[#F1F2F5] hover:bg-[#E9EBEF] border border-[#D5D9E0] text-[#1A365D] text-xs font-semibold uppercase tracking-wider flex items-center gap-1.5 shadow-neu-button cursor-pointer">
-              <Plus className="w-3.5 h-3.5 text-[#1A365D]" />
-              <span>Add Team Member</span>
-            </button>
-          </Link>
-          <Link to="/admin/achievements?action=new">
-            <button className="px-4 py-2 rounded-sm bg-[#F1F2F5] hover:bg-[#E9EBEF] border border-[#D5D9E0] text-[#1A365D] text-xs font-semibold uppercase tracking-wider flex items-center gap-1.5 shadow-neu-button cursor-pointer">
-              <Plus className="w-3.5 h-3.5 text-[#FF6B35]" />
-              <span>Add Achievement</span>
-            </button>
-          </Link>
-          <Link to="/admin/content">
-            <button className="px-4 py-2 rounded-sm bg-[#F1F2F5] hover:bg-[#E9EBEF] border border-[#D5D9E0] text-[#5F6B7D] hover:text-[#1A365D] text-xs font-semibold uppercase tracking-wider shadow-neu-button cursor-pointer">
-              Manage Content Vault
-            </button>
-          </Link>
-        </div>
-      </div>
-
-      {/* Audit Activity Trail */}
+      {/* Quick Action Cards */}
       <div className="space-y-4">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <History className="w-4 h-4 text-[#1A365D]" />
-            <h3 className="text-sm font-bold text-[#1A365D] uppercase tracking-wider font-display">
-              Live Audit Activity Trail
-            </h3>
-          </div>
-          <Link
-            to="/admin/logs"
-            className="text-xs font-semibold text-[#5F6B7D] hover:text-[#1A365D] hover:underline"
-          >
-            View Full Audit Log →
-          </Link>
-        </div>
-
-        <div className="bg-white rounded-sm overflow-hidden border border-[#D5D9E0] shadow-neu-card divide-y divide-[#D5D9E0]/60">
-          {logs.map(log => (
-            <div key={log.id} className="p-4 flex items-start justify-between gap-4 text-xs">
-              <div className="space-y-1">
-                <div className="flex items-center gap-2">
-                  <span className="font-bold text-[#1A365D]">{log.userName}</span>
-                  <span className="text-[10px] px-1.5 py-0.5 rounded bg-[#F1F2F5] border border-[#D5D9E0] font-mono text-[#5F6B7D]">
-                    {log.userRole}
-                  </span>
-                  <span className="text-[10px] px-1.5 py-0.5 rounded bg-[#10B981]/10 text-[#10B981] font-mono font-bold">
-                    {log.action}
-                  </span>
-                  <span className="text-[11px] text-[#5F6B7D] font-mono">
-                    {log.contentType}
-                  </span>
+        <h2 className="text-xs font-bold text-[#4A4A4A] uppercase tracking-wider">
+          Quick Actions
+        </h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {quickActions.map(action => (
+            <Link
+              key={action.title}
+              to={action.link}
+              className="bg-[#FFFFFF] border border-[#D8D8D3] hover:border-[#161616] rounded p-5 space-y-3 transition-colors group flex flex-col justify-between"
+            >
+              <div className="space-y-2">
+                <div className="w-9 h-9 rounded bg-[#F0F0ED] flex items-center justify-center">
+                  {action.icon}
                 </div>
-                <p className="text-[#2B3547]">{log.contentSummary}</p>
+                <h3 className="font-bold text-sm text-[#161616] group-hover:text-black">
+                  {action.title}
+                </h3>
+                <p className="text-xs text-[#777777] leading-relaxed">
+                  {action.desc}
+                </p>
               </div>
 
-              <span className="text-[11px] font-mono text-[#5F6B7D] shrink-0">
-                {new Date(log.timestamp).toLocaleTimeString([], {
-                  hour: '2-digit',
-                  minute: '2-digit'
-                })}
-              </span>
-            </div>
+              <div className="pt-2 flex items-center gap-1 text-xs font-semibold text-[#161616] group-hover:underline">
+                <span>{action.btnText}</span>
+                <ArrowRight className="w-3.5 h-3.5" />
+              </div>
+            </Link>
           ))}
+        </div>
+      </div>
+
+      {/* Recent Updates */}
+      <div className="space-y-4">
+        <div className="flex items-center justify-between">
+          <h2 className="text-xs font-bold text-[#4A4A4A] uppercase tracking-wider">
+            Recent Updates
+          </h2>
+          <span className="text-[11px] text-[#777777]">Real database updates</span>
+        </div>
+
+        <div className="bg-[#FFFFFF] border border-[#D8D8D3] rounded p-4 space-y-3">
+          {loading ? (
+            <p className="text-xs text-[#777777]">Loading updates...</p>
+          ) : logs.length === 0 ? (
+            <p className="text-xs text-[#777777] py-4 text-center">No recent updates.</p>
+          ) : (
+            <div className="divide-y divide-[#EBEBE8]">
+              {logs.map(log => (
+                <div key={log.id} className="py-3 first:pt-0 last:pb-0 flex items-center justify-between text-xs gap-4">
+                  <div className="space-y-0.5">
+                    <div className="flex items-center gap-2">
+                      <span className="font-semibold text-[#161616]">{log.userName}</span>
+                      <span className="px-1.5 py-0.5 bg-[#F0F0ED] text-[10px] text-[#4A4A4A] rounded font-medium">
+                        {log.action}
+                      </span>
+                      <span className="text-[11px] text-[#777777] font-medium">
+                        {log.contentType}
+                      </span>
+                    </div>
+                    <p className="text-[#4A4A4A]">{log.contentSummary}</p>
+                  </div>
+                  <div className="flex items-center gap-1 text-[11px] text-[#777777] shrink-0 font-mono">
+                    <Clock className="w-3 h-3 text-[#777777]" />
+                    <span>{new Date(log.timestamp).toLocaleDateString()}</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       </div>
     </div>

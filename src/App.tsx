@@ -24,13 +24,19 @@ import { Contact } from './pages/Contact';
 // Admin CMS Pages
 import { AdminLogin } from './pages/admin/AdminLogin';
 import { AdminDashboard } from './pages/admin/AdminDashboard';
-import { AdminTeam } from './pages/admin/AdminTeam';
+import { AdminHomepage } from './pages/admin/AdminHomepage';
 import { AdminEvents } from './pages/admin/AdminEvents';
+import { AdminGallery } from './pages/admin/AdminGallery';
+import { AdminPosters } from './pages/admin/AdminPosters';
+import { AdminNews } from './pages/admin/AdminNews';
+import { AdminTeam } from './pages/admin/AdminTeam';
 import { AdminAchievements } from './pages/admin/AdminAchievements';
+import { AdminWorkshops } from './pages/admin/AdminWorkshops';
 import { AdminIdeas } from './pages/admin/AdminIdeas';
-import { AdminContent } from './pages/admin/AdminContent';
-import { AdminSubmissions } from './pages/admin/AdminSubmissions';
-import { AdminAuditLogs } from './pages/admin/AdminAuditLogs';
+import { AdminStartups } from './pages/admin/AdminStartups';
+import { AdminResources } from './pages/admin/AdminResources';
+import { AdminMedia } from './pages/admin/AdminMedia';
+import { AdminUsers } from './pages/admin/AdminUsers';
 import { AdminSettings } from './pages/admin/AdminSettings';
 
 export default function App() {
@@ -70,10 +76,10 @@ export default function App() {
             }
           />
           <Route
-            path="/admin/team"
+            path="/admin/homepage"
             element={
               <ProtectedRoute>
-                <AdminTeam />
+                <AdminHomepage />
               </ProtectedRoute>
             }
           />
@@ -86,10 +92,50 @@ export default function App() {
             }
           />
           <Route
+            path="/admin/gallery"
+            element={
+              <ProtectedRoute>
+                <AdminGallery />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/posters"
+            element={
+              <ProtectedRoute>
+                <AdminPosters />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/news"
+            element={
+              <ProtectedRoute>
+                <AdminNews />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/team"
+            element={
+              <ProtectedRoute>
+                <AdminTeam />
+              </ProtectedRoute>
+            }
+          />
+          <Route
             path="/admin/achievements"
             element={
               <ProtectedRoute>
                 <AdminAchievements />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/workshops"
+            element={
+              <ProtectedRoute>
+                <AdminWorkshops />
               </ProtectedRoute>
             }
           />
@@ -102,26 +148,34 @@ export default function App() {
             }
           />
           <Route
-            path="/admin/content"
+            path="/admin/startups"
             element={
               <ProtectedRoute>
-                <AdminContent />
+                <AdminStartups />
               </ProtectedRoute>
             }
           />
           <Route
-            path="/admin/submissions"
+            path="/admin/resources"
             element={
               <ProtectedRoute>
-                <AdminSubmissions />
+                <AdminResources />
               </ProtectedRoute>
             }
           />
           <Route
-            path="/admin/logs"
+            path="/admin/media"
             element={
               <ProtectedRoute>
-                <AdminAuditLogs />
+                <AdminMedia />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/users"
+            element={
+              <ProtectedRoute>
+                <AdminUsers />
               </ProtectedRoute>
             }
           />

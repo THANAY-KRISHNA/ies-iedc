@@ -1,53 +1,39 @@
 import React, { useEffect, useState } from 'react';
-import { useSearchParams } from 'react-router-dom';
 import { AdminLayout } from '../../components/admin/AdminLayout';
 import { api } from '../../services/api';
-import { Achievement, AcademicYear } from '../../types';
-import { INITIAL_DEPARTMENTS } from '../../data/initialData';
-import { Plus, Edit, Trash2, Award, Search } from 'lucide-react';
+import { ResourceItem } from '../../types';
+import { Plus, Edit, Trash2, FolderDown, ExternalLink, Search } from 'lucide-react';
 
-export const AdminAchievements: React.FC = () => {
-  const [searchParams] = useSearchParams();
-  const [achievements, setAchievements] = useState<Achievement[]>([]);
-  const [academicYears, setAcademicYears] = useState<AcademicYear[]>([]);
+export const AdminResources: React.FC = () => {
+  const [resources, setResources] = useState<ResourceItem[]>([]);
   const [search, setSearch] = useState('');
   const [loading, setLoading] = useState(true);
 
   // Modal State
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [editingItem, setEditingItem] = useState<Achievement | null>(null);
+  const [editingItem, setEditingItem] = useState<ResourceItem | null>(null);
 
   // Form State
   const [formData, setFormData] = useState({
     title: '',
-    academicYear: '2024–25',
-    category: 'Hackathon Winners' as Achievement['category'],
-    recipients: '',
+    category: 'Startup Guides' as ResourceItem['category'],
     description: '',
-    dateAwarded: '',
-    certificateUrl: '',
-    imageUrl: '',
+    authorOrSource: 'IES IEDC & KSUM',
+    linkUrl: '',
     published: true
   });
 
   useEffect(() => {
     loadData();
-    if (searchParams.get('action') === 'new') {
-      handleOpenAdd();
-    }
   }, []);
 
   async function loadData() {
     setLoading(true);
     try {
-      const [list, years] = await Promise.all([
-        api.adminGetAchievements(),
-        api.getAcademicYears()
-      ]);
-      setAchievements(list);
-      setAcademicYears(years);
+      const list = await api.adminGetResources();
+      setResources(list);
     } catch (err) {
-      console.error('Failed to load achievements data:', err);
+      console.error('Failed to load resources:', err);
     } finally {
       setLoading(false);
     }
@@ -57,29 +43,23 @@ export const AdminAchievements: React.FC = () => {
     setEditingItem(null);
     setFormData({
       title: '',
-      academicYear: '2024–25',
-      category: 'Hackathon Winners',
-      recipients: '',
+      category: 'Startup Guides',
       description: '',
-      dateAwarded: new Date().toISOString().split('T')[0],
-      certificateUrl: '',
-      imageUrl: '',
+      authorOrSource: 'IES IEDC & KSUM',
+      linkUrl: '',
       published: true
     });
     setIsModalOpen(true);
   };
 
-  const handleOpenEdit = (item: Achievement) => {
+  const handleOpenEdit = (item: ResourceItem) => {
     setEditingItem(item);
     setFormData({
       title: item.title,
-      academicYear: item.academicYear,
       category: item.category,
-      recipients: item.recipients,
       description: item.description,
-      dateAwarded: item.dateAwarded || '',
-      certificateUrl: item.certificateUrl || '',
-      imageUrl: item.imageUrl || '',
+      authorOrSource: item.authorOrSource || 'IES IEDC & KSUM',
+      linkUrl: item.linkUrl || '',
       published: item.published
     });
     setIsModalOpen(true);
@@ -87,35 +67,35 @@ export const AdminAchievements: React.FC = () => {
 
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!formData.title || !formData.recipients) return;
+    if (!formData.title) return;
 
     try {
       if (editingItem) {
-        await api.adminUpdateAchievement(editingItem.id, formData);
+        await api.adminUpdateResource(editingItem.id, formData);
       } else {
-        await api.adminAddAchievement(formData);
+        await api.adminAddResource(formData);
       }
       setIsModalOpen(false);
       loadData();
     } catch (err) {
-      console.error('Failed to save achievement:', err);
+      console.error('Failed to save resource:', err);
     }
   };
 
   const handleDelete = async (id: string) => {
-    if (!window.confirm('Are you sure you want to delete this achievement record?')) return;
+    if (!window.confirm('Are you sure you want to delete this resource?')) return;
     try {
-      await api.adminDeleteAchievement(id);
+      await api.adminDeleteResource(id);
       loadData();
     } catch (err) {
-      console.error('Failed to delete achievement:', err);
+      console.error('Failed to delete resource:', err);
     }
   };
 
-  const filteredAchievements = achievements.filter(
-    a =>
-      a.title.toLowerCase().includes(search.toLowerCase()) ||
-      a.recipients.toLowerCase().includes(search.toLowerCase())
+  const filteredResources = resources.filter(
+    r =>
+      r.title.toLowerCase().includes(search.toLowerCase()) ||
+      r.category.toLowerCase().includes(search.toLowerCase())
   );
 
   return (
@@ -124,9 +104,9 @@ export const AdminAchievements: React.FC = () => {
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-[#D8D8D3]">
           <div>
-            <h1 className="text-2xl font-bold text-[#161616] tracking-tight">Achievements</h1>
+            <h1 className="text-2xl font-bold text-[#161616] tracking-tight">Resources</h1>
             <p className="text-xs text-[#777777] mt-1">
-              Record verified student competition awards, hackathon wins, grants, and recognitions.
+              Manage downloadable guides, Business Model Canvas templates, IPR documents and tools.
             </p>
           </div>
 
@@ -135,7 +115,7 @@ export const AdminAchievements: React.FC = () => {
             className="px-4 py-2 bg-[#161616] hover:bg-[#242424] text-white rounded text-xs font-semibold flex items-center gap-1.5 cursor-pointer transition-colors"
           >
             <Plus className="w-4 h-4" />
-            <span>+ Add Achievement</span>
+            <span>+ Add Resource</span>
           </button>
         </div>
 
@@ -143,7 +123,7 @@ export const AdminAchievements: React.FC = () => {
         <div className="relative w-full sm:w-72">
           <input
             type="text"
-            placeholder="Search achievements..."
+            placeholder="Search resources..."
             value={search}
             onChange={e => setSearch(e.target.value)}
             className="w-full pl-8 pr-3 py-1.5 bg-[#FFFFFF] border border-[#D8D8D3] rounded text-xs text-[#242424] focus:outline-none focus:border-[#161616]"
@@ -151,18 +131,17 @@ export const AdminAchievements: React.FC = () => {
           <Search className="w-4 h-4 text-[#777777] absolute left-2.5 top-2" />
         </div>
 
-        {/* List Table */}
+        {/* List */}
         {loading ? (
-          <div className="py-12 text-center text-xs text-[#777777]">Loading achievements...</div>
-        ) : filteredAchievements.length === 0 ? (
+          <div className="py-12 text-center text-xs text-[#777777]">Loading resources...</div>
+        ) : filteredResources.length === 0 ? (
           <div className="bg-[#FFFFFF] border border-[#D8D8D3] rounded p-12 text-center space-y-3">
-            <p className="text-sm font-semibold text-[#242424]">No achievement records found</p>
-            <p className="text-xs text-[#777777]">Only administrator-entered/approved information is published.</p>
+            <p className="text-sm font-semibold text-[#242424]">No resources found</p>
             <button
               onClick={handleOpenAdd}
               className="px-4 py-2 bg-[#161616] text-white rounded text-xs font-semibold cursor-pointer"
             >
-              + Add Achievement
+              + Add Resource
             </button>
           </div>
         ) : (
@@ -171,25 +150,23 @@ export const AdminAchievements: React.FC = () => {
               <table className="w-full text-left border-collapse text-xs">
                 <thead>
                   <tr className="border-b border-[#D8D8D3] bg-[#F5F5F3] text-[#777777] font-semibold text-[11px]">
-                    <th className="p-3.5">Achievement Title</th>
-                    <th className="p-3.5">Student / Team</th>
+                    <th className="p-3.5">Resource Title</th>
                     <th className="p-3.5">Category</th>
-                    <th className="p-3.5">Year</th>
-                    <th className="p-3.5">Visibility</th>
+                    <th className="p-3.5">Author / Source</th>
+                    <th className="p-3.5">Status</th>
                     <th className="p-3.5 text-right">Actions</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-[#EBEBE8]">
-                  {filteredAchievements.map(item => (
+                  {filteredResources.map(item => (
                     <tr key={item.id} className="hover:bg-[#F0F0ED]/50 transition-colors">
-                      <td className="p-3.5 font-bold text-[#161616] max-w-xs">{item.title}</td>
-                      <td className="p-3.5 font-medium text-[#242424]">{item.recipients}</td>
+                      <td className="p-3.5 font-bold text-[#161616]">{item.title}</td>
                       <td className="p-3.5">
                         <span className="px-2 py-0.5 bg-[#F0F0ED] rounded text-[10px] font-medium text-[#4A4A4A]">
                           {item.category}
                         </span>
                       </td>
-                      <td className="p-3.5 font-medium text-[#242424]">{item.academicYear}</td>
+                      <td className="p-3.5 text-[#4A4A4A]">{item.authorOrSource || '—'}</td>
                       <td className="p-3.5">
                         <span
                           className={`px-2 py-0.5 rounded text-[10px] font-bold ${
@@ -226,10 +203,10 @@ export const AdminAchievements: React.FC = () => {
         {/* Modal Form */}
         {isModalOpen && (
           <div className="fixed inset-0 z-50 bg-black/60 flex items-center justify-center p-4 overflow-y-auto">
-            <div className="bg-white rounded border border-[#D8D8D3] w-full max-w-lg max-h-[90vh] overflow-y-auto p-6 space-y-4">
+            <div className="bg-white rounded border border-[#D8D8D3] w-full max-w-lg p-6 space-y-4">
               <div className="flex items-center justify-between border-b border-[#EBEBE8] pb-3">
                 <h3 className="font-bold text-base text-[#161616]">
-                  {editingItem ? 'Edit Achievement' : 'Add Achievement'}
+                  {editingItem ? 'Edit Resource' : 'Add Resource'}
                 </h3>
                 <button
                   onClick={() => setIsModalOpen(false)}
@@ -241,11 +218,11 @@ export const AdminAchievements: React.FC = () => {
 
               <form onSubmit={handleSave} className="space-y-4 text-xs">
                 <div className="space-y-1.5">
-                  <label className="font-semibold text-[#242424]">Achievement Title *</label>
+                  <label className="font-semibold text-[#242424]">Resource Title *</label>
                   <input
                     type="text"
                     required
-                    placeholder="e.g. 1st Place - Smart India Hackathon"
+                    placeholder="e.g. Business Model Canvas Guide"
                     value={formData.title}
                     onChange={e => setFormData({ ...formData, title: e.target.value })}
                     className="w-full px-3 py-2 bg-[#F5F5F3] border border-[#D8D8D3] rounded text-xs"
@@ -253,88 +230,48 @@ export const AdminAchievements: React.FC = () => {
                 </div>
 
                 <div className="space-y-1.5">
-                  <label className="font-semibold text-[#242424]">Student / Team Members *</label>
-                  <input
-                    type="text"
-                    required
-                    placeholder="e.g. Rahul V., Ananya K., Muhammed Shafi (S7 CSE)"
-                    value={formData.recipients}
-                    onChange={e => setFormData({ ...formData, recipients: e.target.value })}
+                  <label className="font-semibold text-[#242424]">Category</label>
+                  <select
+                    value={formData.category}
+                    onChange={e => setFormData({ ...formData, category: e.target.value as ResourceItem['category'] })}
                     className="w-full px-3 py-2 bg-[#F5F5F3] border border-[#D8D8D3] rounded text-xs"
-                  />
-                </div>
-
-                <div className="grid grid-cols-2 gap-3">
-                  <div className="space-y-1.5">
-                    <label className="font-semibold text-[#242424]">Category</label>
-                    <select
-                      value={formData.category}
-                      onChange={e => setFormData({ ...formData, category: e.target.value as Achievement['category'] })}
-                      className="w-full px-3 py-2 bg-[#F5F5F3] border border-[#D8D8D3] rounded text-xs"
-                    >
-                      <option value="Hackathon Winners">Hackathon Winners</option>
-                      <option value="Startup Achievements">Startup Achievements</option>
-                      <option value="Idea Competitions">Idea Competitions</option>
-                      <option value="Awards">Awards</option>
-                      <option value="Patents">Patents</option>
-                      <option value="Funded Projects">Funded Projects</option>
-                      <option value="Incubated Startups">Incubated Startups</option>
-                      <option value="External Recognitions">External Recognitions</option>
-                    </select>
-                  </div>
-
-                  <div className="space-y-1.5">
-                    <label className="font-semibold text-[#242424]">Academic Year</label>
-                    <select
-                      value={formData.academicYear}
-                      onChange={e => setFormData({ ...formData, academicYear: e.target.value })}
-                      className="w-full px-3 py-2 bg-[#F5F5F3] border border-[#D8D8D3] rounded text-xs"
-                    >
-                      {academicYears.map(y => (
-                        <option key={y.id} value={y.year}>
-                          {y.year}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
+                  >
+                    <option value="Startup Guides">Startup Guides</option>
+                    <option value="Project Ideas">Project Ideas</option>
+                    <option value="IPR Resources">IPR Resources</option>
+                    <option value="Business Model Canvas">Business Model Canvas</option>
+                    <option value="Design Thinking">Design Thinking</option>
+                    <option value="Pitch Deck Resources">Pitch Deck Resources</option>
+                    <option value="Funding Information">Funding Information</option>
+                    <option value="KSUM Resources">KSUM Resources</option>
+                    <option value="Useful Tools">Useful Tools</option>
+                  </select>
                 </div>
 
                 <div className="space-y-1.5">
                   <label className="font-semibold text-[#242424]">Description</label>
                   <textarea
                     rows={3}
-                    placeholder="Details about the competition and result..."
+                    placeholder="Brief description of the resource..."
                     value={formData.description}
                     onChange={e => setFormData({ ...formData, description: e.target.value })}
                     className="w-full px-3 py-2 bg-[#F5F5F3] border border-[#D8D8D3] rounded text-xs"
                   />
                 </div>
 
-                <div className="grid grid-cols-2 gap-3">
-                  <div className="space-y-1.5">
-                    <label className="font-semibold text-[#242424]">Photo URL</label>
-                    <input
-                      type="text"
-                      placeholder="https://..."
-                      value={formData.imageUrl}
-                      onChange={e => setFormData({ ...formData, imageUrl: e.target.value })}
-                      className="w-full px-3 py-2 bg-[#F5F5F3] border border-[#D8D8D3] rounded text-xs"
-                    />
-                  </div>
-                  <div className="space-y-1.5">
-                    <label className="font-semibold text-[#242424]">Certificate URL</label>
-                    <input
-                      type="text"
-                      placeholder="https://..."
-                      value={formData.certificateUrl}
-                      onChange={e => setFormData({ ...formData, certificateUrl: e.target.value })}
-                      className="w-full px-3 py-2 bg-[#F5F5F3] border border-[#D8D8D3] rounded text-xs"
-                    />
-                  </div>
+                <div className="space-y-1.5">
+                  <label className="font-semibold text-[#242424]">Resource Link / File URL</label>
+                  <input
+                    type="url"
+                    placeholder="https://..."
+                    value={formData.linkUrl}
+                    onChange={e => setFormData({ ...formData, linkUrl: e.target.value })}
+                    className="w-full px-3 py-2 bg-[#F5F5F3] border border-[#D8D8D3] rounded text-xs"
+                  />
                 </div>
 
                 <div className="pt-3 border-t border-[#EBEBE8] flex items-center justify-between">
-                  <label className="flex items-center gap-2 cursor-pointer font-semibold">
+                  <label className="flex items-center gap-2 font-semibold cursor-pointer">
                     <input
                       type="checkbox"
                       checked={formData.published}
@@ -356,7 +293,7 @@ export const AdminAchievements: React.FC = () => {
                       type="submit"
                       className="px-4 py-2 bg-[#161616] hover:bg-[#242424] text-white rounded text-xs font-semibold"
                     >
-                      Save Achievement
+                      Save Resource
                     </button>
                   </div>
                 </div>

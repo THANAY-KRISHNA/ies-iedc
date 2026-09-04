@@ -5,14 +5,14 @@
       "name": "Prof. Shahaziya Parvez",
       "email": "nodal.officer@iesce.info",
       "role": "Super Admin",
-      "lastLogin": "2026-09-04T08:30:00Z"
+      "lastLogin": "2026-09-04T12:07:36.849Z"
     },
     {
       "id": "usr_content",
       "name": "Content Administrator",
       "email": "content.iedc@iesce.info",
       "role": "Content Admin",
-      "lastLogin": "2026-09-03T14:15:00Z"
+      "lastLogin": "2026-09-04T11:24:38.299Z"
     },
     {
       "id": "usr_team",
@@ -609,6 +609,21 @@
       "responsibility": "Develops and maintains digital tools and web portals.",
       "sortOrder": 28,
       "status": "Published"
+    },
+    {
+      "name": "[dofigjs[droij",
+      "roleType": "Student Lead",
+      "position": "[pskfaw[",
+      "department": "CSE",
+      "designation": "",
+      "responsibility": "",
+      "email": "",
+      "linkedinUrl": "",
+      "photoUrl": "",
+      "academicYear": "2025–26",
+      "status": "Published",
+      "sortOrder": 1,
+      "id": "tm_1788524871491_n993"
     }
   ],
   "events": [
@@ -1365,6 +1380,26 @@
   "submissions": [],
   "activityLogs": [
     {
+      "userName": "Prof. Shahaziya Parvez",
+      "userRole": "Team Admin",
+      "action": "Created",
+      "contentType": "Team Member",
+      "contentId": "tm_1788524871491_n993",
+      "contentSummary": "Added team member [dofigjs[droij ([pskfaw[, 2025–26)",
+      "id": "log_1788524871491_tlml",
+      "timestamp": "2026-09-04T12:27:51.491Z"
+    },
+    {
+      "userName": "Prof. Shahaziya Parvez",
+      "userRole": "Super Admin",
+      "action": "Updated",
+      "contentType": "Site Settings",
+      "contentId": "site_config",
+      "contentSummary": "Updated global site settings and configuration",
+      "id": "log_1788524509850_p6fp",
+      "timestamp": "2026-09-04T12:21:49.850Z"
+    },
+    {
       "id": "log_seed",
       "userName": "System",
       "userRole": "Super Admin",
@@ -1391,7 +1426,7 @@
     "ksumUrl": "https://startupmission.kerala.gov.in",
     "instagramUrl": "",
     "linkedinUrl": "",
-    "heroHeading": "Innovation and Entrepreneurship Development Centre",
+    "heroHeading": "Innovation and Entrepreneurship Development Centre...",
     "heroSubtitle": "A flagship initiative of Kerala Startup Mission (KSUM) at IES College of Engineering, nurturing student technopreneurs through practical innovation and experiential learning.",
     "heroCtaText": "Explore Events & Activities",
     "heroSecondaryCtaText": "Submit Your Idea",

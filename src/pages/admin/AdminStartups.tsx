@@ -1,53 +1,50 @@
 import React, { useEffect, useState } from 'react';
-import { useSearchParams } from 'react-router-dom';
 import { AdminLayout } from '../../components/admin/AdminLayout';
 import { api } from '../../services/api';
-import { Achievement, AcademicYear } from '../../types';
-import { INITIAL_DEPARTMENTS } from '../../data/initialData';
-import { Plus, Edit, Trash2, Award, Search } from 'lucide-react';
+import { StartupItem, AcademicYear } from '../../types';
+import { Plus, Edit, Trash2, Rocket, Search, Globe } from 'lucide-react';
 
-export const AdminAchievements: React.FC = () => {
-  const [searchParams] = useSearchParams();
-  const [achievements, setAchievements] = useState<Achievement[]>([]);
+export const AdminStartups: React.FC = () => {
+  const [startups, setStartups] = useState<StartupItem[]>([]);
   const [academicYears, setAcademicYears] = useState<AcademicYear[]>([]);
   const [search, setSearch] = useState('');
   const [loading, setLoading] = useState(true);
 
   // Modal State
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [editingItem, setEditingItem] = useState<Achievement | null>(null);
+  const [editingItem, setEditingItem] = useState<StartupItem | null>(null);
 
   // Form State
   const [formData, setFormData] = useState({
-    title: '',
+    name: '',
+    founderTeam: '',
+    department: 'CSE',
     academicYear: '2024–25',
-    category: 'Hackathon Winners' as Achievement['category'],
-    recipients: '',
+    problemSolved: '',
+    productService: '',
     description: '',
-    dateAwarded: '',
-    certificateUrl: '',
-    imageUrl: '',
+    logoUrl: '',
+    websiteUrl: '',
+    socialMediaUrl: '',
+    status: 'Prototype' as StartupItem['status'],
     published: true
   });
 
   useEffect(() => {
     loadData();
-    if (searchParams.get('action') === 'new') {
-      handleOpenAdd();
-    }
   }, []);
 
   async function loadData() {
     setLoading(true);
     try {
       const [list, years] = await Promise.all([
-        api.adminGetAchievements(),
+        api.adminGetStartups(),
         api.getAcademicYears()
       ]);
-      setAchievements(list);
+      setStartups(list);
       setAcademicYears(years);
     } catch (err) {
-      console.error('Failed to load achievements data:', err);
+      console.error('Failed to load startups:', err);
     } finally {
       setLoading(false);
     }
@@ -56,30 +53,36 @@ export const AdminAchievements: React.FC = () => {
   const handleOpenAdd = () => {
     setEditingItem(null);
     setFormData({
-      title: '',
+      name: '',
+      founderTeam: '',
+      department: 'CSE',
       academicYear: '2024–25',
-      category: 'Hackathon Winners',
-      recipients: '',
+      problemSolved: '',
+      productService: '',
       description: '',
-      dateAwarded: new Date().toISOString().split('T')[0],
-      certificateUrl: '',
-      imageUrl: '',
+      logoUrl: '',
+      websiteUrl: '',
+      socialMediaUrl: '',
+      status: 'Prototype',
       published: true
     });
     setIsModalOpen(true);
   };
 
-  const handleOpenEdit = (item: Achievement) => {
+  const handleOpenEdit = (item: StartupItem) => {
     setEditingItem(item);
     setFormData({
-      title: item.title,
+      name: item.name,
+      founderTeam: item.founderTeam,
+      department: item.department || 'CSE',
       academicYear: item.academicYear,
-      category: item.category,
-      recipients: item.recipients,
+      problemSolved: item.problemSolved || '',
+      productService: item.productService || '',
       description: item.description,
-      dateAwarded: item.dateAwarded || '',
-      certificateUrl: item.certificateUrl || '',
-      imageUrl: item.imageUrl || '',
+      logoUrl: item.logoUrl || '',
+      websiteUrl: item.websiteUrl || '',
+      socialMediaUrl: item.socialMediaUrl || '',
+      status: item.status,
       published: item.published
     });
     setIsModalOpen(true);
@@ -87,35 +90,35 @@ export const AdminAchievements: React.FC = () => {
 
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!formData.title || !formData.recipients) return;
+    if (!formData.name || !formData.founderTeam) return;
 
     try {
       if (editingItem) {
-        await api.adminUpdateAchievement(editingItem.id, formData);
+        await api.adminUpdateStartup(editingItem.id, formData);
       } else {
-        await api.adminAddAchievement(formData);
+        await api.adminAddStartup(formData);
       }
       setIsModalOpen(false);
       loadData();
     } catch (err) {
-      console.error('Failed to save achievement:', err);
+      console.error('Failed to save startup:', err);
     }
   };
 
   const handleDelete = async (id: string) => {
-    if (!window.confirm('Are you sure you want to delete this achievement record?')) return;
+    if (!window.confirm('Are you sure you want to remove this startup record?')) return;
     try {
-      await api.adminDeleteAchievement(id);
+      await api.adminDeleteStartup(id);
       loadData();
     } catch (err) {
-      console.error('Failed to delete achievement:', err);
+      console.error('Failed to delete startup:', err);
     }
   };
 
-  const filteredAchievements = achievements.filter(
-    a =>
-      a.title.toLowerCase().includes(search.toLowerCase()) ||
-      a.recipients.toLowerCase().includes(search.toLowerCase())
+  const filteredStartups = startups.filter(
+    s =>
+      s.name.toLowerCase().includes(search.toLowerCase()) ||
+      s.founderTeam.toLowerCase().includes(search.toLowerCase())
   );
 
   return (
@@ -124,9 +127,9 @@ export const AdminAchievements: React.FC = () => {
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-[#D8D8D3]">
           <div>
-            <h1 className="text-2xl font-bold text-[#161616] tracking-tight">Achievements</h1>
+            <h1 className="text-2xl font-bold text-[#161616] tracking-tight">Startups</h1>
             <p className="text-xs text-[#777777] mt-1">
-              Record verified student competition awards, hackathon wins, grants, and recognitions.
+              Manage student campus startups, incubated ventures, and commercial spin-offs.
             </p>
           </div>
 
@@ -135,7 +138,7 @@ export const AdminAchievements: React.FC = () => {
             className="px-4 py-2 bg-[#161616] hover:bg-[#242424] text-white rounded text-xs font-semibold flex items-center gap-1.5 cursor-pointer transition-colors"
           >
             <Plus className="w-4 h-4" />
-            <span>+ Add Achievement</span>
+            <span>+ Add Startup</span>
           </button>
         </div>
 
@@ -143,7 +146,7 @@ export const AdminAchievements: React.FC = () => {
         <div className="relative w-full sm:w-72">
           <input
             type="text"
-            placeholder="Search achievements..."
+            placeholder="Search startups..."
             value={search}
             onChange={e => setSearch(e.target.value)}
             className="w-full pl-8 pr-3 py-1.5 bg-[#FFFFFF] border border-[#D8D8D3] rounded text-xs text-[#242424] focus:outline-none focus:border-[#161616]"
@@ -151,18 +154,18 @@ export const AdminAchievements: React.FC = () => {
           <Search className="w-4 h-4 text-[#777777] absolute left-2.5 top-2" />
         </div>
 
-        {/* List Table */}
+        {/* List */}
         {loading ? (
-          <div className="py-12 text-center text-xs text-[#777777]">Loading achievements...</div>
-        ) : filteredAchievements.length === 0 ? (
+          <div className="py-12 text-center text-xs text-[#777777]">Loading startups...</div>
+        ) : filteredStartups.length === 0 ? (
           <div className="bg-[#FFFFFF] border border-[#D8D8D3] rounded p-12 text-center space-y-3">
-            <p className="text-sm font-semibold text-[#242424]">No achievement records found</p>
-            <p className="text-xs text-[#777777]">Only administrator-entered/approved information is published.</p>
+            <p className="text-sm font-semibold text-[#242424]">No startups added yet</p>
+            <p className="text-xs text-[#777777]">Only display administrator-entered approved content.</p>
             <button
               onClick={handleOpenAdd}
               className="px-4 py-2 bg-[#161616] text-white rounded text-xs font-semibold cursor-pointer"
             >
-              + Add Achievement
+              + Add Startup
             </button>
           </div>
         ) : (
@@ -171,34 +174,22 @@ export const AdminAchievements: React.FC = () => {
               <table className="w-full text-left border-collapse text-xs">
                 <thead>
                   <tr className="border-b border-[#D8D8D3] bg-[#F5F5F3] text-[#777777] font-semibold text-[11px]">
-                    <th className="p-3.5">Achievement Title</th>
-                    <th className="p-3.5">Student / Team</th>
-                    <th className="p-3.5">Category</th>
-                    <th className="p-3.5">Year</th>
-                    <th className="p-3.5">Visibility</th>
+                    <th className="p-3.5">Startup Name</th>
+                    <th className="p-3.5">Founder / Team</th>
+                    <th className="p-3.5">Product / Service</th>
+                    <th className="p-3.5">Status</th>
                     <th className="p-3.5 text-right">Actions</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-[#EBEBE8]">
-                  {filteredAchievements.map(item => (
+                  {filteredStartups.map(item => (
                     <tr key={item.id} className="hover:bg-[#F0F0ED]/50 transition-colors">
-                      <td className="p-3.5 font-bold text-[#161616] max-w-xs">{item.title}</td>
-                      <td className="p-3.5 font-medium text-[#242424]">{item.recipients}</td>
+                      <td className="p-3.5 font-bold text-[#161616]">{item.name}</td>
+                      <td className="p-3.5 font-medium text-[#242424]">{item.founderTeam}</td>
+                      <td className="p-3.5 text-[#4A4A4A]">{item.productService || item.description}</td>
                       <td className="p-3.5">
-                        <span className="px-2 py-0.5 bg-[#F0F0ED] rounded text-[10px] font-medium text-[#4A4A4A]">
-                          {item.category}
-                        </span>
-                      </td>
-                      <td className="p-3.5 font-medium text-[#242424]">{item.academicYear}</td>
-                      <td className="p-3.5">
-                        <span
-                          className={`px-2 py-0.5 rounded text-[10px] font-bold ${
-                            item.published
-                              ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
-                              : 'bg-amber-50 text-amber-700 border border-amber-200'
-                          }`}
-                        >
-                          {item.published ? 'Published' : 'Draft'}
+                        <span className="px-2 py-0.5 bg-[#F0F0ED] rounded text-[10px] font-bold text-[#4A4A4A]">
+                          {item.status}
                         </span>
                       </td>
                       <td className="p-3.5 text-right space-x-1">
@@ -229,7 +220,7 @@ export const AdminAchievements: React.FC = () => {
             <div className="bg-white rounded border border-[#D8D8D3] w-full max-w-lg max-h-[90vh] overflow-y-auto p-6 space-y-4">
               <div className="flex items-center justify-between border-b border-[#EBEBE8] pb-3">
                 <h3 className="font-bold text-base text-[#161616]">
-                  {editingItem ? 'Edit Achievement' : 'Add Achievement'}
+                  {editingItem ? 'Edit Startup' : 'Add Startup'}
                 </h3>
                 <button
                   onClick={() => setIsModalOpen(false)}
@@ -241,45 +232,43 @@ export const AdminAchievements: React.FC = () => {
 
               <form onSubmit={handleSave} className="space-y-4 text-xs">
                 <div className="space-y-1.5">
-                  <label className="font-semibold text-[#242424]">Achievement Title *</label>
+                  <label className="font-semibold text-[#242424]">Startup Name *</label>
                   <input
                     type="text"
                     required
-                    placeholder="e.g. 1st Place - Smart India Hackathon"
-                    value={formData.title}
-                    onChange={e => setFormData({ ...formData, title: e.target.value })}
+                    placeholder="e.g. EcoGrid Tech Solutions"
+                    value={formData.name}
+                    onChange={e => setFormData({ ...formData, name: e.target.value })}
                     className="w-full px-3 py-2 bg-[#F5F5F3] border border-[#D8D8D3] rounded text-xs"
                   />
                 </div>
 
                 <div className="space-y-1.5">
-                  <label className="font-semibold text-[#242424]">Student / Team Members *</label>
+                  <label className="font-semibold text-[#242424]">Founder / Team *</label>
                   <input
                     type="text"
                     required
-                    placeholder="e.g. Rahul V., Ananya K., Muhammed Shafi (S7 CSE)"
-                    value={formData.recipients}
-                    onChange={e => setFormData({ ...formData, recipients: e.target.value })}
+                    placeholder="e.g. Abhinav S. & Team (S7 EEE)"
+                    value={formData.founderTeam}
+                    onChange={e => setFormData({ ...formData, founderTeam: e.target.value })}
                     className="w-full px-3 py-2 bg-[#F5F5F3] border border-[#D8D8D3] rounded text-xs"
                   />
                 </div>
 
                 <div className="grid grid-cols-2 gap-3">
                   <div className="space-y-1.5">
-                    <label className="font-semibold text-[#242424]">Category</label>
+                    <label className="font-semibold text-[#242424]">Status</label>
                     <select
-                      value={formData.category}
-                      onChange={e => setFormData({ ...formData, category: e.target.value as Achievement['category'] })}
+                      value={formData.status}
+                      onChange={e => setFormData({ ...formData, status: e.target.value as StartupItem['status'] })}
                       className="w-full px-3 py-2 bg-[#F5F5F3] border border-[#D8D8D3] rounded text-xs"
                     >
-                      <option value="Hackathon Winners">Hackathon Winners</option>
-                      <option value="Startup Achievements">Startup Achievements</option>
-                      <option value="Idea Competitions">Idea Competitions</option>
-                      <option value="Awards">Awards</option>
-                      <option value="Patents">Patents</option>
-                      <option value="Funded Projects">Funded Projects</option>
-                      <option value="Incubated Startups">Incubated Startups</option>
-                      <option value="External Recognitions">External Recognitions</option>
+                      <option value="Ideation">Ideation</option>
+                      <option value="Prototype">Prototype</option>
+                      <option value="Incubated">Incubated</option>
+                      <option value="Registered">Registered</option>
+                      <option value="Revenue">Revenue</option>
+                      <option value="Graduated">Graduated</option>
                     </select>
                   </div>
 
@@ -300,10 +289,21 @@ export const AdminAchievements: React.FC = () => {
                 </div>
 
                 <div className="space-y-1.5">
+                  <label className="font-semibold text-[#242424]">Product / Service</label>
+                  <input
+                    type="text"
+                    placeholder="e.g. Smart IoT Microgrid Controller"
+                    value={formData.productService}
+                    onChange={e => setFormData({ ...formData, productService: e.target.value })}
+                    className="w-full px-3 py-2 bg-[#F5F5F3] border border-[#D8D8D3] rounded text-xs"
+                  />
+                </div>
+
+                <div className="space-y-1.5">
                   <label className="font-semibold text-[#242424]">Description</label>
                   <textarea
                     rows={3}
-                    placeholder="Details about the competition and result..."
+                    placeholder="Brief description of the startup venture..."
                     value={formData.description}
                     onChange={e => setFormData({ ...formData, description: e.target.value })}
                     className="w-full px-3 py-2 bg-[#F5F5F3] border border-[#D8D8D3] rounded text-xs"
@@ -312,29 +312,29 @@ export const AdminAchievements: React.FC = () => {
 
                 <div className="grid grid-cols-2 gap-3">
                   <div className="space-y-1.5">
-                    <label className="font-semibold text-[#242424]">Photo URL</label>
+                    <label className="font-semibold text-[#242424]">Website URL</label>
                     <input
-                      type="text"
+                      type="url"
                       placeholder="https://..."
-                      value={formData.imageUrl}
-                      onChange={e => setFormData({ ...formData, imageUrl: e.target.value })}
+                      value={formData.websiteUrl}
+                      onChange={e => setFormData({ ...formData, websiteUrl: e.target.value })}
                       className="w-full px-3 py-2 bg-[#F5F5F3] border border-[#D8D8D3] rounded text-xs"
                     />
                   </div>
                   <div className="space-y-1.5">
-                    <label className="font-semibold text-[#242424]">Certificate URL</label>
+                    <label className="font-semibold text-[#242424]">Logo Image URL</label>
                     <input
                       type="text"
                       placeholder="https://..."
-                      value={formData.certificateUrl}
-                      onChange={e => setFormData({ ...formData, certificateUrl: e.target.value })}
+                      value={formData.logoUrl}
+                      onChange={e => setFormData({ ...formData, logoUrl: e.target.value })}
                       className="w-full px-3 py-2 bg-[#F5F5F3] border border-[#D8D8D3] rounded text-xs"
                     />
                   </div>
                 </div>
 
                 <div className="pt-3 border-t border-[#EBEBE8] flex items-center justify-between">
-                  <label className="flex items-center gap-2 cursor-pointer font-semibold">
+                  <label className="flex items-center gap-2 font-semibold cursor-pointer">
                     <input
                       type="checkbox"
                       checked={formData.published}
@@ -356,7 +356,7 @@ export const AdminAchievements: React.FC = () => {
                       type="submit"
                       className="px-4 py-2 bg-[#161616] hover:bg-[#242424] text-white rounded text-xs font-semibold"
                     >
-                      Save Achievement
+                      Save Startup
                     </button>
                   </div>
                 </div>

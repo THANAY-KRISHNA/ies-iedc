@@ -1,13 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import { useAuth } from '../../context/AuthContext';
-import { Badge } from '../../components/ui/Badge';
-import { Button } from '../../components/ui/Button';
-import { Modal } from '../../components/ui/Modal';
-import { SearchFilterBar } from '../../components/ui/SearchFilterBar';
-import { LoadingState } from '../../components/ui/LoadingState';
+import { AdminLayout } from '../../components/admin/AdminLayout';
 import { api } from '../../services/api';
 import { StudentIdea } from '../../types';
-import { Sparkles, Edit2, CheckCircle2, MessageSquare, ExternalLink } from 'lucide-react';
+import { Sparkles, Edit, Search, Lock, ShieldAlert } from 'lucide-react';
 
 export const AdminIdeas: React.FC = () => {
   const [ideas, setIdeas] = useState<StudentIdea[]>([]);
@@ -18,6 +13,7 @@ export const AdminIdeas: React.FC = () => {
   const [selectedIdea, setSelectedIdea] = useState<StudentIdea | null>(null);
   const [status, setStatus] = useState<StudentIdea['status']>('New');
   const [adminNotes, setAdminNotes] = useState('');
+  const [saving, setSaving] = useState(false);
 
   useEffect(() => {
     loadIdeas();
@@ -29,7 +25,7 @@ export const AdminIdeas: React.FC = () => {
       const data = await api.adminGetIdeas();
       setIdeas(data);
     } catch (err) {
-      console.error('Failed to load ideas:', err);
+      console.error('Failed to load student ideas:', err);
     } finally {
       setLoading(false);
     }
@@ -44,185 +40,199 @@ export const AdminIdeas: React.FC = () => {
   const handleUpdateStatus = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!selectedIdea) return;
+    setSaving(true);
     try {
       await api.adminUpdateIdeaStatus(selectedIdea.id, { status, adminNotes });
       setSelectedIdea(null);
       loadIdeas();
     } catch (err) {
       console.error('Failed to update idea status:', err);
+    } finally {
+      setSaving(false);
     }
   };
 
-  const filteredIdeas = ideas.filter(i => {
-    return (
+  const filteredIdeas = ideas.filter(
+    i =>
       i.projectName.toLowerCase().includes(search.toLowerCase()) ||
       i.studentName.toLowerCase().includes(search.toLowerCase()) ||
       i.department.toLowerCase().includes(search.toLowerCase())
-    );
-  });
+  );
 
   return (
-    <div className="space-y-8">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-[#D8D8D3]">
-        <div>
-          <h1 className="text-2xl font-black text-[#161616] tracking-tight">
-            Student Innovation &amp; Idea Cell
-          </h1>
+    <AdminLayout>
+      <div className="space-y-6 font-sans">
+        {/* Header */}
+        <div className="pb-4 border-b border-[#D8D8D3]">
+          <h1 className="text-2xl font-bold text-[#161616] tracking-tight">Student Ideas</h1>
           <p className="text-xs text-[#777777] mt-1">
-            Review student project pitches, allocate faculty mentors, and promote to KSUM incubation.
+            Review student project submissions, assign mentors, and track development.
           </p>
         </div>
-      </div>
 
-      <SearchFilterBar
-        searchValue={search}
-        onSearchChange={setSearch}
-        searchPlaceholder="Search proposals by student name, project title, or department..."
-      />
-
-      {loading ? (
-        <LoadingState message="Loading submitted student proposals..." />
-      ) : (
-        <div className="neu-raised rounded-xl overflow-hidden border border-[#D8D8D3]">
-          <div className="overflow-x-auto">
-            <table className="w-full text-left border-collapse text-xs">
-              <thead>
-                <tr className="border-b border-[#D8D8D3] bg-[#EBEBE8]/50 text-[#777777] uppercase tracking-wider text-[10px]">
-                  <th className="p-3.5 font-bold">Project Name</th>
-                  <th className="p-3.5 font-bold">Innovator / Dept</th>
-                  <th className="p-3.5 font-bold">Technology</th>
-                  <th className="p-3.5 font-bold">Submitted Date</th>
-                  <th className="p-3.5 font-bold">Status</th>
-                  <th className="p-3.5 font-bold text-right">Actions</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-[#EBEBE8]">
-                {filteredIdeas.map(idea => (
-                  <tr key={idea.id} className="hover:bg-[#EBEBE8]/20 transition-colors">
-                    <td className="p-3.5 font-bold text-[#161616] max-w-xs">{idea.projectName}</td>
-                    <td className="p-3.5">
-                      <span className="font-semibold text-[#242424] block">{idea.studentName}</span>
-                      <span className="text-[10px] text-[#777777]">
-                        {idea.department} • {idea.studentEmail || 'No email'}
-                      </span>
-                    </td>
-                    <td className="p-3.5 text-[#4A4A4A]">{idea.technology || '—'}</td>
-                    <td className="p-3.5 text-[#777777]">
-                      {new Date(idea.createdAt).toLocaleDateString()}
-                    </td>
-                    <td className="p-3.5">
-                      <Badge
-                        variant={
-                          idea.status === 'Accepted' || idea.status === 'Developing'
-                            ? 'success'
-                            : idea.status === 'Under Review'
-                            ? 'warning'
-                            : 'neutral'
-                        }
-                        size="sm"
-                      >
-                        {idea.status}
-                      </Badge>
-                    </td>
-                    <td className="p-3.5 text-right">
-                      <Button
-                        variant="secondary"
-                        size="sm"
-                        onClick={() => handleOpenReview(idea)}
-                        icon={<Edit2 className="w-3.5 h-3.5" />}
-                      >
-                        Review
-                      </Button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+        {/* Search */}
+        <div className="relative w-full sm:w-72">
+          <input
+            type="text"
+            placeholder="Search student ideas..."
+            value={search}
+            onChange={e => setSearch(e.target.value)}
+            className="w-full pl-8 pr-3 py-1.5 bg-[#FFFFFF] border border-[#D8D8D3] rounded text-xs text-[#242424] focus:outline-none focus:border-[#161616]"
+          />
+          <Search className="w-4 h-4 text-[#777777] absolute left-2.5 top-2" />
         </div>
-      )}
 
-      {/* Review Modal */}
-      <Modal
-        isOpen={!!selectedIdea}
-        onClose={() => setSelectedIdea(null)}
-        title={selectedIdea?.projectName}
-        subtitle={`Submitted by ${selectedIdea?.studentName} (${selectedIdea?.department})`}
-        maxWidth="2xl"
-      >
-        {selectedIdea && (
-          <form onSubmit={handleUpdateStatus} className="space-y-4 text-xs">
-            <div className="space-y-2 p-3 bg-[#EBEBE8] rounded-xl border border-[#D8D8D3]">
-              <div>
-                <strong className="text-[#161616] block">Problem Statement:</strong>
-                <p className="text-[#4A4A4A] mt-0.5">{selectedIdea.problem}</p>
-              </div>
-              <div>
-                <strong className="text-[#161616] block">Proposed Solution:</strong>
-                <p className="text-[#4A4A4A] mt-0.5">{selectedIdea.proposedSolution}</p>
-              </div>
-              {selectedIdea.studentPhone && (
-                <p className="text-[11px] text-[#777777]">
-                  Contact Phone: <strong>{selectedIdea.studentPhone}</strong>
-                </p>
-              )}
+        {/* Ideas Table */}
+        {loading ? (
+          <div className="py-12 text-center text-xs text-[#777777]">Loading student submissions...</div>
+        ) : filteredIdeas.length === 0 ? (
+          <div className="bg-[#FFFFFF] border border-[#D8D8D3] rounded p-12 text-center text-xs text-[#777777]">
+            No student ideas submitted yet.
+          </div>
+        ) : (
+          <div className="bg-[#FFFFFF] border border-[#D8D8D3] rounded overflow-hidden">
+            <div className="overflow-x-auto">
+              <table className="w-full text-left border-collapse text-xs">
+                <thead>
+                  <tr className="border-b border-[#D8D8D3] bg-[#F5F5F3] text-[#777777] font-semibold text-[11px]">
+                    <th className="p-3.5">Student / Team</th>
+                    <th className="p-3.5">Idea Name</th>
+                    <th className="p-3.5">Department</th>
+                    <th className="p-3.5">Submission Date</th>
+                    <th className="p-3.5">Status</th>
+                    <th className="p-3.5 text-right">Actions</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-[#EBEBE8]">
+                  {filteredIdeas.map(idea => (
+                    <tr key={idea.id} className="hover:bg-[#F0F0ED]/50 transition-colors">
+                      <td className="p-3.5">
+                        <p className="font-bold text-[#161616]">{idea.studentName}</p>
+                        <p className="text-[11px] text-[#777777]">{idea.studentEmail}</p>
+                      </td>
+                      <td className="p-3.5 font-bold text-[#161616] max-w-xs">{idea.projectName}</td>
+                      <td className="p-3.5 text-[#4A4A4A]">{idea.department}</td>
+                      <td className="p-3.5 text-[#777777]">
+                        {new Date(idea.submittedAt || Date.now()).toLocaleDateString()}
+                      </td>
+                      <td className="p-3.5">
+                        <span
+                          className={`px-2 py-0.5 rounded text-[10px] font-bold ${
+                            idea.status === 'Accepted' || idea.status === 'Developing'
+                              ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
+                              : idea.status === 'Under Review'
+                              ? 'bg-amber-50 text-amber-700 border border-amber-200'
+                              : 'bg-[#F0F0ED] text-[#4A4A4A] border border-[#D8D8D3]'
+                          }`}
+                        >
+                          {idea.status}
+                        </span>
+                      </td>
+                      <td className="p-3.5 text-right">
+                        <button
+                          onClick={() => handleOpenReview(idea)}
+                          className="px-3 py-1 bg-[#F0F0ED] hover:bg-[#EBEBE8] border border-[#D8D8D3] rounded text-xs font-semibold cursor-pointer"
+                        >
+                          Review &amp; Notes
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             </div>
-
-            <div className="grid grid-cols-2 gap-3">
-              <div className="space-y-1">
-                <label className="font-bold text-[#242424]">Incubation Status</label>
-                <select
-                  value={status}
-                  onChange={e => setStatus(e.target.value as StudentIdea['status'])}
-                  className="w-full px-3 py-2 neu-raised-soft border border-[#D8D8D3] rounded-lg text-xs"
-                >
-                  <option value="New">New</option>
-                  <option value="Under Review">Under Review</option>
-                  <option value="Contacted">Contacted</option>
-                  <option value="Accepted">Accepted</option>
-                  <option value="Developing">Developing (Public Showcase)</option>
-                  <option value="Completed">Completed</option>
-                  <option value="Rejected">Rejected</option>
-                </select>
-              </div>
-
-              <div className="space-y-1">
-                <label className="font-bold text-[#242424]">Public Showcase Notice</label>
-                <p className="text-[11px] text-[#777777] pt-2">
-                  Status 'Accepted' or 'Developing' will feature this project in the Student
-                  Incubator showcase.
-                </p>
-              </div>
-            </div>
-
-            <div className="space-y-1">
-              <label className="font-bold text-[#242424]">Mentor / Administrative Feedback</label>
-              <textarea
-                rows={3}
-                placeholder="Notes on screening, assigned faculty guide, or next steps..."
-                value={adminNotes}
-                onChange={e => setAdminNotes(e.target.value)}
-                className="w-full px-3 py-2 neu-inset rounded-lg text-xs"
-              />
-            </div>
-
-            <div className="flex justify-end gap-2 pt-2">
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                onClick={() => setSelectedIdea(null)}
-              >
-                Cancel
-              </Button>
-              <Button type="submit" variant="primary" size="sm">
-                Save Evaluation
-              </Button>
-            </div>
-          </form>
+          </div>
         )}
-      </Modal>
-    </div>
+
+        {/* Review Modal */}
+        {selectedIdea && (
+          <div className="fixed inset-0 z-50 bg-black/60 flex items-center justify-center p-4 overflow-y-auto">
+            <div className="bg-white rounded border border-[#D8D8D3] w-full max-w-xl max-h-[90vh] overflow-y-auto p-6 space-y-5">
+              <div className="flex items-center justify-between border-b border-[#EBEBE8] pb-3">
+                <div>
+                  <h3 className="font-bold text-base text-[#161616]">{selectedIdea.projectName}</h3>
+                  <p className="text-xs text-[#777777]">
+                    Submitted by {selectedIdea.studentName} ({selectedIdea.department})
+                  </p>
+                </div>
+                <button
+                  onClick={() => setSelectedIdea(null)}
+                  className="text-xs text-[#777777] hover:text-[#161616] cursor-pointer"
+                >
+                  Close
+                </button>
+              </div>
+
+              <div className="space-y-4 text-xs text-[#242424]">
+                <div className="p-3 bg-[#F5F5F3] border border-[#D8D8D3] rounded space-y-2">
+                  <div>
+                    <span className="font-bold text-[#161616] block">Problem Statement:</span>
+                    <p className="text-[#4A4A4A] mt-0.5">{selectedIdea.problem}</p>
+                  </div>
+                  <div>
+                    <span className="font-bold text-[#161616] block">Proposed Solution:</span>
+                    <p className="text-[#4A4A4A] mt-0.5">{selectedIdea.proposedSolution}</p>
+                  </div>
+                </div>
+
+                <form onSubmit={handleUpdateStatus} className="space-y-4">
+                  <div className="space-y-1.5">
+                    <label className="font-semibold text-[#242424]">Status</label>
+                    <select
+                      value={status}
+                      onChange={e => setStatus(e.target.value as StudentIdea['status'])}
+                      className="w-full px-3 py-2 bg-[#F5F5F3] border border-[#D8D8D3] rounded text-xs"
+                    >
+                      <option value="New">New</option>
+                      <option value="Under Review">Under Review</option>
+                      <option value="Contacted">Contacted</option>
+                      <option value="Accepted">Accepted</option>
+                      <option value="Developing">Developing</option>
+                      <option value="Completed">Completed</option>
+                      <option value="Rejected">Rejected</option>
+                    </select>
+                  </div>
+
+                  {/* PRIVATE INTERNAL NOTES SECTION */}
+                  <div className="space-y-1.5 p-3 bg-amber-50/60 border border-amber-200 rounded">
+                    <div className="flex items-center gap-1.5 text-amber-800 font-bold text-xs">
+                      <Lock className="w-3.5 h-3.5" />
+                      <span>PRIVATE INTERNAL NOTES (STRICTLY CONFIDENTIAL)</span>
+                    </div>
+                    <p className="text-[10px] text-amber-700">
+                      These notes are for internal team use only and MUST NEVER APPEAR on the public website.
+                    </p>
+                    <textarea
+                      rows={3}
+                      placeholder="Add confidential evaluation notes, mentor assignment, contact logs..."
+                      value={adminNotes}
+                      onChange={e => setAdminNotes(e.target.value)}
+                      className="w-full px-3 py-2 bg-white border border-amber-300 rounded text-xs text-[#242424]"
+                    />
+                  </div>
+
+                  <div className="pt-3 border-t border-[#EBEBE8] flex justify-end gap-2">
+                    <button
+                      type="button"
+                      onClick={() => setSelectedIdea(null)}
+                      className="px-4 py-2 bg-[#F0F0ED] hover:bg-[#EBEBE8] rounded text-xs font-semibold"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      type="submit"
+                      disabled={saving}
+                      className="px-4 py-2 bg-[#161616] hover:bg-[#242424] text-white rounded text-xs font-semibold"
+                    >
+                      {saving ? 'Saving...' : 'Save Notes & Status'}
+                    </button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+    </AdminLayout>
   );
 };

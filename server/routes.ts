@@ -374,6 +374,12 @@ apiRouter.put('/admin/gallery/:id', authenticateToken, requireRole(['Content Adm
   res.json(updated);
 });
 
+apiRouter.delete('/admin/gallery/:id', authenticateToken, requireRole(['Content Admin']), (req: AuthRequest, res: Response) => {
+  const success = db.deleteGalleryAlbum(req.params.id, req.user?.name);
+  if (!success) return res.status(404).json({ error: 'Album not found.' });
+  res.json({ message: 'Gallery album deleted.' });
+});
+
 // News Management
 apiRouter.get('/admin/news', authenticateToken, requireRole(['Content Admin']), (req: AuthRequest, res: Response) => {
   const { status, search } = req.query;
@@ -389,6 +395,22 @@ apiRouter.put('/admin/news/:id', authenticateToken, requireRole(['Content Admin'
   const updated = db.updateNews(req.params.id, req.body, req.user?.name);
   if (!updated) return res.status(404).json({ error: 'Article not found.' });
   res.json(updated);
+});
+
+apiRouter.delete('/admin/news/:id', authenticateToken, requireRole(['Content Admin']), (req: AuthRequest, res: Response) => {
+  const success = db.deleteNews(req.params.id, req.user?.name);
+  if (!success) return res.status(404).json({ error: 'Article not found.' });
+  res.json({ message: 'News article deleted.' });
+});
+
+// Media Upload
+apiRouter.post('/upload', authenticateToken, (req: AuthRequest, res: Response) => {
+  const { fileName, fileData } = req.body;
+  if (!fileData) {
+    return res.status(400).json({ error: 'File data is required.' });
+  }
+  // Return the data URL directly or save path
+  res.json({ url: fileData, fileName: fileName || 'uploaded_image' });
 });
 
 // Submissions

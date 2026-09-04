@@ -1,7 +1,6 @@
 import React from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
-import { AdminLayout } from './AdminLayout';
 import { LoadingState } from '../ui/LoadingState';
 
 interface ProtectedRouteProps {
@@ -9,20 +8,20 @@ interface ProtectedRouteProps {
 }
 
 export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
-  const { isAuthenticated, loading } = useAuth();
+  const { user, isLoading } = useAuth();
   const location = useLocation();
 
-  if (loading) {
+  if (isLoading) {
     return (
-      <div className="min-h-screen bg-[#F5F5F3] flex items-center justify-center">
-        <LoadingState message="Verifying institutional administrative credentials..." />
+      <div className="min-h-screen bg-[#F5F5F3] flex items-center justify-center font-sans">
+        <LoadingState message="Verifying administrative credentials..." />
       </div>
     );
   }
 
-  if (!isAuthenticated) {
+  if (!user) {
     return <Navigate to="/admin/login" state={{ from: location }} replace />;
   }
 
-  return <AdminLayout>{children}</AdminLayout>;
+  return <>{children}</>;
 };
