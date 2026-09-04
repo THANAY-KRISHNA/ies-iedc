@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { Menu, X, ArrowRight } from 'lucide-react';
+import { Menu, X, ArrowRight, Lightbulb } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 
 export const Navbar: React.FC = () => {
@@ -11,18 +11,30 @@ export const Navbar: React.FC = () => {
   const isHome = location.pathname === '/';
 
   const navLinks = [
-    { name: 'About', href: isHome ? '#about' : '/#about' },
-    { name: 'What We Do', href: isHome ? '#what-we-do' : '/#what-we-do' },
-    { name: 'Team', href: isHome ? '#team' : '/#team' },
-    { name: 'Events', href: isHome ? '#events' : '/#events' },
-    { name: 'Achievements', href: isHome ? '#achievements' : '/#achievements' },
-    { name: 'Ideas', href: isHome ? '#ideas' : '/#ideas' },
-    { name: 'Startups', href: isHome ? '#startups' : '/#startups' },
-    { name: 'Resources', href: isHome ? '#resources' : '/#resources' },
-    { name: 'Gallery', href: '/gallery' },
-    { name: 'News', href: isHome ? '#news' : '/#news' },
-    { name: 'Contact', href: isHome ? '#contact' : '/#contact' }
+    { name: 'About', href: '/about', homeHash: '#about' },
+    { name: 'What We Do', href: '/workshops', homeHash: '#what-we-do' },
+    { name: 'Team', href: '/team', homeHash: null },
+    { name: 'Events', href: '/events', homeHash: '#events' },
+    { name: 'Achievements', href: '/achievements', homeHash: null },
+    { name: 'Ideas', href: '/ideas', homeHash: null },
+    { name: 'Startups', href: '/startups', homeHash: null },
+    { name: 'Resources', href: '/resources', homeHash: null },
+    { name: 'Gallery', href: '/gallery', homeHash: '#gallery' },
+    { name: 'News', href: '/news', homeHash: null },
+    { name: 'Contact', href: '/contact', homeHash: '#contact' }
   ];
+
+  const handleNavClick = (e: React.MouseEvent<HTMLAnchorElement>, link: { name: string; href: string; homeHash: string | null }) => {
+    if (isHome && link.homeHash) {
+      e.preventDefault();
+      const el = document.querySelector(link.homeHash);
+      if (el) {
+        el.scrollIntoView({ behavior: 'smooth' });
+      } else {
+        navigate(link.href);
+      }
+    }
+  };
 
   const handleOpenWizard = () => {
     window.dispatchEvent(new CustomEvent('open-idea-wizard'));
@@ -33,58 +45,67 @@ export const Navbar: React.FC = () => {
   };
 
   return (
-    <header className="sticky top-0 z-40 w-full bg-[#F5F5F3]/90 backdrop-blur-md border-b border-[#D8D8D3]/80 transition-all font-sans">
+    <header className="sticky top-0 z-40 w-full bg-[#EFF1F5]/90 backdrop-blur-lg border-b border-[#DCDFE6] transition-all font-sans shadow-xs">
       <div className="max-w-[1700px] mx-auto px-4 sm:px-6 lg:px-10 h-20 flex items-center justify-between gap-4">
         {/* Brand Logo & Name */}
-        <Link to="/" className="flex items-center gap-3 group shrink-0">
-          <div className="w-10 h-10 rounded bg-[#161616] text-white flex items-center justify-center p-1 font-extrabold text-xs tracking-wider shadow-xs">
-            IEDC
+        <Link to="/" className="flex items-center gap-3 group shrink-0 select-none">
+          <div className="w-11 h-11 rounded-xl bg-black flex items-center justify-center p-1 shadow-neu-pill-button group-hover:scale-105 transition-transform overflow-hidden border border-black">
+            <img src="/logo.png" alt="IES IEDC Emblem" className="w-full h-full object-contain" />
           </div>
           <div className="flex flex-col">
-            <span className="font-bold text-sm tracking-tight text-[#161616] leading-none">
+            <span className="font-extrabold text-sm tracking-tight text-[#1E232A] leading-none">
               IES IEDC
             </span>
-            <span className="text-[10px] text-[#777777] font-medium tracking-wide mt-0.5">
+            <span className="text-[10px] text-[#6C727F] font-medium tracking-wide mt-0.5">
               IES College of Engineering
             </span>
           </div>
         </Link>
 
-        {/* Desktop Navigation Links */}
-        <nav className="hidden xl:flex items-center gap-1 text-xs font-medium text-[#4A4A4A]">
-          {navLinks.map(link => (
-            <a
-              key={link.name}
-              href={link.href}
-              className="px-3 py-1.5 rounded transition-all duration-150 hover:bg-[#EBEBE8] hover:text-[#161616] active:bg-[#D8D8D3] select-none cursor-pointer"
-            >
-              {link.name}
-            </a>
-          ))}
+        {/* Desktop Navigation Links (Fully Working Routes + 3D Pill Hover) */}
+        <nav className="hidden xl:flex items-center gap-1.5 text-xs font-semibold text-[#4B515D]">
+          {navLinks.map(link => {
+            const isActive = location.pathname === link.href;
+            return (
+              <Link
+                key={link.name}
+                to={link.href}
+                onClick={(e) => handleNavClick(e, link)}
+                className={`px-3.5 py-2 rounded-xl transition-all duration-200 select-none cursor-pointer ${
+                  isActive
+                    ? 'bg-white text-[#1E232A] shadow-neu-soft-card font-bold border border-white/80'
+                    : 'hover:bg-white/80 hover:text-[#1E232A] hover:shadow-neu-pill-button active:scale-95'
+                }`}
+              >
+                {link.name}
+              </Link>
+            );
+          })}
         </nav>
 
         {/* Action Buttons */}
-        <div className="flex items-center gap-2.5">
+        <div className="flex items-center gap-3">
           <button
             onClick={handleOpenWizard}
-            className="px-4 py-2 rounded bg-[#161616] hover:bg-[#242424] active:bg-black text-white text-xs font-semibold tracking-wide transition-all flex items-center gap-1.5 cursor-pointer shadow-xs"
+            className="px-5 py-2.5 rounded-xl bg-[#2B303A] hover:bg-[#1E232A] active:scale-95 text-white text-xs font-bold font-sans tracking-wide transition-all duration-200 flex items-center gap-2 cursor-pointer shadow-neu-pill-button border border-white/20"
           >
+            <Lightbulb className="w-3.5 h-3.5 text-amber-300" />
             <span>Submit Your Idea</span>
-            <ArrowRight className="w-3.5 h-3.5" />
           </button>
 
           <button
             onClick={handleOpenAdminPortal}
             title="IES IEDC CMS Portal"
-            className="px-2.5 py-2 rounded bg-[#F0F0ED] hover:bg-[#EBEBE8] border border-[#D8D8D3] text-[#4A4A4A] hover:text-[#161616] text-xs font-medium transition-colors cursor-pointer"
+            className="px-3 py-2.5 rounded-xl bg-white hover:bg-[#F8F9FA] active:scale-95 border border-[#DCDFE6] text-[#4B515D] hover:text-[#1E232A] text-xs font-bold transition-all duration-200 cursor-pointer shadow-neu-pill-button flex items-center gap-1.5"
           >
-            <span className="w-2 h-2 rounded-full bg-[#161616] inline-block"></span>
+            <span className="w-2 h-2 rounded-full bg-[#1E232A] inline-block animate-pulse"></span>
+            <span className="hidden sm:inline">CMS</span>
           </button>
 
           {/* Mobile Menu Trigger */}
           <button
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className="xl:hidden p-2 rounded bg-[#F0F0ED] border border-[#D8D8D3] text-[#161616] cursor-pointer"
+            className="xl:hidden p-2.5 rounded-xl bg-white border border-[#DCDFE6] text-[#1E232A] shadow-neu-pill-button cursor-pointer"
             aria-label="Toggle navigation menu"
           >
             {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
@@ -94,17 +115,20 @@ export const Navbar: React.FC = () => {
 
       {/* Mobile Menu Dropdown */}
       {mobileMenuOpen && (
-        <div className="xl:hidden border-t border-[#D8D8D3] bg-[#F5F5F3] p-4 space-y-3 shadow-md">
-          <div className="grid grid-cols-2 gap-2 pb-3 border-b border-[#D8D8D3]">
+        <div className="xl:hidden border-t border-[#DCDFE6] bg-[#EFF1F5] p-5 space-y-4 shadow-lg animate-fadeIn">
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 pb-4 border-b border-[#DCDFE6]">
             {navLinks.map(link => (
-              <a
+              <Link
                 key={link.name}
-                href={link.href}
-                onClick={() => setMobileMenuOpen(false)}
-                className="px-3 py-2 text-xs font-semibold text-[#4A4A4A] hover:text-[#161616] hover:bg-[#EBEBE8] rounded transition-colors"
+                to={link.href}
+                onClick={(e) => {
+                  setMobileMenuOpen(false);
+                  handleNavClick(e, link);
+                }}
+                className="px-3.5 py-2.5 text-xs font-bold text-[#4B515D] hover:text-[#1E232A] hover:bg-white rounded-xl shadow-xs transition-all"
               >
                 {link.name}
-              </a>
+              </Link>
             ))}
           </div>
           <div className="pt-1 flex flex-col gap-2">
@@ -113,10 +137,10 @@ export const Navbar: React.FC = () => {
                 setMobileMenuOpen(false);
                 handleOpenWizard();
               }}
-              className="w-full py-2.5 text-center text-xs font-bold rounded bg-[#161616] text-white flex items-center justify-center gap-1.5"
+              className="w-full py-3 text-center text-xs font-bold rounded-xl bg-[#2B303A] text-white flex items-center justify-center gap-2 shadow-md"
             >
+              <Lightbulb className="w-4 h-4 text-amber-300" />
               <span>Submit Your Idea</span>
-              <ArrowRight className="w-3.5 h-3.5" />
             </button>
           </div>
         </div>

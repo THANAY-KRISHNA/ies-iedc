@@ -7,7 +7,7 @@ import { LoadingState } from '../components/ui/LoadingState';
 import { api } from '../services/api';
 import { StudentIdea, Department } from '../types';
 import { INITIAL_DEPARTMENTS } from '../data/initialData';
-import { Sparkles, Send, CheckCircle2, Cpu, HelpCircle, Layers } from 'lucide-react';
+import { Sparkles, Send, CheckCircle2, Cpu, HelpCircle, Layers, ShieldCheck, Rocket } from 'lucide-react';
 
 export const Ideas: React.FC = () => {
   const [ideas, setIdeas] = useState<StudentIdea[]>([]);
@@ -35,7 +35,7 @@ export const Ideas: React.FC = () => {
     async function loadIdeas() {
       try {
         const data = await api.getIdeas();
-        setIdeas(data);
+        setIdeas(data || []);
       } catch (err) {
         console.error('Failed to load ideas:', err);
       } finally {
@@ -63,7 +63,7 @@ export const Ideas: React.FC = () => {
 
     setSubmitting(true);
     try {
-      const res = await api.submitIdea(formData);
+      await api.submitIdea(formData);
       setSubmitSuccess(
         `Thank you ${formData.studentName}! Your idea "${formData.projectName}" has been recorded. The IEDC Executive Committee will review it and reach out to your institutional email.`
       );
@@ -87,7 +87,7 @@ export const Ideas: React.FC = () => {
   };
 
   return (
-    <div className="max-w-[1700px] mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-16">
+    <div className="max-w-[1700px] mx-auto px-4 sm:px-6 lg:px-10 py-12 space-y-16 bg-[#EFF1F5]">
       {/* 1. Header */}
       <SectionHeader
         tag="Innovation Incubator"
@@ -97,18 +97,25 @@ export const Ideas: React.FC = () => {
 
       {/* 2. Two-Column Layout: Submission Form + Mentorship Benefits */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8" id="submit">
-        {/* Form Container */}
-        <div className="lg:col-span-2 neu-raised rounded-2xl p-6 sm:p-10 border border-[#D8D8D3] space-y-6">
-          <div className="space-y-1">
-            <h3 className="text-xl font-bold text-[#161616]">Submit An Idea For Mentorship</h3>
-            <p className="text-xs text-[#777777]">
+        
+        {/* Form Outer Container (ENHANCED RICH 3D NEUMORPHIC BOX) */}
+        <div className="lg:col-span-2 rounded-[32px] bg-gradient-to-b from-white to-[#F8F9FC] shadow-[18px_18px_36px_rgba(165,172,185,0.55),-18px_-18px_36px_rgba(255,255,255,0.95)] border border-white p-6 sm:p-10 space-y-6 relative overflow-hidden">
+          
+          {/* Subtle Top Highlight Accent Rim */}
+          <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-transparent via-[#2B303A]/20 to-transparent" />
+
+          <div className="space-y-1 pb-2 border-b border-[#E2E5EC]">
+            <h3 className="text-2xl font-black font-sans text-[#1E232A] tracking-tight">
+              Submit An Idea For Mentorship
+            </h3>
+            <p className="text-xs font-medium text-[#6C727F]">
               Open to all engineering students of IES College of Engineering.
             </p>
           </div>
 
           {submitSuccess && (
-            <div className="p-4 bg-[#EFEFEA] border border-[#C5D5C5] rounded-xl text-xs text-[#1E3A1E] flex items-start gap-3">
-              <CheckCircle2 className="w-5 h-5 shrink-0 text-[#1E3A1E] mt-0.5" />
+            <div className="p-4 bg-[#EBF7F1] border border-[#A8E0C4] rounded-2xl text-xs text-[#125332] flex items-start gap-3 shadow-sm">
+              <CheckCircle2 className="w-5 h-5 shrink-0 text-[#10B981] mt-0.5" />
               <div>
                 <p className="font-bold">Submission Confirmed</p>
                 <p className="mt-1 leading-relaxed">{submitSuccess}</p>
@@ -117,68 +124,78 @@ export const Ideas: React.FC = () => {
           )}
 
           {errorMessage && (
-            <div className="p-4 bg-[#FBE9E7] border border-[#FFAB91] rounded-xl text-xs text-[#D84315]">
+            <div className="p-4 bg-[#FDEAE8] border border-[#F8B4AF] rounded-2xl text-xs text-[#9B1C1C] shadow-sm">
               {errorMessage}
             </div>
           )}
 
-          <form onSubmit={handleSubmit} className="space-y-5 text-xs">
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div className="space-y-1.5">
-                <label className="font-bold text-[#242424]">Project / Solution Name *</label>
+          <form onSubmit={handleSubmit} className="space-y-6 text-xs">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+              <div className="space-y-2">
+                <label className="font-bold text-[#1E232A] tracking-wide uppercase text-[11px]">
+                  Project / Solution Name *
+                </label>
                 <input
                   type="text"
                   required
                   placeholder="e.g. Smart Agri-Drone Sensor Hub"
                   value={formData.projectName}
                   onChange={e => setFormData({ ...formData, projectName: e.target.value })}
-                  className="w-full px-3.5 py-2.5 neu-inset rounded-lg text-xs text-[#242424] focus:outline-none focus:ring-1 focus:ring-[#242424]"
+                  className="w-full px-4 py-3 bg-[#EFF1F5] shadow-neu-hub-inner rounded-xl text-xs text-[#1E232A] placeholder:text-[#888E9B] border border-[#DCDFE6]/80 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#1E232A] transition-all"
                 />
               </div>
 
-              <div className="space-y-1.5">
-                <label className="font-bold text-[#242424]">Primary Innovator Name *</label>
+              <div className="space-y-2">
+                <label className="font-bold text-[#1E232A] tracking-wide uppercase text-[11px]">
+                  Primary Innovator Name *
+                </label>
                 <input
                   type="text"
                   required
                   placeholder="e.g. Anandhu K"
                   value={formData.studentName}
                   onChange={e => setFormData({ ...formData, studentName: e.target.value })}
-                  className="w-full px-3.5 py-2.5 neu-inset rounded-lg text-xs text-[#242424] focus:outline-none focus:ring-1 focus:ring-[#242424]"
+                  className="w-full px-4 py-3 bg-[#EFF1F5] shadow-neu-hub-inner rounded-xl text-xs text-[#1E232A] placeholder:text-[#888E9B] border border-[#DCDFE6]/80 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#1E232A] transition-all"
                 />
               </div>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-              <div className="space-y-1.5">
-                <label className="font-bold text-[#242424]">Institutional Email *</label>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
+              <div className="space-y-2">
+                <label className="font-bold text-[#1E232A] tracking-wide uppercase text-[11px]">
+                  Institutional Email *
+                </label>
                 <input
                   type="email"
                   required
                   placeholder="student@iesce.info"
                   value={formData.studentEmail}
                   onChange={e => setFormData({ ...formData, studentEmail: e.target.value })}
-                  className="w-full px-3.5 py-2.5 neu-inset rounded-lg text-xs text-[#242424] focus:outline-none focus:ring-1 focus:ring-[#242424]"
+                  className="w-full px-4 py-3 bg-[#EFF1F5] shadow-neu-hub-inner rounded-xl text-xs text-[#1E232A] placeholder:text-[#888E9B] border border-[#DCDFE6]/80 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#1E232A] transition-all"
                 />
               </div>
 
-              <div className="space-y-1.5">
-                <label className="font-bold text-[#242424]">Phone Number</label>
+              <div className="space-y-2">
+                <label className="font-bold text-[#1E232A] tracking-wide uppercase text-[11px]">
+                  Phone Number
+                </label>
                 <input
                   type="tel"
                   placeholder="+91 9876543210"
                   value={formData.studentPhone}
                   onChange={e => setFormData({ ...formData, studentPhone: e.target.value })}
-                  className="w-full px-3.5 py-2.5 neu-inset rounded-lg text-xs text-[#242424] focus:outline-none focus:ring-1 focus:ring-[#242424]"
+                  className="w-full px-4 py-3 bg-[#EFF1F5] shadow-neu-hub-inner rounded-xl text-xs text-[#1E232A] placeholder:text-[#888E9B] border border-[#DCDFE6]/80 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#1E232A] transition-all"
                 />
               </div>
 
-              <div className="space-y-1.5">
-                <label className="font-bold text-[#242424]">Engineering Department *</label>
+              <div className="space-y-2">
+                <label className="font-bold text-[#1E232A] tracking-wide uppercase text-[11px]">
+                  Engineering Department *
+                </label>
                 <select
                   value={formData.department}
                   onChange={e => setFormData({ ...formData, department: e.target.value })}
-                  className="w-full px-3 py-2.5 neu-raised-soft rounded-lg text-xs text-[#242424] border border-[#D8D8D3] focus:outline-none"
+                  className="w-full px-4 py-3 bg-[#EFF1F5] shadow-neu-hub-inner rounded-xl text-xs text-[#1E232A] border border-[#DCDFE6]/80 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#1E232A] cursor-pointer transition-all font-medium"
                 >
                   {departments.map(d => (
                     <option key={d.id} value={d.code}>
@@ -189,116 +206,134 @@ export const Ideas: React.FC = () => {
               </div>
             </div>
 
-            <div className="space-y-1.5">
-              <label className="font-bold text-[#242424]">Problem Statement *</label>
+            <div className="space-y-2">
+              <label className="font-bold text-[#1E232A] tracking-wide uppercase text-[11px]">
+                Problem Statement *
+              </label>
               <textarea
                 required
                 rows={3}
                 placeholder="Describe the specific real-world bottleneck or societal problem your team is targeting..."
                 value={formData.problem}
                 onChange={e => setFormData({ ...formData, problem: e.target.value })}
-                className="w-full px-3.5 py-2.5 neu-inset rounded-lg text-xs text-[#242424] focus:outline-none focus:ring-1 focus:ring-[#242424]"
+                className="w-full px-4 py-3 bg-[#EFF1F5] shadow-neu-hub-inner rounded-xl text-xs text-[#1E232A] placeholder:text-[#888E9B] border border-[#DCDFE6]/80 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#1E232A] transition-all"
               />
             </div>
 
-            <div className="space-y-1.5">
-              <label className="font-bold text-[#242424]">Proposed Solution &amp; Approach *</label>
+            <div className="space-y-2">
+              <label className="font-bold text-[#1E232A] tracking-wide uppercase text-[11px]">
+                Proposed Solution &amp; Approach *
+              </label>
               <textarea
                 required
                 rows={3}
                 placeholder="How does your proposed hardware/software innovation address this problem?"
                 value={formData.proposedSolution}
                 onChange={e => setFormData({ ...formData, proposedSolution: e.target.value })}
-                className="w-full px-3.5 py-2.5 neu-inset rounded-lg text-xs text-[#242424] focus:outline-none focus:ring-1 focus:ring-[#242424]"
+                className="w-full px-4 py-3 bg-[#EFF1F5] shadow-neu-hub-inner rounded-xl text-xs text-[#1E232A] placeholder:text-[#888E9B] border border-[#DCDFE6]/80 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#1E232A] transition-all"
               />
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div className="space-y-1.5">
-                <label className="font-bold text-[#242424]">Technologies / Hardware Used</label>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+              <div className="space-y-2">
+                <label className="font-bold text-[#1E232A] tracking-wide uppercase text-[11px]">
+                  Technologies / Hardware Used
+                </label>
                 <input
                   type="text"
                   placeholder="e.g. ESP32, Python, OpenCV, Flutter, LoRaWAN"
                   value={formData.technology}
                   onChange={e => setFormData({ ...formData, technology: e.target.value })}
-                  className="w-full px-3.5 py-2.5 neu-inset rounded-lg text-xs text-[#242424] focus:outline-none focus:ring-1 focus:ring-[#242424]"
+                  className="w-full px-4 py-3 bg-[#EFF1F5] shadow-neu-hub-inner rounded-xl text-xs text-[#1E232A] placeholder:text-[#888E9B] border border-[#DCDFE6]/80 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#1E232A] transition-all"
                 />
               </div>
 
-              <div className="space-y-1.5">
-                <label className="font-bold text-[#242424]">Academic Year</label>
+              <div className="space-y-2">
+                <label className="font-bold text-[#1E232A] tracking-wide uppercase text-[11px]">
+                  Academic Year
+                </label>
                 <input
                   type="text"
                   readOnly
                   value={formData.academicYear}
-                  className="w-full px-3.5 py-2.5 bg-[#EBEBE8] border border-[#D8D8D3] rounded-lg text-xs text-[#777777]"
+                  className="w-full px-4 py-3 bg-[#E5E8EF] border border-[#DCDFE6] rounded-xl text-xs text-[#6C727F] font-bold select-none cursor-not-allowed"
                 />
               </div>
             </div>
 
-            <div className="pt-2">
-              <Button
+            {/* 3D Tactile Submit Button */}
+            <div className="pt-4">
+              <button
                 type="submit"
-                variant="primary"
-                isLoading={submitting}
-                icon={<Send className="w-4 h-4" />}
+                disabled={submitting}
+                className="w-full sm:w-auto px-8 py-4 rounded-2xl bg-gradient-to-b from-[#343A46] to-[#1E232A] text-white text-xs font-bold font-sans tracking-widest uppercase shadow-[8px_8px_20px_rgba(160,168,182,0.5),-8px_-8px_20px_rgba(255,255,255,0.9)] hover:-translate-y-1 hover:shadow-[12px_12px_24px_rgba(160,168,182,0.65)] active:translate-y-0.5 transition-all duration-200 flex items-center justify-center gap-2.5 cursor-pointer disabled:opacity-50 select-none"
               >
-                Submit Project to IEDC Panel
-              </Button>
+                <Send className="w-4 h-4 text-amber-300" />
+                <span>{submitting ? 'Submitting Proposal...' : 'SUBMIT PROJECT TO IEDC PANEL'}</span>
+              </button>
             </div>
           </form>
         </div>
 
-        {/* Right Info Box */}
+        {/* Right Info Sidebar (Matching 3D Cards) */}
         <div className="space-y-6">
-          <div className="neu-raised-soft rounded-2xl p-6 border border-[#D8D8D3] space-y-4">
-            <h4 className="text-sm font-bold text-[#161616]">Evaluation &amp; Incubation Flow</h4>
-            <div className="space-y-3 text-xs text-[#4A4A4A]">
+          <div className="rounded-[28px] bg-gradient-to-b from-white to-[#F8F9FC] shadow-[14px_14px_28px_rgba(165,172,185,0.45),-14px_-14px_28px_rgba(255,255,255,0.95)] p-6 sm:p-7 border border-white space-y-4">
+            <div className="flex items-center gap-2">
+              <Rocket className="w-5 h-5 text-[#1E232A]" />
+              <h4 className="text-sm font-extrabold text-[#1E232A]">Evaluation &amp; Incubation Flow</h4>
+            </div>
+            <div className="space-y-4 text-xs text-[#525866]">
               <div className="flex gap-3">
-                <span className="w-5 h-5 rounded-full neu-inset flex items-center justify-center font-bold text-[10px] shrink-0">
+                <span className="w-6 h-6 rounded-full bg-[#EFF1F5] shadow-neu-hub-inner flex items-center justify-center font-bold text-[11px] text-[#1E232A] shrink-0 border border-white">
                   1
                 </span>
                 <p>
-                  <strong className="text-[#161616]">Screening:</strong> Reviewed by Department
+                  <strong className="text-[#1E232A]">Screening:</strong> Reviewed by Department
                   Coordinators for feasibility and IP uniqueness.
                 </p>
               </div>
               <div className="flex gap-3">
-                <span className="w-5 h-5 rounded-full neu-inset flex items-center justify-center font-bold text-[10px] shrink-0">
+                <span className="w-6 h-6 rounded-full bg-[#EFF1F5] shadow-neu-hub-inner flex items-center justify-center font-bold text-[11px] text-[#1E232A] shrink-0 border border-white">
                   2
                 </span>
                 <p>
-                  <strong className="text-[#161616]">Faculty Mentor:</strong> Assigned a research
+                  <strong className="text-[#1E232A]">Faculty Mentor:</strong> Assigned a research
                   mentor and laboratory maker-space access.
                 </p>
               </div>
               <div className="flex gap-3">
-                <span className="w-5 h-5 rounded-full neu-inset flex items-center justify-center font-bold text-[10px] shrink-0">
+                <span className="w-6 h-6 rounded-full bg-[#EFF1F5] shadow-neu-hub-inner flex items-center justify-center font-bold text-[11px] text-[#1E232A] shrink-0 border border-white">
                   3
                 </span>
                 <p>
-                  <strong className="text-[#161616]">YIP &amp; KSUM Escalation:</strong> Recommended
+                  <strong className="text-[#1E232A]">YIP &amp; KSUM Escalation:</strong> Recommended
                   for Young Innovators Programme state financial grants.
                 </p>
               </div>
             </div>
           </div>
 
-          <div className="neu-raised-soft rounded-2xl p-6 border border-[#D8D8D3] space-y-2">
-            <h4 className="text-sm font-bold text-[#161616]">Intellectual Property</h4>
-            <p className="text-xs text-[#777777] leading-relaxed">
+          <div className="rounded-[28px] bg-gradient-to-b from-white to-[#F8F9FC] shadow-[14px_14px_28px_rgba(165,172,185,0.45),-14px_-14px_28px_rgba(255,255,255,0.95)] p-6 sm:p-7 border border-white space-y-2">
+            <div className="flex items-center gap-2">
+              <ShieldCheck className="w-5 h-5 text-[#1E232A]" />
+              <h4 className="text-sm font-extrabold text-[#1E232A]">Intellectual Property</h4>
+            </div>
+            <p className="text-xs text-[#6C727F] leading-relaxed pt-1">
               Student ideas remain 100% the intellectual property of the student innovators. The
               Centre assists in filing provisional patents through KSUM IPR facilitation cells.
             </p>
           </div>
         </div>
+
       </div>
 
       {/* 3. Developing / Accepted Ideas Showcase */}
-      <div className="space-y-6">
+      <div className="space-y-6 pt-6 border-t border-[#DCDFE6]">
         <div>
-          <h3 className="text-xl font-bold text-[#161616]">Incubating Student Innovations</h3>
-          <p className="text-xs text-[#777777] mt-1">
+          <h3 className="text-2xl font-black font-sans text-[#1E232A] tracking-tight">
+            Incubating Student Innovations
+          </h3>
+          <p className="text-xs text-[#6C727F] mt-1 font-medium">
             Projects currently undergoing prototype validation or pre-incubation.
           </p>
         </div>
@@ -315,7 +350,7 @@ export const Ideas: React.FC = () => {
             {ideas.map(idea => (
               <div
                 key={idea.id}
-                className="neu-raised-soft rounded-xl p-6 border border-[#D8D8D3] space-y-4 flex flex-col justify-between"
+                className="rounded-[24px] bg-gradient-to-b from-white to-[#F8F9FC] shadow-neu-soft-card p-6 border border-white space-y-4 flex flex-col justify-between hover:-translate-y-1.5 transition-all"
               >
                 <div className="space-y-3">
                   <div className="flex items-center justify-between gap-2">
@@ -327,21 +362,21 @@ export const Ideas: React.FC = () => {
                     </Badge>
                   </div>
 
-                  <h4 className="text-base font-bold text-[#161616] leading-snug">
+                  <h4 className="text-base font-bold text-[#1E232A] leading-snug">
                     {idea.projectName}
                   </h4>
 
-                  <p className="text-xs text-[#777777] font-medium">
-                    Innovator: <span className="text-[#242424]">{idea.studentName}</span>
+                  <p className="text-xs text-[#6C727F] font-medium">
+                    Innovator: <span className="text-[#1E232A] font-bold">{idea.studentName}</span>
                   </p>
 
-                  <div className="space-y-2 text-xs text-[#4A4A4A]">
+                  <div className="space-y-2 text-xs text-[#525866]">
                     <div>
-                      <span className="font-semibold text-[#161616]">Problem: </span>
+                      <span className="font-semibold text-[#1E232A]">Problem: </span>
                       <span className="line-clamp-2">{idea.problem}</span>
                     </div>
                     <div>
-                      <span className="font-semibold text-[#161616]">Solution: </span>
+                      <span className="font-semibold text-[#1E232A]">Solution: </span>
                       <span className="line-clamp-2">{idea.proposedSolution}</span>
                     </div>
                   </div>
@@ -349,10 +384,10 @@ export const Ideas: React.FC = () => {
 
                 {idea.technology && (
                   <div className="pt-3 border-t border-[#EBEBE8]">
-                    <span className="text-[11px] font-semibold text-[#777777] block mb-1">
+                    <span className="text-[11px] font-semibold text-[#6C727F] block mb-1">
                       Tech Stack:
                     </span>
-                    <span className="text-[11px] px-2 py-0.5 rounded bg-[#EBEBE8] text-[#242424] border border-[#D8D8D3] inline-block">
+                    <span className="text-[11px] px-2.5 py-1 rounded-lg bg-[#EFF1F5] text-[#1E232A] border border-[#DCDFE6] inline-block font-mono font-bold shadow-xs">
                       {idea.technology}
                     </span>
                   </div>

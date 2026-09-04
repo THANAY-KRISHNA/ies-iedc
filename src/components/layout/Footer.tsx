@@ -10,11 +10,14 @@ export const Footer: React.FC = () => {
           
           {/* Col 1: Brand Info */}
           <div className="flex flex-col gap-3">
-            <div className="flex items-center gap-2">
-              <span className="font-display font-extrabold text-lg text-[#161616]">IES IEDC</span>
-              <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-white border border-[#D8D8D3] text-[#777777] uppercase font-bold">
-                Est. 2016
-              </span>
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-black flex items-center justify-center p-1 shadow-xs overflow-hidden border border-black shrink-0">
+                <img src="/logo.png" alt="IES IEDC Emblem" className="w-full h-full object-contain" />
+              </div>
+              <div className="flex flex-col">
+                <span className="font-display font-extrabold text-base text-[#161616]">IES IEDC</span>
+                <span className="text-[10px] font-mono text-[#777777]">Est. 2016</span>
+              </div>
             </div>
             <span className="text-xs font-semibold text-[#4A4A4A]">IES College of Engineering</span>
             <p className="text-xs text-[#777777] leading-relaxed">
