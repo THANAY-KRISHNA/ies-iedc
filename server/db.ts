@@ -32,6 +32,26 @@ import {
   INITIAL_NEWS,
   INITIAL_SITE_SETTINGS
 } from '../src/data/initialData';
+import { isSupabaseConfigured, supabaseAdmin, uploadToSupabaseStorage } from './supabase';
+
+export interface PosterMediaItem {
+  id: string;
+  title: string;
+  url: string;
+  fileType: 'image' | 'document';
+  eventId?: string;
+  eventName?: string;
+  uploadedAt: string;
+  size: string;
+}
+
+export interface MediaLibraryItem {
+  id: string;
+  name: string;
+  url: string;
+  uploadedAt: string;
+  size: string;
+}
 
 export interface DatabaseState {
   users: User[];
@@ -49,6 +69,8 @@ export interface DatabaseState {
   submissions: JoinSubmission[];
   activityLogs: ActivityLog[];
   siteSettings: SiteSettings;
+  posters: PosterMediaItem[];
+  mediaItems: MediaLibraryItem[];
 }
 
 const DATA_DIR = path.join(process.cwd(), 'data');
@@ -96,7 +118,9 @@ class DatabaseEngine {
               timestamp: new Date().toISOString()
             }
           ],
-          siteSettings: parsed.siteSettings || INITIAL_SITE_SETTINGS
+          siteSettings: parsed.siteSettings || INITIAL_SITE_SETTINGS,
+          posters: parsed.posters || [],
+          mediaItems: parsed.mediaItems || []
         };
       }
     } catch (err) {
@@ -129,7 +153,9 @@ class DatabaseEngine {
           timestamp: new Date().toISOString()
         }
       ],
-      siteSettings: INITIAL_SITE_SETTINGS
+      siteSettings: INITIAL_SITE_SETTINGS,
+      posters: [],
+      mediaItems: []
     };
 
     this.save(defaultState);
@@ -872,6 +898,88 @@ class DatabaseEngine {
     });
     this.save(this.state);
     return this.state.users[idx];
+  }
+
+  // --- POSTERS ---
+  public getPosters(): PosterMediaItem[] {
+    return this.state.posters || [];
+  }
+
+  public addPoster(data: Omit<PosterMediaItem, 'id'>, actor = 'Admin'): PosterMediaItem {
+    const item: PosterMediaItem = {
+      ...data,
+      id: `poster_${Date.now()}_${Math.random().toString(36).substring(2, 6)}`
+    };
+    if (!this.state.posters) this.state.posters = [];
+    this.state.posters.unshift(item);
+    this.logActivity({
+      userName: actor,
+      userRole: 'Content Admin',
+      action: 'Created',
+      contentType: 'Poster',
+      contentId: item.id,
+      contentSummary: `Uploaded poster "${item.title}"`
+    });
+    this.save(this.state);
+    return item;
+  }
+
+  public deletePoster(id: string, actor = 'Admin'): boolean {
+    if (!this.state.posters) return false;
+    const poster = this.state.posters.find(p => p.id === id);
+    if (!poster) return false;
+    this.state.posters = this.state.posters.filter(p => p.id !== id);
+    this.logActivity({
+      userName: actor,
+      userRole: 'Content Admin',
+      action: 'Deleted',
+      contentType: 'Poster',
+      contentId: id,
+      contentSummary: `Deleted poster "${poster.title}"`
+    });
+    this.save(this.state);
+    return true;
+  }
+
+  // --- MEDIA ITEMS ---
+  public getMediaItems(): MediaLibraryItem[] {
+    return this.state.mediaItems || [];
+  }
+
+  public addMediaItem(data: Omit<MediaLibraryItem, 'id'>, actor = 'Admin'): MediaLibraryItem {
+    const item: MediaLibraryItem = {
+      ...data,
+      id: `media_${Date.now()}_${Math.random().toString(36).substring(2, 6)}`
+    };
+    if (!this.state.mediaItems) this.state.mediaItems = [];
+    this.state.mediaItems.unshift(item);
+    this.logActivity({
+      userName: actor,
+      userRole: 'Content Admin',
+      action: 'Created',
+      contentType: 'Media Asset',
+      contentId: item.id,
+      contentSummary: `Uploaded media asset "${item.name}"`
+    });
+    this.save(this.state);
+    return item;
+  }
+
+  public deleteMediaItem(id: string, actor = 'Admin'): boolean {
+    if (!this.state.mediaItems) return false;
+    const media = this.state.mediaItems.find(m => m.id === id);
+    if (!media) return false;
+    this.state.mediaItems = this.state.mediaItems.filter(m => m.id !== id);
+    this.logActivity({
+      userName: actor,
+      userRole: 'Content Admin',
+      action: 'Deleted',
+      contentType: 'Media Asset',
+      contentId: id,
+      contentSummary: `Deleted media asset "${media.name}"`
+    });
+    this.save(this.state);
+    return true;
   }
 }
 

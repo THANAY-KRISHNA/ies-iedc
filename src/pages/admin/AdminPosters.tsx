@@ -16,32 +16,28 @@ interface PosterMediaItem {
 }
 
 export const AdminPosters: React.FC = () => {
-  const [posters, setPosters] = useState<PosterMediaItem[]>([
-    {
-      id: 'p1',
-      title: 'IEDC Summit 2024 Poster',
-      url: 'https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=800&auto=format&fit=crop&q=80',
-      fileType: 'image',
-      uploadedAt: new Date().toLocaleDateString(),
-      size: '1.2 MB'
-    }
-  ]);
+  const [posters, setPosters] = useState<PosterMediaItem[]>([]);
   const [events, setEvents] = useState<EventItem[]>([]);
   const [search, setSearch] = useState('');
   const [uploading, setUploading] = useState(false);
   const [copiedId, setCopiedId] = useState<string | null>(null);
 
   useEffect(() => {
-    async function loadEvents() {
-      try {
-        const evtList = await api.adminGetEvents();
-        setEvents(evtList);
-      } catch (err) {
-        console.error('Failed to load events:', err);
-      }
-    }
-    loadEvents();
+    loadData();
   }, []);
+
+  async function loadData() {
+    try {
+      const [evtList, posterList] = await Promise.all([
+        api.adminGetEvents(),
+        api.adminGetPosters()
+      ]);
+      setEvents(evtList || []);
+      setPosters(posterList || []);
+    } catch (err) {
+      console.error('Failed to load posters data:', err);
+    }
+  }
 
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
@@ -54,15 +50,15 @@ export const AdminPosters: React.FC = () => {
         const fileData = event.target?.result as string;
         try {
           const isDoc = file.type.includes('pdf') || file.name.endsWith('.pdf') || file.name.endsWith('.doc') || file.name.endsWith('.docx');
-          const newItem: PosterMediaItem = {
-            id: `poster_${Date.now()}_${Math.random().toString(36).substr(2, 4)}`,
+          const payload = {
             title: file.name.replace(/\.[^/.]+$/, ''),
             url: fileData,
             fileType: isDoc ? 'document' : 'image',
             uploadedAt: new Date().toLocaleDateString(),
             size: `${(file.size / 1024).toFixed(1)} KB`
           };
-          setPosters(prev => [newItem, ...prev]);
+          const created = await api.adminAddPoster(payload);
+          setPosters(prev => [created, ...prev]);
         } catch (err) {
           console.error('Failed to upload poster:', err);
         } finally {
@@ -97,9 +93,14 @@ export const AdminPosters: React.FC = () => {
     setTimeout(() => setCopiedId(null), 2000);
   };
 
-  const handleDelete = (id: string) => {
+  const handleDelete = async (id: string) => {
     if (!window.confirm('Are you sure you want to delete this poster?')) return;
-    setPosters(prev => prev.filter(p => p.id !== id));
+    try {
+      await api.adminDeletePoster(id);
+      setPosters(prev => prev.filter(p => p.id !== id));
+    } catch (err) {
+      console.error('Failed to delete poster:', err);
+    }
   };
 
   const filteredPosters = posters.filter(

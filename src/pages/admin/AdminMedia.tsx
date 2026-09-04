@@ -12,17 +12,22 @@ interface MediaItem {
 }
 
 export const AdminMedia: React.FC = () => {
-  const [mediaList, setMediaList] = useState<MediaItem[]>([
-    {
-      id: 'm1',
-      name: 'ies_iedc_logo.png',
-      url: 'https://lh3.googleusercontent.com/aida-public/AB6AXuDGky_twkb-r-fjGH7KFGWD67wikfcOAlvhh9O37tDCkEZpKPz344DIDOO7lXK3JHX-vfoZW4DwyCVUwlYLOfDH8QMzwWP7J93sn9AhqZNVnKxcQavbgtdTv-tumANwqlGEVttorxIZXy36OgyRLIK54b8tteqSIV3l6JwZp9VgVD0bsBeixtAS1ab7LMR2ZJw_zkJPocySdohgwCiSGrHbGoC0Kk1jX9B1usMagjUZpZWLc69Qjs3Z2EzNnqMHp0ceCkE',
-      uploadedAt: new Date().toLocaleDateString(),
-      size: '42 KB'
-    }
-  ]);
+  const [mediaList, setMediaList] = useState<MediaItem[]>([]);
   const [search, setSearch] = useState('');
   const [copiedId, setCopiedId] = useState<string | null>(null);
+
+  React.useEffect(() => {
+    loadMedia();
+  }, []);
+
+  async function loadMedia() {
+    try {
+      const items = await api.adminGetMedia();
+      setMediaList(items || []);
+    } catch (err) {
+      console.error('Failed to load media items:', err);
+    }
+  }
 
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
@@ -34,14 +39,14 @@ export const AdminMedia: React.FC = () => {
         const fileData = event.target?.result as string;
         try {
           const res = await api.uploadMedia(file.name, fileData);
-          const newItem: MediaItem = {
-            id: `media_${Date.now()}_${Math.random().toString(36).substr(2, 4)}`,
+          const payload = {
             name: file.name,
             url: res.url,
             uploadedAt: new Date().toLocaleDateString(),
             size: `${(file.size / 1024).toFixed(1)} KB`
           };
-          setMediaList(prev => [newItem, ...prev]);
+          const created = await api.adminAddMedia(payload);
+          setMediaList(prev => [created, ...prev]);
         } catch (err) {
           console.error('Upload failed:', err);
         }
@@ -56,9 +61,14 @@ export const AdminMedia: React.FC = () => {
     setTimeout(() => setCopiedId(null), 2000);
   };
 
-  const handleDelete = (id: string) => {
+  const handleDelete = async (id: string) => {
     if (!window.confirm('Remove this file from media library?')) return;
-    setMediaList(prev => prev.filter(m => m.id !== id));
+    try {
+      await api.adminDeleteMedia(id);
+      setMediaList(prev => prev.filter(m => m.id !== id));
+    } catch (err) {
+      console.error('Failed to delete media item:', err);
+    }
   };
 
   const filteredMedia = mediaList.filter(m =>

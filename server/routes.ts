@@ -1,6 +1,7 @@
 import { Router, Request, Response } from 'express';
 import { db } from './db';
 import { authenticateToken, requireRole, AuthRequest, loginUser } from './auth';
+import { uploadToSupabaseStorage } from './supabase';
 
 export const apiRouter = Router();
 
@@ -403,14 +404,15 @@ apiRouter.delete('/admin/news/:id', authenticateToken, requireRole(['Content Adm
   res.json({ message: 'News article deleted.' });
 });
 
-// Media Upload
-apiRouter.post('/upload', authenticateToken, (req: AuthRequest, res: Response) => {
-  const { fileName, fileData } = req.body;
+// Media Upload (Connected to Supabase Storage)
+apiRouter.post('/upload', authenticateToken, async (req: AuthRequest, res: Response) => {
+  const { fileName, fileData, bucket } = req.body;
   if (!fileData) {
     return res.status(400).json({ error: 'File data is required.' });
   }
-  // Return the data URL directly or save path
-  res.json({ url: fileData, fileName: fileName || 'uploaded_image' });
+  const bucketName = bucket || 'media';
+  const publicUrl = await uploadToSupabaseStorage(bucketName, fileName || 'media_asset', fileData);
+  res.json({ url: publicUrl, fileName: fileName || 'uploaded_image' });
 });
 
 // Submissions
@@ -444,4 +446,36 @@ apiRouter.put('/admin/users/:id/role', authenticateToken, requireRole(['Super Ad
   const updated = db.updateUserRole(req.params.id, role, req.user?.name);
   if (!updated) return res.status(404).json({ error: 'User not found.' });
   res.json(updated);
+});
+
+// Posters Management
+apiRouter.get('/admin/posters', authenticateToken, requireRole(['Content Admin']), (_req: AuthRequest, res: Response) => {
+  res.json(db.getPosters());
+});
+
+apiRouter.post('/admin/posters', authenticateToken, requireRole(['Content Admin']), (req: AuthRequest, res: Response) => {
+  const item = db.addPoster(req.body, req.user?.name);
+  res.status(201).json(item);
+});
+
+apiRouter.delete('/admin/posters/:id', authenticateToken, requireRole(['Content Admin']), (req: AuthRequest, res: Response) => {
+  const success = db.deletePoster(req.params.id, req.user?.name);
+  if (!success) return res.status(404).json({ error: 'Poster not found.' });
+  res.json({ message: 'Poster deleted.' });
+});
+
+// Media Library Management
+apiRouter.get('/admin/media', authenticateToken, (_req: AuthRequest, res: Response) => {
+  res.json(db.getMediaItems());
+});
+
+apiRouter.post('/admin/media', authenticateToken, (req: AuthRequest, res: Response) => {
+  const item = db.addMediaItem(req.body, req.user?.name);
+  res.status(201).json(item);
+});
+
+apiRouter.delete('/admin/media/:id', authenticateToken, (req: AuthRequest, res: Response) => {
+  const success = db.deleteMediaItem(req.params.id, req.user?.name);
+  if (!success) return res.status(404).json({ error: 'Media file not found.' });
+  res.json({ message: 'Media file deleted.' });
 });

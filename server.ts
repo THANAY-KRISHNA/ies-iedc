@@ -1,3 +1,4 @@
+import 'dotenv/config';
 import express from 'express';
 import path from 'path';
 import { createServer as createViteServer } from 'vite';
@@ -6,10 +7,18 @@ import { initializeAuth } from './server/auth';
 
 async function startServer() {
   const app = express();
-  const PORT = 3000;
+  const PORT = process.env.PORT ? parseInt(process.env.PORT, 10) : 3000;
 
-  // Initialize in-memory session tokens
+  // Initialize session tokens
   initializeAuth();
+
+  // Global API Cache-Control Middleware: Ensure all devices get real-time updated data
+  app.use('/api', (_req, res, next) => {
+    res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+    res.setHeader('Pragma', 'no-cache');
+    res.setHeader('Expires', '0');
+    next();
+  });
 
   // Middleware for body parsing
   app.use(express.json({ limit: '10mb' }));
@@ -17,7 +26,12 @@ async function startServer() {
 
   // Health check
   app.get('/api/health', (_req, res) => {
-    res.json({ status: 'ok', service: 'IES IEDC API', timestamp: new Date().toISOString() });
+    res.json({
+      status: 'ok',
+      service: 'IES IEDC CMS API',
+      databaseMode: process.env.DATABASE_URL ? 'PostgreSQL' : 'Persistent File DB',
+      timestamp: new Date().toISOString()
+    });
   });
 
   // Mount API Router

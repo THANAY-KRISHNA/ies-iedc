@@ -12,7 +12,7 @@ import {
   Image as ImageIcon
 } from 'lucide-react';
 import { api } from '../services/api';
-import { EventItem, GalleryAlbum } from '../types';
+import { EventItem, GalleryAlbum, SiteSettings } from '../types';
 import { IdeaWizardModal } from '../components/modals/IdeaWizardModal';
 
 export const Home: React.FC = () => {
@@ -21,6 +21,7 @@ export const Home: React.FC = () => {
   const [activeNode, setActiveNode] = useState<'innovation' | 'technical' | 'entrepreneurship' | null>(null);
   const [events, setEvents] = useState<EventItem[]>([]);
   const [galleryAlbums, setGalleryAlbums] = useState<GalleryAlbum[]>([]);
+  const [settings, setSettings] = useState<SiteSettings | null>(null);
 
   // Handle modal trigger events from Navbar / Footer
   useEffect(() => {
@@ -36,14 +37,16 @@ export const Home: React.FC = () => {
     };
   }, [navigate]);
 
-  // Fetch real events and gallery data from API
+  // Fetch real settings, events and gallery data from API
   useEffect(() => {
     async function fetchData() {
       try {
-        const [evts, gallery] = await Promise.all([
+        const [siteSettings, evts, gallery] = await Promise.all([
+          api.getSettings(),
           api.getEvents(),
           api.getGallery()
         ]);
+        setSettings(siteSettings || null);
         setEvents(evts || []);
         setGalleryAlbums(gallery || []);
       } catch (e) {
@@ -92,7 +95,7 @@ export const Home: React.FC = () => {
             {/* Main Headline & Subtitle */}
             <div className="flex flex-col gap-1">
               <h1 className="font-sans text-6xl sm:text-7xl lg:text-8xl font-black tracking-tight text-[#1E232A] leading-none drop-shadow-xs">
-                IES IEDC
+                {settings?.heroHeading || 'IES IEDC'}
               </h1>
               <p className="font-sans text-3xl sm:text-4xl text-[#4B515D] font-normal tracking-tight mt-1">
                 IES College of Engineering
@@ -100,13 +103,13 @@ export const Home: React.FC = () => {
               
               {/* Tagline */}
               <div className="text-base sm:text-lg font-medium text-[#2E333D] tracking-wide mt-2">
-                Innovate &nbsp;•&nbsp; Create &nbsp;•&nbsp; Entrepreneur
+                {settings?.tagline || 'Innovate • Create • Entrepreneur'}
               </div>
             </div>
 
             {/* Description Paragraph */}
             <p className="text-[#525866] text-sm sm:text-base leading-relaxed max-w-lg mt-2">
-              An innovation and entrepreneurship platform empowering students to explore ideas, develop skills, build prototypes and take their ideas towards meaningful solutions.
+              {settings?.heroSubtitle || 'An innovation and entrepreneurship platform empowering students to explore ideas, develop skills, build prototypes and take their ideas towards meaningful solutions.'}
             </p>
 
             {/* Action Buttons (100% Working & Tactile 3D Effects) */}
@@ -119,7 +122,7 @@ export const Home: React.FC = () => {
                 }}
                 className="px-8 py-4 rounded-2xl bg-gradient-to-b from-[#343A46] to-[#1E232A] text-white text-xs font-bold font-sans tracking-widest uppercase shadow-[8px_8px_20px_rgba(160,168,182,0.5),-8px_-8px_20px_rgba(255,255,255,0.9)] hover:-translate-y-1 hover:shadow-[12px_12px_24px_rgba(160,168,182,0.65)] active:translate-y-0.5 transition-all duration-200 flex items-center gap-2 cursor-pointer group select-none"
               >
-                <span>EXPLORE IEDC</span>
+                <span>{settings?.heroCtaText || 'EXPLORE IEDC'}</span>
                 <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
               </a>
 
@@ -127,7 +130,7 @@ export const Home: React.FC = () => {
                 onClick={() => setWizardOpen(true)}
                 className="px-8 py-4 rounded-2xl bg-gradient-to-b from-white to-[#F4F5F8] text-[#2B303A] text-xs font-bold font-sans tracking-widest uppercase shadow-[8px_8px_20px_rgba(160,168,182,0.5),-8px_-8px_20px_rgba(255,255,255,0.9)] hover:-translate-y-1 active:shadow-neu-hub-inner transition-all duration-200 cursor-pointer border border-white/80 select-none"
               >
-                SUBMIT YOUR IDEA
+                {settings?.heroSecondaryCtaText || 'SUBMIT YOUR IDEA'}
               </button>
             </div>
 
@@ -290,7 +293,7 @@ export const Home: React.FC = () => {
                   Our Vision
                 </h3>
                 <p className="text-base text-[#4A4A4A] leading-relaxed italic font-serif">
-                  “To inculcate an innovation culture among the students, to create future entrepreneurs, and position the institution as a leading learning, innovation, and entrepreneurial hub.”
+                  “{settings?.vision || 'To inculcate an innovation culture among the students, to create future entrepreneurs, and position the institution as a leading learning, innovation, and entrepreneurial hub.'}”
                 </p>
               </div>
               <div className="pt-4 border-t border-[#EBEBE8] text-xs font-mono text-[#777777]">
@@ -313,7 +316,7 @@ export const Home: React.FC = () => {
                   Our Mission
                 </h3>
                 <p className="text-base text-[#4A4A4A] leading-relaxed italic font-serif">
-                  “To establish an innovation platform by introducing state-of-the-art technologies through promoting student-driven innovation and entrepreneurship.”
+                  “{settings?.mission || 'To establish an innovation platform by introducing state-of-the-art technologies through promoting student-driven innovation and entrepreneurship.'}”
                 </p>
               </div>
               <div className="pt-4 border-t border-[#EBEBE8] text-xs font-mono text-[#777777]">

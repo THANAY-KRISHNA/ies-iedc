@@ -369,5 +369,19 @@ export const api = {
       body: JSON.stringify({ fileName, fileData })
     }, { url: fileData }),
   adminDeleteGalleryAlbum: (id: string) =>
-    request<{ message: string }>(`/admin/gallery/${id}`, { method: 'DELETE' })
+    request<{ message: string }>(`/admin/gallery/${id}`, { method: 'DELETE' }),
+
+  // Admin Posters & Flyers
+  adminGetPosters: () => request<any[]>('/admin/posters', undefined, []),
+  adminAddPoster: (data: any) =>
+    request<any>('/admin/posters', { method: 'POST', body: JSON.stringify(data) }),
+  adminDeletePoster: (id: string) =>
+    request<{ message: string }>(`/admin/posters/${id}`, { method: 'DELETE' }),
+
+  // Admin Media Library
+  adminGetMedia: () => request<any[]>('/admin/media', undefined, []),
+  adminAddMedia: (data: any) =>
+    request<any>('/admin/media', { method: 'POST', body: JSON.stringify(data) }),
+  adminDeleteMedia: (id: string) =>
+    request<{ message: string }>(`/admin/media/${id}`, { method: 'DELETE' })
 };
