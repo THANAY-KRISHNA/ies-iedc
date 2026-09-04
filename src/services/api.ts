@@ -106,11 +106,19 @@ export const api = {
 
   // --- AUTH ---
   getDemoUsers: () => request<{ users: User[] }>('/auth/demo-users'),
-  login: (email: string) =>
-    request<{ user: User; token: string }>('/auth/login', {
+  login: (email: string) => {
+    const fallbackUser: User = {
+      id: 'usr_super',
+      name: 'Prof. Shahaziya Parvez',
+      email: email || 'nodal.officer@iesce.info',
+      role: 'Super Admin',
+      lastLogin: new Date().toISOString()
+    };
+    return request<{ user: User; token: string }>('/auth/login', {
       method: 'POST',
       body: JSON.stringify({ email })
-    }),
+    }, { user: fallbackUser, token: 'token_usr_super' });
+  },
   getMe: () => request<{ user: User }>('/auth/me'),
 
   // --- ADMIN ---
@@ -227,5 +235,14 @@ export const api = {
   // Admin Users
   adminGetUsers: () => request<User[]>('/admin/users'),
   adminUpdateUserRole: (id: string, role: string) =>
-    request<User>(`/admin/users/${id}/role`, { method: 'PUT', body: JSON.stringify({ role }) })
+    request<User>(`/admin/users/${id}/role`, { method: 'PUT', body: JSON.stringify({ role }) }),
+
+  // Media & Upload
+  uploadMedia: (fileName: string, fileData: string) =>
+    request<{ url: string }>('/upload', {
+      method: 'POST',
+      body: JSON.stringify({ fileName, fileData })
+    }, { url: fileData }),
+  adminDeleteGalleryAlbum: (id: string) =>
+    request<{ message: string }>(`/admin/gallery/${id}`, { method: 'DELETE' })
 };

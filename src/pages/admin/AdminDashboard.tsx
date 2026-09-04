@@ -17,8 +17,9 @@ import {
   History,
   ArrowRight,
   ShieldCheck,
-  Building2,
-  ExternalLink
+  ExternalLink,
+  CheckCircle2,
+  FileText
 } from 'lucide-react';
 
 export const AdminDashboard: React.FC = () => {
@@ -47,188 +48,187 @@ export const AdminDashboard: React.FC = () => {
   }
 
   return (
-    <div className="space-y-10">
-      {/* 1. Welcome Banner */}
-      <div className="neu-raised rounded-2xl p-6 sm:p-8 border border-[#D8D8D3] flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+    <div className="space-y-8 font-sans">
+      {/* Welcome Banner */}
+      <div className="bg-white rounded-sm p-6 sm:p-8 border border-[#D5D9E0] shadow-neu-card flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div className="space-y-1">
           <div className="flex items-center gap-2">
-            <Badge variant="dark" size="sm">
+            <span className="text-[10px] px-2 py-0.5 rounded bg-[#10B981]/10 text-[#10B981] font-mono font-bold uppercase border border-[#10B981]/20">
               {user?.role || 'Super Admin'}
-            </Badge>
-            <span className="text-xs text-[#777777]">Authenticated Session</span>
+            </span>
+            <span className="text-xs text-[#5F6B7D] font-mono">• Authenticated Nodal Session</span>
           </div>
-          <h1 className="text-2xl font-black text-[#161616] tracking-tight">
-            Welcome, {user?.name || 'Administrator'}
+          <h1 className="text-2xl sm:text-3xl font-extrabold text-[#1A365D] tracking-tight font-display">
+            Welcome, {user?.name || 'Prof. Shahaziya Parvez'}
           </h1>
-          <p className="text-xs text-[#777777]">
-            IES IEDC Institutional Management System • IES College of Engineering
+          <p className="text-xs text-[#5F6B7D]">
+            IES IEDC Institutional Management System • IES College of Engineering (Nodal Code: KL-TCR-IES-2016)
           </p>
         </div>
 
         <div className="flex items-center gap-2">
           <Link to="/">
-            <Button variant="outline" size="sm" icon={<ExternalLink className="w-3.5 h-3.5" />}>
-              Live Website
-            </Button>
+            <button className="px-4 py-2 rounded-sm bg-[#F1F2F5] hover:bg-[#E9EBEF] border border-[#D5D9E0] text-xs font-semibold text-[#1A365D] uppercase tracking-wider flex items-center gap-1.5 transition-all shadow-neu-button">
+              <span>View Public Portal</span>
+              <ExternalLink className="w-3.5 h-3.5 text-[#10B981]" />
+            </button>
           </Link>
         </div>
       </div>
 
-      {/* 2. Discrepancy / Attention Callout if exists */}
+      {/* Discrepancy Callout */}
       {stats?.needsReviewCount > 0 && (
-        <div className="p-4 bg-[#FFF3E0] border border-[#F3C287] rounded-xl flex items-start gap-3">
-          <AlertCircle className="w-5 h-5 text-[#8C4A00] shrink-0 mt-0.5" />
-          <div className="space-y-1 text-xs text-[#8C4A00]">
-            <p className="font-bold">
-              {stats.needsReviewCount} Record Flagged for Administrative Reconciliation
+        <div className="p-4 bg-[#FFF8E7] border border-[#F59E0B]/40 rounded-sm flex items-start gap-3 shadow-sm">
+          <AlertCircle className="w-5 h-5 text-[#F59E0B] shrink-0 mt-0.5" />
+          <div className="space-y-1 text-xs text-[#1A2232]">
+            <p className="font-bold text-[#1A365D]">
+              {stats.needsReviewCount} Record Flagged for Statutory Audit Reconciliation
             </p>
-            <p className="leading-relaxed">
-              Historical document discrepancy found (e.g. IEDC Camp date). You can review or reconcile this record under Events Management.
+            <p className="leading-relaxed text-[#5F6B7D]">
+              Historical document inconsistency annotated: [Residential IEDC Innovation Camp - Date Inconsistency in Source Record].
             </p>
             <Link
               to="/admin/events"
-              className="inline-block font-semibold underline hover:text-[#5F3200] pt-1"
+              className="inline-block font-semibold text-[#1A365D] underline hover:text-[#10B981] pt-1"
             >
-              Open Events Manager →
+              Open Events Audit Manager →
             </Link>
           </div>
         </div>
       )}
 
-      {/* 3. Metric KPI Cards */}
+      {/* Metric KPI Cards */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-5">
-        <div className="neu-raised rounded-xl p-5 border border-[#D8D8D3] space-y-2">
-          <div className="flex items-center justify-between text-[#777777]">
-            <span className="text-xs font-semibold">Events &amp; Camps</span>
-            <Calendar className="w-4 h-4 text-[#242424]" />
+        <div className="bg-white rounded-sm p-5 border border-[#D5D9E0] shadow-neu-card space-y-2">
+          <div className="flex items-center justify-between text-[#5F6B7D]">
+            <span className="text-xs font-bold uppercase tracking-wider text-[#1A365D]">Events &amp; Bootcamps</span>
+            <Calendar className="w-4 h-4 text-[#10B981]" />
           </div>
-          <p className="text-2xl font-black text-[#161616]">{stats?.eventsCount ?? 0}</p>
+          <p className="text-3xl font-extrabold text-[#1A365D] font-display">{stats?.eventsCount ?? 0}</p>
           <Link
             to="/admin/events"
-            className="text-[11px] text-[#4A4A4A] hover:text-[#161616] font-medium flex items-center gap-1 pt-1"
+            className="text-[11px] text-[#5F6B7D] hover:text-[#1A365D] font-medium flex items-center gap-1 pt-1"
           >
-            <span>Manage Events</span>
-            <ArrowRight className="w-3 h-3" />
+            <span>Manage Records</span>
+            <ArrowRight className="w-3 h-3 text-[#10B981]" />
           </Link>
         </div>
 
-        <div className="neu-raised rounded-xl p-5 border border-[#D8D8D3] space-y-2">
-          <div className="flex items-center justify-between text-[#777777]">
-            <span className="text-xs font-semibold">Team Members</span>
-            <Users className="w-4 h-4 text-[#242424]" />
+        <div className="bg-white rounded-sm p-5 border border-[#D5D9E0] shadow-neu-card space-y-2">
+          <div className="flex items-center justify-between text-[#5F6B7D]">
+            <span className="text-xs font-bold uppercase tracking-wider text-[#1A365D]">Accredited Team</span>
+            <Users className="w-4 h-4 text-[#1A365D]" />
           </div>
-          <p className="text-2xl font-black text-[#161616]">{stats?.teamMembersCount ?? 0}</p>
+          <p className="text-3xl font-extrabold text-[#1A365D] font-display">{stats?.teamMembersCount ?? 0}</p>
           <Link
             to="/admin/team"
-            className="text-[11px] text-[#4A4A4A] hover:text-[#161616] font-medium flex items-center gap-1 pt-1"
+            className="text-[11px] text-[#5F6B7D] hover:text-[#1A365D] font-medium flex items-center gap-1 pt-1"
           >
-            <span>Manage Archives</span>
-            <ArrowRight className="w-3 h-3" />
+            <span>Manage Executive Roster</span>
+            <ArrowRight className="w-3 h-3 text-[#10B981]" />
           </Link>
         </div>
 
-        <div className="neu-raised rounded-xl p-5 border border-[#D8D8D3] space-y-2">
-          <div className="flex items-center justify-between text-[#777777]">
-            <span className="text-xs font-semibold">Student Ideas</span>
-            <Sparkles className="w-4 h-4 text-[#242424]" />
+        <div className="bg-white rounded-sm p-5 border border-[#D5D9E0] shadow-neu-card space-y-2">
+          <div className="flex items-center justify-between text-[#5F6B7D]">
+            <span className="text-xs font-bold uppercase tracking-wider text-[#1A365D]">Student Proposals</span>
+            <Sparkles className="w-4 h-4 text-[#FF6B35]" />
           </div>
-          <p className="text-2xl font-black text-[#161616]">{stats?.ideasCount ?? 0}</p>
+          <p className="text-3xl font-extrabold text-[#1A365D] font-display">{stats?.ideasCount ?? 0}</p>
           <Link
             to="/admin/ideas"
-            className="text-[11px] text-[#4A4A4A] hover:text-[#161616] font-medium flex items-center gap-1 pt-1"
+            className="text-[11px] text-[#5F6B7D] hover:text-[#1A365D] font-medium flex items-center gap-1 pt-1"
           >
-            <span>Review Ideas</span>
-            <ArrowRight className="w-3 h-3" />
+            <span>Review Intake Queue</span>
+            <ArrowRight className="w-3 h-3 text-[#10B981]" />
           </Link>
         </div>
 
-        <div className="neu-raised rounded-xl p-5 border border-[#D8D8D3] space-y-2">
-          <div className="flex items-center justify-between text-[#777777]">
-            <span className="text-xs font-semibold">Join Submissions</span>
-            <Inbox className="w-4 h-4 text-[#242424]" />
+        <div className="bg-white rounded-sm p-5 border border-[#D5D9E0] shadow-neu-card space-y-2">
+          <div className="flex items-center justify-between text-[#5F6B7D]">
+            <span className="text-xs font-bold uppercase tracking-wider text-[#1A365D]">Join Submissions</span>
+            <Inbox className="w-4 h-4 text-[#F59E0B]" />
           </div>
-          <p className="text-2xl font-black text-[#161616]">{stats?.submissionsCount ?? 0}</p>
+          <p className="text-3xl font-extrabold text-[#1A365D] font-display">{stats?.submissionsCount ?? 0}</p>
           <Link
             to="/admin/submissions"
-            className="text-[11px] text-[#4A4A4A] hover:text-[#161616] font-medium flex items-center gap-1 pt-1"
+            className="text-[11px] text-[#5F6B7D] hover:text-[#1A365D] font-medium flex items-center gap-1 pt-1"
           >
             <span>Review Applicants</span>
-            <ArrowRight className="w-3 h-3" />
+            <ArrowRight className="w-3 h-3 text-[#10B981]" />
           </Link>
         </div>
       </div>
 
-      {/* 4. Quick Actions */}
-      <div className="neu-raised rounded-2xl p-6 border border-[#D8D8D3] space-y-4">
-        <h3 className="text-sm font-bold text-[#161616]">Administrative Quick Actions</h3>
+      {/* Quick Actions */}
+      <div className="bg-white rounded-sm p-6 border border-[#D5D9E0] shadow-neu-card space-y-4">
+        <h3 className="text-sm font-bold text-[#1A365D] uppercase tracking-wider font-display">
+          Administrative Quick Actions
+        </h3>
         <div className="flex flex-wrap gap-3">
           <Link to="/admin/events?action=new">
-            <Button variant="primary" size="sm" icon={<Plus className="w-3.5 h-3.5" />}>
-              Create Event
-            </Button>
+            <button className="px-4 py-2 rounded-sm bg-[#1A365D] hover:bg-[#1A2232] text-white text-xs font-semibold uppercase tracking-wider flex items-center gap-1.5 shadow-neu-button cursor-pointer">
+              <Plus className="w-3.5 h-3.5 text-[#10B981]" />
+              <span>Create Event Record</span>
+            </button>
           </Link>
           <Link to="/admin/team?action=new">
-            <Button variant="secondary" size="sm" icon={<Plus className="w-3.5 h-3.5" />}>
-              Add Team Member
-            </Button>
+            <button className="px-4 py-2 rounded-sm bg-[#F1F2F5] hover:bg-[#E9EBEF] border border-[#D5D9E0] text-[#1A365D] text-xs font-semibold uppercase tracking-wider flex items-center gap-1.5 shadow-neu-button cursor-pointer">
+              <Plus className="w-3.5 h-3.5 text-[#1A365D]" />
+              <span>Add Team Member</span>
+            </button>
           </Link>
           <Link to="/admin/achievements?action=new">
-            <Button variant="outline" size="sm" icon={<Plus className="w-3.5 h-3.5" />}>
-              Add Achievement
-            </Button>
+            <button className="px-4 py-2 rounded-sm bg-[#F1F2F5] hover:bg-[#E9EBEF] border border-[#D5D9E0] text-[#1A365D] text-xs font-semibold uppercase tracking-wider flex items-center gap-1.5 shadow-neu-button cursor-pointer">
+              <Plus className="w-3.5 h-3.5 text-[#FF6B35]" />
+              <span>Add Achievement</span>
+            </button>
           </Link>
           <Link to="/admin/content">
-            <Button variant="outline" size="sm">
-              Manage Content Tabs
-            </Button>
+            <button className="px-4 py-2 rounded-sm bg-[#F1F2F5] hover:bg-[#E9EBEF] border border-[#D5D9E0] text-[#5F6B7D] hover:text-[#1A365D] text-xs font-semibold uppercase tracking-wider shadow-neu-button cursor-pointer">
+              Manage Content Vault
+            </button>
           </Link>
         </div>
       </div>
 
-      {/* 5. Recent System Audit Trail */}
+      {/* Audit Activity Trail */}
       <div className="space-y-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <History className="w-4 h-4 text-[#242424]" />
-            <h3 className="text-sm font-bold text-[#161616]">Live Audit Activity Trail</h3>
+            <History className="w-4 h-4 text-[#1A365D]" />
+            <h3 className="text-sm font-bold text-[#1A365D] uppercase tracking-wider font-display">
+              Live Audit Activity Trail
+            </h3>
           </div>
           <Link
             to="/admin/logs"
-            className="text-xs font-semibold text-[#4A4A4A] hover:text-[#161616] hover:underline"
+            className="text-xs font-semibold text-[#5F6B7D] hover:text-[#1A365D] hover:underline"
           >
-            View Full Audit Log
+            View Full Audit Log →
           </Link>
         </div>
 
-        <div className="neu-raised rounded-xl overflow-hidden border border-[#D8D8D3] divide-y divide-[#EBEBE8]">
+        <div className="bg-white rounded-sm overflow-hidden border border-[#D5D9E0] shadow-neu-card divide-y divide-[#D5D9E0]/60">
           {logs.map(log => (
             <div key={log.id} className="p-4 flex items-start justify-between gap-4 text-xs">
               <div className="space-y-1">
                 <div className="flex items-center gap-2">
-                  <span className="font-bold text-[#161616]">{log.userName}</span>
-                  <Badge variant="outline" size="sm">
+                  <span className="font-bold text-[#1A365D]">{log.userName}</span>
+                  <span className="text-[10px] px-1.5 py-0.5 rounded bg-[#F1F2F5] border border-[#D5D9E0] font-mono text-[#5F6B7D]">
                     {log.userRole}
-                  </Badge>
-                  <Badge
-                    variant={
-                      log.action === 'Created'
-                        ? 'success'
-                        : log.action === 'Deleted'
-                        ? 'neutral'
-                        : 'dark'
-                    }
-                    size="sm"
-                  >
+                  </span>
+                  <span className="text-[10px] px-1.5 py-0.5 rounded bg-[#10B981]/10 text-[#10B981] font-mono font-bold">
                     {log.action}
-                  </Badge>
-                  <span className="text-[11px] text-[#777777] font-medium">
+                  </span>
+                  <span className="text-[11px] text-[#5F6B7D] font-mono">
                     {log.contentType}
                   </span>
                 </div>
-                <p className="text-[#4A4A4A]">{log.contentSummary}</p>
+                <p className="text-[#2B3547]">{log.contentSummary}</p>
               </div>
 
-              <span className="text-[11px] text-[#777777] shrink-0">
+              <span className="text-[11px] font-mono text-[#5F6B7D] shrink-0">
                 {new Date(log.timestamp).toLocaleTimeString([], {
                   hour: '2-digit',
                   minute: '2-digit'

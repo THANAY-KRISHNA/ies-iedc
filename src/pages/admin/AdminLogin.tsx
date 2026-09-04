@@ -2,11 +2,10 @@ import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { Button } from '../../components/ui/Button';
-import { Badge } from '../../components/ui/Badge';
-import { Shield, Lock, ArrowLeft, KeyRound, Check } from 'lucide-react';
+import { Shield, Lock, ArrowLeft, KeyRound, Check, User, Info } from 'lucide-react';
 
 export const AdminLogin: React.FC = () => {
-  const [email, setEmail] = useState('');
+  const [email, setEmail] = useState('nodal.officer@iesce.info');
   const [password, setPassword] = useState('admin123');
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -16,7 +15,7 @@ export const AdminLogin: React.FC = () => {
   const handleLogin = async (e?: React.FormEvent) => {
     if (e) e.preventDefault();
     if (!email) {
-      setError('Please enter your institutional administrative email.');
+      setError('Please enter your administrative email or username.');
       return;
     }
     setError(null);
@@ -41,117 +40,156 @@ export const AdminLogin: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#F5F5F3] flex flex-col justify-center py-12 sm:px-6 lg:px-8">
-      <div className="sm:mx-auto sm:w-full sm:max-w-md text-center space-y-3">
+    <div className="min-h-screen bg-[#F8F9FA] text-[#1A2232] flex flex-col justify-center py-12 px-4 sm:px-6 lg:px-8 font-sans">
+      <div className="sm:mx-auto sm:w-full sm:max-w-lg text-center space-y-3">
         <Link
           to="/"
-          className="inline-flex items-center gap-1.5 text-xs text-[#777777] hover:text-[#161616] mb-4"
+          className="inline-flex items-center gap-1.5 text-xs text-[#5F6B7D] hover:text-[#1A365D] mb-2 font-semibold transition-colors"
         >
-          <ArrowLeft className="w-3.5 h-3.5" />
-          <span>Back to IES IEDC Public Site</span>
+          <ArrowLeft className="w-4 h-4" />
+          <span>Return to Public Portal</span>
         </Link>
 
-        <div className="w-14 h-14 mx-auto rounded-xl neu-raised flex items-center justify-center text-[#161616] border border-[#D8D8D3]">
-          <Shield className="w-7 h-7 text-[#242424]" />
+        <div className="w-16 h-16 mx-auto rounded-md bg-[#000000] border border-[#D5D9E0] flex items-center justify-center p-2 shadow-neu-button shrink-0">
+          <img
+            src="https://lh3.googleusercontent.com/aida-public/AB6AXuDGky_twkb-r-fjGH7KFGWD67wikfcOAlvhh9O37tDCkEZpKPz344DIDOO7lXK3JHX-vfoZW4DwyCVUwlYLOfDH8QMzwWP7J93sn9AhqZNVnKxcQavbgtdTv-tumANwqlGEVttorxIZXy36OgyRLIK54b8tteqSIV3l6JwZp9VgVD0bsBeixtAS1ab7LMR2ZJw_zkJPocySdohgwCiSGrHbGoC0Kk1jX9B1usMagjUZpZWLc69Qjs3Z2EzNnqMHp0ceCkE"
+            alt="IES IEDC Logo"
+            className="w-full h-full object-contain"
+          />
         </div>
 
-        <h2 className="text-2xl font-black text-[#161616] tracking-tight">IES IEDC CMS Portal</h2>
-        <p className="text-xs text-[#777777]">
-          Institutional Content &amp; Administrative Management System
+        <h2 className="text-3xl font-extrabold text-[#1A365D] tracking-tight font-display">
+          IES IEDC Nodal Portal
+        </h2>
+        <p className="text-xs text-[#5F6B7D] uppercase font-mono tracking-wider font-semibold">
+          Institutional Governance &amp; Content Management System
         </p>
       </div>
 
-      <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md px-4">
-        <div className="neu-raised rounded-2xl p-8 border border-[#D8D8D3] space-y-6">
+      <div className="mt-6 sm:mx-auto sm:w-full sm:max-w-lg">
+        <div className="bg-white rounded-sm p-8 border border-[#D5D9E0] shadow-neu-card space-y-6">
+          {/* Credentials Highlight Banner */}
+          <div className="p-4 rounded bg-[#F1F2F5] border border-[#D5D9E0] space-y-2">
+            <div className="flex items-center gap-2 text-xs font-bold text-[#1A365D]">
+              <KeyRound className="w-4 h-4 text-[#10B981]" />
+              <span>Official Admin Access Credentials</span>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-[11px] text-[#2B3547]">
+              <div>
+                <span className="font-mono text-[#5F6B7D] block text-[10px] uppercase font-bold">Username / Email:</span>
+                <code className="font-mono bg-white px-2 py-0.5 rounded border border-[#D5D9E0] text-[#1A365D] font-bold block mt-0.5">
+                  admin
+                </code>
+                <span className="text-[10px] text-[#5F6B7D]">(or nodal.officer@iesce.info)</span>
+              </div>
+              <div>
+                <span className="font-mono text-[#5F6B7D] block text-[10px] uppercase font-bold">Password:</span>
+                <code className="font-mono bg-white px-2 py-0.5 rounded border border-[#D5D9E0] text-[#10B981] font-bold block mt-0.5">
+                  admin123
+                </code>
+                <span className="text-[10px] text-[#5F6B7D]">(or any password)</span>
+              </div>
+            </div>
+          </div>
+
           {error && (
-            <div className="p-3 bg-[#FBE9E7] border border-[#FFAB91] rounded-lg text-xs text-[#D84315]">
+            <div className="p-3 bg-red-50 border border-red-200 rounded text-xs text-red-700 font-medium">
               {error}
             </div>
           )}
 
           <form onSubmit={handleLogin} className="space-y-4 text-xs">
             <div className="space-y-1.5">
-              <label className="font-bold text-[#242424]">Administrative Email</label>
-              <input
-                type="email"
-                required
-                placeholder="nodal.officer@iesce.info"
-                value={email}
-                onChange={e => setEmail(e.target.value)}
-                className="w-full px-3.5 py-2.5 neu-inset rounded-lg text-xs text-[#242424] focus:outline-none focus:ring-1 focus:ring-[#242424]"
-              />
+              <label className="font-bold text-[#1A365D] uppercase tracking-wider text-[11px]">
+                Administrative Username / Email
+              </label>
+              <div className="relative">
+                <input
+                  type="text"
+                  required
+                  placeholder="admin or nodal.officer@iesce.info"
+                  value={email}
+                  onChange={e => setEmail(e.target.value)}
+                  className="w-full pl-9 pr-3.5 py-2.5 bg-[#F8F9FA] border border-[#D5D9E0] rounded text-xs text-[#1A2232] shadow-neu-inset focus:outline-none focus:border-[#1A365D] font-medium"
+                />
+                <User className="w-4 h-4 text-[#5F6B7D] absolute left-3 top-3" />
+              </div>
             </div>
 
             <div className="space-y-1.5">
-              <label className="font-bold text-[#242424]">Security Password</label>
-              <input
-                type="password"
-                required
-                value={password}
-                onChange={e => setPassword(e.target.value)}
-                className="w-full px-3.5 py-2.5 neu-inset rounded-lg text-xs text-[#242424] focus:outline-none focus:ring-1 focus:ring-[#242424]"
-              />
+              <label className="font-bold text-[#1A365D] uppercase tracking-wider text-[11px]">
+                Security Password
+              </label>
+              <div className="relative">
+                <input
+                  type="password"
+                  required
+                  value={password}
+                  onChange={e => setPassword(e.target.value)}
+                  className="w-full pl-9 pr-3.5 py-2.5 bg-[#F8F9FA] border border-[#D5D9E0] rounded text-xs text-[#1A2232] shadow-neu-inset focus:outline-none focus:border-[#1A365D] font-medium"
+                />
+                <Lock className="w-4 h-4 text-[#5F6B7D] absolute left-3 top-3" />
+              </div>
             </div>
 
             <div className="pt-2">
-              <Button
+              <button
                 type="submit"
-                variant="primary"
-                isLoading={loading}
-                className="w-full"
-                icon={<Lock className="w-4 h-4" />}
+                disabled={loading}
+                className="w-full py-3 px-4 rounded-sm bg-[#1A365D] hover:bg-[#1A2232] text-white shadow-neu-button text-xs font-semibold uppercase tracking-wider transition-all duration-150 active:scale-98 flex items-center justify-center gap-2 cursor-pointer"
               >
-                Authenticate &amp; Enter CMS
-              </Button>
+                <Lock className="w-4 h-4 text-[#10B981]" />
+                <span>{loading ? 'Authenticating...' : 'Authenticate & Enter CMS Console'}</span>
+              </button>
             </div>
           </form>
 
-          {/* Instant 1-Click Role Switcher for Testing Evaluators */}
-          <div className="pt-4 border-t border-[#D8D8D3] space-y-3">
+          {/* Quick Demo Access Triggers */}
+          <div className="pt-4 border-t border-[#D5D9E0] space-y-3">
             <div className="flex items-center justify-between">
-              <span className="text-[11px] font-bold text-[#777777] uppercase tracking-wider">
-                Instant Demo Access (By Role):
+              <span className="text-[11px] font-bold text-[#5F6B7D] uppercase tracking-wider font-mono">
+                Instant 1-Click Role Logins:
               </span>
-              <Badge variant="outline" size="sm">
-                4 Roles
-              </Badge>
+              <span className="text-[10px] px-2 py-0.5 rounded bg-[#10B981]/10 text-[#10B981] font-bold border border-[#10B981]/20">
+                4 Roles Available
+              </span>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
               <button
                 type="button"
                 onClick={() => handleQuickLogin('nodal.officer@iesce.info')}
-                className="neu-raised-soft p-2.5 rounded-lg border border-[#D8D8D3] text-left hover:border-[#161616] transition-colors cursor-pointer"
+                className="p-3 rounded bg-[#F1F2F5] border border-[#D5D9E0] text-left hover:border-[#1A365D] transition-colors cursor-pointer"
               >
-                <p className="font-bold text-xs text-[#161616]">Super Admin</p>
-                <p className="text-[10px] text-[#777777] truncate">Prof. Shahaziya Parvez</p>
+                <p className="font-bold text-xs text-[#1A365D]">Super Admin (Nodal Officer)</p>
+                <p className="text-[10px] text-[#5F6B7D] truncate font-mono">nodal.officer@iesce.info</p>
               </button>
 
               <button
                 type="button"
                 onClick={() => handleQuickLogin('content.iedc@iesce.info')}
-                className="neu-raised-soft p-2.5 rounded-lg border border-[#D8D8D3] text-left hover:border-[#161616] transition-colors cursor-pointer"
+                className="p-3 rounded bg-[#F1F2F5] border border-[#D5D9E0] text-left hover:border-[#1A365D] transition-colors cursor-pointer"
               >
-                <p className="font-bold text-xs text-[#161616]">Content Admin</p>
-                <p className="text-[10px] text-[#777777] truncate">Events &amp; News Lead</p>
+                <p className="font-bold text-xs text-[#1A365D]">Content Admin</p>
+                <p className="text-[10px] text-[#5F6B7D] truncate font-mono">content.iedc@iesce.info</p>
               </button>
 
               <button
                 type="button"
                 onClick={() => handleQuickLogin('team.iedc@iesce.info')}
-                className="neu-raised-soft p-2.5 rounded-lg border border-[#D8D8D3] text-left hover:border-[#161616] transition-colors cursor-pointer"
+                className="p-3 rounded bg-[#F1F2F5] border border-[#D5D9E0] text-left hover:border-[#1A365D] transition-colors cursor-pointer"
               >
-                <p className="font-bold text-xs text-[#161616]">Team Admin</p>
-                <p className="text-[10px] text-[#777777] truncate">Executive Recruiter</p>
+                <p className="font-bold text-xs text-[#1A365D]">Team Admin</p>
+                <p className="text-[10px] text-[#5F6B7D] truncate font-mono">team.iedc@iesce.info</p>
               </button>
 
               <button
                 type="button"
                 onClick={() => handleQuickLogin('achievements.iedc@iesce.info')}
-                className="neu-raised-soft p-2.5 rounded-lg border border-[#D8D8D3] text-left hover:border-[#161616] transition-colors cursor-pointer"
+                className="p-3 rounded bg-[#F1F2F5] border border-[#D5D9E0] text-left hover:border-[#1A365D] transition-colors cursor-pointer"
               >
-                <p className="font-bold text-xs text-[#161616]">Achievement Admin</p>
-                <p className="text-[10px] text-[#777777] truncate">Awards Verification</p>
+                <p className="font-bold text-xs text-[#1A365D]">Achievement Admin</p>
+                <p className="text-[10px] text-[#5F6B7D] truncate font-mono">achievements.iedc@iesce.info</p>
               </button>
             </div>
           </div>

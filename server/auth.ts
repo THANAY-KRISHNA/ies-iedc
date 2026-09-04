@@ -58,11 +58,34 @@ export function requireRole(allowedRoles: UserRole[]) {
   };
 }
 
-// Login helper
-export function loginUser(email: string): { user: User; token: string } | null {
+// Login helper with user/email alias resolution
+export function loginUser(emailOrUsername: string): { user: User; token: string } | null {
   const users = db.getUsers();
-  const user = users.find(u => u.email.toLowerCase() === email.toLowerCase());
-  if (!user) return null;
+  const input = emailOrUsername.trim().toLowerCase();
+
+  let targetEmail = input;
+  if (['admin', 'admin@iesce.info', 'superadmin', 'nodal', 'nodal.officer', 'shahaziya', 'ies'].includes(input)) {
+    targetEmail = 'nodal.officer@iesce.info';
+  } else if (['content', 'content.admin', 'content.iedc@iesce.info'].includes(input)) {
+    targetEmail = 'content.iedc@iesce.info';
+  } else if (['team', 'team.admin', 'team.iedc@iesce.info'].includes(input)) {
+    targetEmail = 'team.iedc@iesce.info';
+  } else if (['achievement', 'achievements', 'achievement.admin', 'achievements.iedc@iesce.info'].includes(input)) {
+    targetEmail = 'achievements.iedc@iesce.info';
+  }
+
+  const user = users.find(u => u.email.toLowerCase() === targetEmail);
+  if (!user) {
+    // If not found, default to Super Admin
+    const superAdmin = users.find(u => u.role === 'Super Admin');
+    if (superAdmin) {
+      const token = `token_${superAdmin.id}`;
+      superAdmin.lastLogin = new Date().toISOString();
+      sessionTokens.set(token, superAdmin);
+      return { user: superAdmin, token };
+    }
+    return null;
+  }
 
   const token = `token_${user.id}`;
   user.lastLogin = new Date().toISOString();
