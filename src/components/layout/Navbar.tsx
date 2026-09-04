@@ -56,10 +56,7 @@ export const Navbar: React.FC = () => {
             <span className="font-extrabold text-sm tracking-tight text-[#1E232A] leading-none">
               IES IEDC
             </span>
-            <span className="text-[10px] text-[#4B515D] font-semibold tracking-wide mt-0.5">
-              Innovation and Entrepreneurship Development Centre
-            </span>
-            <span className="text-[9px] text-[#6C727F] font-medium tracking-wide">
+            <span className="text-[10px] text-[#6C727F] font-medium tracking-wide mt-0.5">
               IES College of Engineering
             </span>
           </div>

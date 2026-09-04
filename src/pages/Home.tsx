@@ -86,6 +86,11 @@ export const Home: React.FC = () => {
           
           {/* Left Column Narrative (6.5 cols) */}
           <div className="lg:col-span-6 flex flex-col gap-5 pr-0 lg:pr-4">
+            
+            {/* Header Eyebrow */}
+            <div className="text-xs font-sans font-bold tracking-[0.2em] uppercase text-[#525866]">
+              INNOVATION &amp; ENTREPRENEURSHIP DEVELOPMENT CENTRE
+            </div>
 
             {/* Main Headline & Subtitle */}
             <div className="flex flex-col gap-1">
