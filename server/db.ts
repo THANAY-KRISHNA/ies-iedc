@@ -194,7 +194,6 @@ function yearsMatch(yearA?: string, yearB?: string): boolean {
   if (!yearA || !yearB) return false;
   return normalizeYear(yearA) === normalizeYear(yearB);
 }
-
 class DatabaseEngine {
   private memoryState: DatabaseState;
 
