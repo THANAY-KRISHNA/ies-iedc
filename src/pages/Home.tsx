@@ -3,14 +3,13 @@ import { useNavigate, Link } from 'react-router-dom';
 import {
   ArrowRight,
   Lightbulb,
-  Cpu,
-  Rocket,
+  Settings,
+  BarChart3,
   Eye,
   Target,
   Calendar,
   MapPin,
-  Image as ImageIcon,
-  MousePointer
+  Image as ImageIcon
 } from 'lucide-react';
 import { api } from '../services/api';
 import { EventItem, GalleryAlbum } from '../types';
@@ -19,7 +18,6 @@ import { IdeaWizardModal } from '../components/modals/IdeaWizardModal';
 export const Home: React.FC = () => {
   const navigate = useNavigate();
   const [wizardOpen, setWizardOpen] = useState(false);
-  const [activeNode, setActiveNode] = useState<'innovation' | 'technical' | 'entrepreneurship'>('innovation');
   const [events, setEvents] = useState<EventItem[]>([]);
   const [galleryAlbums, setGalleryAlbums] = useState<GalleryAlbum[]>([]);
 
@@ -54,195 +52,178 @@ export const Home: React.FC = () => {
     fetchData();
   }, []);
 
-  const nodeDetails = {
-    innovation: {
-      number: '01',
-      title: 'INNOVATION',
-      subtitle: 'Problem Discovery & Creative Scoping',
-      desc: 'Emphasizing problem identification, empathetic user research, and design thinking frameworks to turn observations into scalable project briefs.',
-      icon: Lightbulb,
-      tagColor: 'bg-[#161616] text-white border-[#161616]'
-    },
-    technical: {
-      number: '02',
-      title: 'TECHNICAL',
-      subtitle: 'Hands-on Prototyping & DIY Labs',
-      desc: 'Delivering direct exposure to hardware fabrication, IoT microcontrollers, software development, additive 3D printing, and generative AI toolchains.',
-      icon: Cpu,
-      tagColor: 'bg-[#161616] text-white border-[#161616]'
-    },
-    entrepreneurship: {
-      number: '03',
-      title: 'ENTREPRENEURSHIP',
-      subtitle: 'Startup Incubation & Market Readiness',
-      desc: 'Translating functional prototypes into sustainable ventures with business model validation, IPR guidance, and Kerala Startup Mission (KSUM) grant support.',
-      icon: Rocket,
-      tagColor: 'bg-[#161616] text-white border-[#161616]'
-    }
-  };
-
   return (
-    <div className="flex flex-col w-full bg-[#F5F5F3] text-[#242424] antialiased selection:bg-[#161616] selection:text-white">
+    <div className="flex flex-col w-full bg-[#EFEFF2] text-[#1E232A] antialiased selection:bg-[#1E232A] selection:text-white">
       {/* ========================================================================= */}
-      {/* 01. HERO SECTION */}
+      {/* 01. HERO SECTION (PIXEL-PERFECT MATCH TO USER MOCKUP) */}
       {/* ========================================================================= */}
-      <section className="relative w-full px-6 lg:px-16 pt-12 sm:pt-16 pb-20 sm:pb-28 border-b border-[#D8D8D3] overflow-hidden">
-        {/* Architectural grid background pattern */}
-        <div className="absolute inset-0 bg-[linear-[#EBEBE8]_1px,transparent_1px] bg-[size:32px_32px] opacity-40 pointer-events-none" />
+      <section className="relative w-full px-6 lg:px-16 pt-12 lg:pt-16 pb-20 lg:pb-28 border-b border-[#DCDFE6] overflow-hidden bg-[#EFF1F5]">
+        
+        {/* Far Left Background Soft Organic Wave Line Accent */}
+        <div className="absolute top-0 left-0 w-72 h-full pointer-events-none opacity-40">
+          <svg className="w-full h-full text-[#D4D8E2]" viewBox="0 0 200 800" fill="none">
+            <path d="M -50,0 Q 180,300 -30,800" stroke="currentColor" strokeWidth="2.5" />
+          </svg>
+        </div>
 
-        <div className="relative max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-8 items-center">
+        {/* Far Right Background Isometric Blueprint & Foliage Watermark */}
+        <div className="absolute top-12 right-0 w-80 h-full pointer-events-none opacity-20 hidden lg:block select-none">
+          {/* Floating Isometric Frames */}
+          <svg className="w-full h-full text-[#6C727F]" viewBox="0 0 300 600" fill="none">
+            <g transform="rotate(-15 150 150)">
+              <rect x="50" y="50" width="120" height="160" rx="8" stroke="currentColor" strokeWidth="1.5" strokeDasharray="4 4" />
+              <text x="70" y="100" className="text-[11px] font-sans font-bold fill-[#4A515D] tracking-widest">IDEAS</text>
+              <text x="70" y="130" className="text-[11px] font-sans font-bold fill-[#4A515D] tracking-widest">PEOPLE</text>
+              <text x="70" y="160" className="text-[11px] font-sans font-bold fill-[#4A515D] tracking-widest">IMPACT</text>
+            </g>
+          </svg>
+        </div>
+
+        <div className="relative max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-6 items-center">
           
-          {/* Left Hero Narrative (7 cols) */}
-          <div className="lg:col-span-7 flex flex-col gap-6">
+          {/* Left Column Narrative (6.5 cols) */}
+          <div className="lg:col-span-6 flex flex-col gap-5 pr-0 lg:pr-4">
             
             {/* Header Eyebrow */}
-            <div className="inline-flex items-center gap-2 text-xs font-mono font-semibold tracking-widest uppercase text-[#777777]">
-              <span className="w-2 h-2 rounded-full bg-[#161616]"></span>
+            <div className="text-xs font-sans font-bold tracking-[0.2em] uppercase text-[#525866]">
               INNOVATION &amp; ENTREPRENEURSHIP DEVELOPMENT CENTRE
             </div>
 
-            {/* Main Title & Subtitle */}
-            <div className="flex flex-col gap-2">
-              <h1 className="font-display text-5xl sm:text-6xl lg:text-7xl font-extrabold tracking-tight text-[#161616] leading-[1.05]">
+            {/* Main Headline & Subtitle */}
+            <div className="flex flex-col gap-1">
+              <h1 className="font-sans text-6xl sm:text-7xl lg:text-8xl font-black tracking-tight text-[#1E232A] leading-none">
                 IES IEDC
               </h1>
-              <p className="font-sans text-xl sm:text-2xl font-semibold text-[#4A4A4A]">
+              <p className="font-sans text-3xl sm:text-4xl text-[#4B515D] font-normal tracking-tight mt-1">
                 IES College of Engineering
               </p>
               
-              {/* Tagline Pill */}
-              <div className="pt-2">
-                <span className="inline-block px-3.5 py-1.5 rounded-full bg-[#EBEBE8] border border-[#D8D8D3] text-xs font-mono font-bold tracking-widest uppercase text-[#242424]">
-                  INNOVATE • CREATE • ENTREPRENEUR
-                </span>
+              {/* Tagline */}
+              <div className="text-base sm:text-lg font-medium text-[#2E333D] tracking-wide mt-2">
+                Innovate &nbsp;•&nbsp; Create &nbsp;•&nbsp; Entrepreneur
               </div>
             </div>
 
-            {/* Editorial Description */}
-            <p className="text-base sm:text-lg text-[#4A4A4A] leading-relaxed max-w-2xl pt-1">
-              A student-driven space where ideas become experiments, skills become solutions, and curiosity becomes entrepreneurship.
+            {/* Description Paragraph */}
+            <p className="text-[#525866] text-sm sm:text-base leading-relaxed max-w-lg mt-2">
+              An innovation and entrepreneurship platform empowering students to explore ideas, develop skills, build prototypes and take their ideas towards meaningful solutions.
             </p>
 
-            {/* Primary Action Buttons */}
+            {/* Action Buttons */}
             <div className="flex flex-wrap items-center gap-4 pt-4">
               <a
                 href="#what-we-do"
-                className="px-7 py-3.5 rounded-md bg-[#161616] text-white text-sm font-semibold tracking-wide hover:bg-[#242424] transition-all duration-150 shadow-sm flex items-center gap-2 cursor-pointer group"
+                className="px-8 py-4 rounded-2xl bg-[#2B303A] text-white text-xs font-bold font-sans tracking-widest uppercase hover:bg-[#1E232A] transition-all duration-200 shadow-lg flex items-center gap-2 cursor-pointer group"
               >
-                <span>Explore IEDC</span>
+                <span>EXPLORE IEDC</span>
                 <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
               </a>
 
               <button
                 onClick={() => setWizardOpen(true)}
-                className="px-7 py-3.5 rounded-md bg-white text-[#161616] text-sm font-semibold tracking-wide hover:bg-[#F0F0ED] border border-[#D8D8D3] transition-all duration-150 shadow-sm flex items-center gap-2 cursor-pointer"
+                className="px-8 py-4 rounded-2xl bg-white text-[#2B303A] text-xs font-bold font-sans tracking-widest uppercase shadow-neu-pill-button hover:bg-[#F8F9FA] transition-all duration-200 cursor-pointer"
               >
-                <Lightbulb className="w-4 h-4 text-amber-500" />
-                <span>💡 Submit Your Idea</span>
+                SUBMIT YOUR IDEA
               </button>
             </div>
 
-            {/* Scroll Indicator */}
-            <div className="pt-8 flex items-center gap-2 text-xs font-mono text-[#777777]">
-              <MousePointer className="w-3.5 h-3.5 text-[#161616]" />
-              <span>Scroll to explore</span>
+            {/* Bottom Tagline */}
+            <div className="text-[10px] sm:text-xs font-bold font-sans tracking-[0.25em] text-[#848B98] uppercase mt-4">
+              BUILDING AN INNOVATION CULTURE. NURTURING FUTURE ENTREPRENEURS.
             </div>
           </div>
 
-          {/* Right Interactive 3-Vertical Orbital Hub (5 cols) */}
-          <div className="lg:col-span-5 flex flex-col items-center justify-center relative">
+          {/* Right Column 3-Card Orbital Neumorphic Diagram (6 cols) */}
+          <div className="lg:col-span-6 relative flex flex-col items-center justify-center min-h-[500px] sm:min-h-[560px] py-4">
             
-            {/* Handwritten Script Watermark */}
-            <div className="absolute -top-8 right-2 font-serif italic text-base sm:text-lg text-[#777777]/80 select-none z-10">
-              Ideas for a Brighter Tomorrow —
-            </div>
-
-            {/* Orbital Interactive Diagram Container */}
-            <div className="relative w-full max-w-[420px] aspect-square flex items-center justify-center p-4">
-              
-              {/* Outer Dashed Orbital SVG Ring */}
-              <svg className="absolute inset-0 w-full h-full text-[#D8D8D3]" viewBox="0 0 400 400" fill="none">
-                <circle cx="200" cy="200" r="145" stroke="currentColor" strokeWidth="1.5" strokeDasharray="6 6" />
-                
-                {/* Orbital Path Curved Text Labels */}
-                <path id="orbitPath" d="M 200, 55 A 145,145 0 1,1 199.9,55" fill="none" />
-                <text className="text-[10px] font-mono font-semibold uppercase fill-[#777777] tracking-[0.3em]">
-                  <textPath href="#orbitPath" startOffset="10%">LEARN</textPath>
-                  <textPath href="#orbitPath" startOffset="43%">BUILD</textPath>
-                  <textPath href="#orbitPath" startOffset="76%">GROW</textPath>
-                </text>
+            {/* Top Right Handwritten Script "Learning by Doing." */}
+            <div className="absolute top-2 right-4 sm:right-8 z-30 flex flex-col items-end select-none">
+              <span className="font-handwriting text-3xl sm:text-4xl text-[#727885] rotate-[-6deg]">
+                Learning by Doing.
+              </span>
+              {/* Hand-drawn connecting line stroke */}
+              <svg className="w-16 h-8 text-[#989EAB] stroke-current stroke-[1.5] fill-none -mt-1 mr-4" viewBox="0 0 60 30">
+                <path d="M 50,2 Q 30,25 2,28" />
               </svg>
-
-              {/* Central Neumorphic Hub Badge */}
-              <div className="z-10 w-36 h-36 rounded-full bg-white border border-[#D8D8D3] shadow-lg flex flex-col items-center justify-center text-center p-4 transition-all">
-                <div className="w-10 h-10 rounded-full bg-[#161616] text-white flex items-center justify-center font-bold text-xs font-mono mb-1.5 shadow">
-                  IES
-                </div>
-                <span className="font-display font-extrabold text-sm text-[#161616]">IES IEDC</span>
-                <span className="text-[9px] font-mono font-medium text-[#777777] uppercase tracking-tighter leading-tight mt-0.5">
-                  IES COLLEGE OF ENGINEERING
-                </span>
-              </div>
-
-              {/* 3 Orbiting Node Cards */}
-              
-              {/* Node 1: INNOVATION (Top Center) */}
-              <button
-                onClick={() => setActiveNode('innovation')}
-                onMouseEnter={() => setActiveNode('innovation')}
-                className={`absolute top-0 left-1/2 -translate-x-1/2 -translate-y-2 z-20 px-4 py-2.5 rounded-full border transition-all duration-200 cursor-pointer flex items-center gap-2 shadow-md ${
-                  activeNode === 'innovation'
-                    ? 'bg-[#161616] text-white border-[#161616] scale-110'
-                    : 'bg-white text-[#242424] border-[#D8D8D3] hover:border-[#161616]'
-                }`}
-              >
-                <Lightbulb className={`w-4 h-4 ${activeNode === 'innovation' ? 'text-amber-300' : 'text-amber-500'}`} />
-                <span className="text-xs font-mono font-bold uppercase tracking-wider">01 INNOVATION</span>
-              </button>
-
-              {/* Node 2: TECHNICAL (Bottom Left) */}
-              <button
-                onClick={() => setActiveNode('technical')}
-                onMouseEnter={() => setActiveNode('technical')}
-                className={`absolute bottom-6 left-2 z-20 px-4 py-2.5 rounded-full border transition-all duration-200 cursor-pointer flex items-center gap-2 shadow-md ${
-                  activeNode === 'technical'
-                    ? 'bg-[#161616] text-white border-[#161616] scale-110'
-                    : 'bg-white text-[#242424] border-[#D8D8D3] hover:border-[#161616]'
-                }`}
-              >
-                <Cpu className={`w-4 h-4 ${activeNode === 'technical' ? 'text-indigo-300' : 'text-indigo-500'}`} />
-                <span className="text-xs font-mono font-bold uppercase tracking-wider">02 TECHNICAL</span>
-              </button>
-
-              {/* Node 3: ENTREPRENEURSHIP (Bottom Right) */}
-              <button
-                onClick={() => setActiveNode('entrepreneurship')}
-                onMouseEnter={() => setActiveNode('entrepreneurship')}
-                className={`absolute bottom-6 right-2 z-20 px-4 py-2.5 rounded-full border transition-all duration-200 cursor-pointer flex items-center gap-2 shadow-md ${
-                  activeNode === 'entrepreneurship'
-                    ? 'bg-[#161616] text-white border-[#161616] scale-110'
-                    : 'bg-white text-[#242424] border-[#D8D8D3] hover:border-[#161616]'
-                }`}
-              >
-                <Rocket className={`w-4 h-4 ${activeNode === 'entrepreneurship' ? 'text-emerald-300' : 'text-emerald-500'}`} />
-                <span className="text-xs font-mono font-bold uppercase tracking-wider">03 ENTREPRENEURSHIP</span>
-              </button>
             </div>
 
-            {/* Active Node Detail Card */}
-            <div className="w-full max-w-[420px] mt-4 p-4 rounded-lg bg-white border border-[#D8D8D3] shadow-sm flex flex-col gap-2 transition-all">
-              <div className="flex items-center justify-between">
-                <span className={`text-[10px] font-mono font-bold uppercase px-2 py-0.5 rounded border ${nodeDetails[activeNode].tagColor}`}>
-                  Vertical {nodeDetails[activeNode].number}
-                </span>
-                <span className="text-xs font-mono text-[#777777]">Interactive Node</span>
+            {/* Orbital Arc SVG Lines behind the cards */}
+            <svg className="absolute inset-0 w-full h-full text-[#BCC1CD] pointer-events-none z-0" viewBox="0 0 500 500" fill="none">
+              {/* Smooth curved connecting arc between 3 cards */}
+              <path
+                d="M 250, 110 C 130, 200 120, 360 140, 390 C 250, 440 370, 420 360, 390 C 370, 310 360, 200 250, 110"
+                stroke="currentColor"
+                strokeWidth="1.5"
+                strokeDasharray="4 4"
+              />
+              {/* Orbital Pin Dots */}
+              <circle cx="250" cy="110" r="3.5" fill="#727885" />
+              <circle cx="140" cy="390" r="3.5" fill="#727885" />
+              <circle cx="360" cy="390" r="3.5" fill="#727885" />
+            </svg>
+
+            {/* 3 Neumorphic Cards + Center Disc Layout Container */}
+            <div className="relative w-full max-w-[500px] h-[480px] sm:h-[520px] flex items-center justify-center">
+              
+              {/* 1. TOP CARD — INNOVATION */}
+              <div className="absolute top-0 left-1/2 -translate-x-1/2 z-10 w-52 sm:w-60 p-6 rounded-[28px] bg-white shadow-neu-soft-card border border-white/70 flex flex-col items-center text-center">
+                <div className="w-10 h-10 rounded-full flex items-center justify-center text-[#1E232A]">
+                  <Lightbulb className="w-7 h-7 stroke-[1.6]" />
+                </div>
+                <h3 className="font-bold font-sans text-xs sm:text-sm tracking-wider uppercase text-[#1E232A] mt-2">
+                  INNOVATION
+                </h3>
+                <div className="text-[11px] sm:text-xs text-[#6C727F] flex flex-col items-center gap-0.5 mt-2.5 font-normal">
+                  <span>Ideation</span>
+                  <span>Design Thinking</span>
+                  <span>Problem Solving</span>
+                </div>
               </div>
-              <h4 className="font-display text-sm font-bold text-[#161616]">
-                {nodeDetails[activeNode].title} — <span className="text-xs font-normal text-[#4A4A4A]">{nodeDetails[activeNode].subtitle}</span>
-              </h4>
-              <p className="text-xs text-[#4A4A4A] leading-relaxed">
-                {nodeDetails[activeNode].desc}
-              </p>
+
+              {/* 2. CENTER DISC HUB — IES IEDC */}
+              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-30 w-44 h-44 sm:w-52 sm:h-52 rounded-full bg-[#EAECEF] p-3 shadow-neu-hub-disc border border-white/80 flex items-center justify-center">
+                <div className="w-full h-full rounded-full bg-white shadow-neu-hub-inner flex flex-col items-center justify-center text-center p-3 border border-white">
+                  <h2 className="font-black font-sans text-lg sm:text-xl text-[#1E232A] leading-tight">
+                    IES IEDC
+                  </h2>
+                  <div className="text-[11px] sm:text-xs text-[#525866] flex flex-col items-center gap-0.5 mt-1 font-medium">
+                    <span>Innovate</span>
+                    <span>Create</span>
+                    <span>Entrepreneur</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* 3. BOTTOM-LEFT CARD — TECHNICAL */}
+              <div className="absolute bottom-0 left-0 z-10 w-52 sm:w-60 p-6 rounded-[28px] bg-white shadow-neu-soft-card border border-white/70 flex flex-col items-center text-center">
+                <div className="w-10 h-10 rounded-full flex items-center justify-center text-[#1E232A]">
+                  <Settings className="w-7 h-7 stroke-[1.6]" />
+                </div>
+                <h3 className="font-bold font-sans text-xs sm:text-sm tracking-wider uppercase text-[#1E232A] mt-2">
+                  TECHNICAL
+                </h3>
+                <div className="text-[11px] sm:text-xs text-[#6C727F] flex flex-col items-center gap-0.5 mt-2.5 font-normal">
+                  <span>Technology</span>
+                  <span>Skills</span>
+                  <span>Prototyping</span>
+                </div>
+              </div>
+
+              {/* 4. BOTTOM-RIGHT CARD — ENTREPRENEURSHIP */}
+              <div className="absolute bottom-0 right-0 z-10 w-52 sm:w-60 p-6 rounded-[28px] bg-white shadow-neu-soft-card border border-white/70 flex flex-col items-center text-center">
+                <div className="w-10 h-10 rounded-full flex items-center justify-center text-[#1E232A]">
+                  <BarChart3 className="w-7 h-7 stroke-[1.6]" />
+                </div>
+                <h3 className="font-bold font-sans text-xs sm:text-sm tracking-wider uppercase text-[#1E232A] mt-2">
+                  ENTREPRENEURSHIP
+                </h3>
+                <div className="text-[11px] sm:text-xs text-[#6C727F] flex flex-col items-center gap-0.5 mt-2.5 font-normal">
+                  <span>Business</span>
+                  <span>Pitching</span>
+                  <span>Business Model</span>
+                </div>
+              </div>
+
             </div>
 
           </div>
@@ -267,7 +248,7 @@ export const Home: React.FC = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             
             {/* Vision Card */}
-            <div className="p-8 rounded-xl bg-white border border-[#D8D8D3] shadow-sm flex flex-col justify-between gap-6 hover:shadow-md transition-shadow">
+            <div className="p-8 rounded-2xl bg-white border border-[#D8D8D3] shadow-neu-soft-card flex flex-col justify-between gap-6 hover:shadow-md transition-shadow">
               <div className="flex flex-col gap-4">
                 <div className="flex items-center justify-between pb-4 border-b border-[#EBEBE8]">
                   <span className="text-xs font-mono font-bold text-[#777777] uppercase tracking-widest">
@@ -290,7 +271,7 @@ export const Home: React.FC = () => {
             </div>
 
             {/* Mission Card */}
-            <div className="p-8 rounded-xl bg-white border border-[#D8D8D3] shadow-sm flex flex-col justify-between gap-6 hover:shadow-md transition-shadow">
+            <div className="p-8 rounded-2xl bg-white border border-[#D8D8D3] shadow-neu-soft-card flex flex-col justify-between gap-6 hover:shadow-md transition-shadow">
               <div className="flex flex-col gap-4">
                 <div className="flex items-center justify-between pb-4 border-b border-[#EBEBE8]">
                   <span className="text-xs font-mono font-bold text-[#777777] uppercase tracking-widest">
@@ -337,9 +318,9 @@ export const Home: React.FC = () => {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             
             {/* Card 01 */}
-            <div className="p-8 rounded-xl bg-white border border-[#D8D8D3] shadow-sm flex flex-col justify-between gap-6 hover:border-[#161616] transition-colors group">
+            <div className="p-8 rounded-2xl bg-white border border-[#D8D8D3] shadow-neu-soft-card flex flex-col justify-between gap-6 hover:border-[#161616] transition-colors group">
               <div className="flex flex-col gap-4">
-                <div className="w-12 h-12 rounded-lg bg-[#F5F5F3] border border-[#D8D8D3] flex items-center justify-center text-[#161616] group-hover:bg-[#161616] group-hover:text-white transition-colors">
+                <div className="w-12 h-12 rounded-xl bg-[#F5F5F3] border border-[#D8D8D3] flex items-center justify-center text-[#161616] group-hover:bg-[#161616] group-hover:text-white transition-colors">
                   <Lightbulb className="w-6 h-6" />
                 </div>
                 <span className="text-xs font-mono font-bold text-[#777777] uppercase tracking-wider">
@@ -358,10 +339,10 @@ export const Home: React.FC = () => {
             </div>
 
             {/* Card 02 */}
-            <div className="p-8 rounded-xl bg-white border border-[#D8D8D3] shadow-sm flex flex-col justify-between gap-6 hover:border-[#161616] transition-colors group">
+            <div className="p-8 rounded-2xl bg-white border border-[#D8D8D3] shadow-neu-soft-card flex flex-col justify-between gap-6 hover:border-[#161616] transition-colors group">
               <div className="flex flex-col gap-4">
-                <div className="w-12 h-12 rounded-lg bg-[#F5F5F3] border border-[#D8D8D3] flex items-center justify-center text-[#161616] group-hover:bg-[#161616] group-hover:text-white transition-colors">
-                  <Cpu className="w-6 h-6" />
+                <div className="w-12 h-12 rounded-xl bg-[#F5F5F3] border border-[#D8D8D3] flex items-center justify-center text-[#161616] group-hover:bg-[#161616] group-hover:text-white transition-colors">
+                  <Settings className="w-6 h-6" />
                 </div>
                 <span className="text-xs font-mono font-bold text-[#777777] uppercase tracking-wider">
                   02 TECHNICAL
@@ -379,10 +360,10 @@ export const Home: React.FC = () => {
             </div>
 
             {/* Card 03 */}
-            <div className="p-8 rounded-xl bg-white border border-[#D8D8D3] shadow-sm flex flex-col justify-between gap-6 hover:border-[#161616] transition-colors group">
+            <div className="p-8 rounded-2xl bg-white border border-[#D8D8D3] shadow-neu-soft-card flex flex-col justify-between gap-6 hover:border-[#161616] transition-colors group">
               <div className="flex flex-col gap-4">
-                <div className="w-12 h-12 rounded-lg bg-[#F5F5F3] border border-[#D8D8D3] flex items-center justify-center text-[#161616] group-hover:bg-[#161616] group-hover:text-white transition-colors">
-                  <Rocket className="w-6 h-6" />
+                <div className="w-12 h-12 rounded-xl bg-[#F5F5F3] border border-[#D8D8D3] flex items-center justify-center text-[#161616] group-hover:bg-[#161616] group-hover:text-white transition-colors">
+                  <BarChart3 className="w-6 h-6" />
                 </div>
                 <span className="text-xs font-mono font-bold text-[#777777] uppercase tracking-wider">
                   03 ENTREPRENEURSHIP
@@ -436,7 +417,7 @@ export const Home: React.FC = () => {
               events.slice(0, 3).map((evt) => (
                 <div
                   key={evt.id}
-                  className="p-6 rounded-xl bg-white border border-[#D8D8D3] shadow-sm flex flex-col justify-between gap-6 hover:shadow-md transition-shadow"
+                  className="p-6 rounded-2xl bg-white border border-[#D8D8D3] shadow-neu-soft-card flex flex-col justify-between gap-6 hover:shadow-md transition-shadow"
                 >
                   <div className="flex flex-col gap-3">
                     <div className="flex items-center justify-between text-xs font-mono text-[#777777]">
@@ -470,7 +451,7 @@ export const Home: React.FC = () => {
                 </div>
               ))
             ) : (
-              <div className="col-span-full p-8 rounded-xl bg-white border border-[#D8D8D3] text-center text-sm text-[#777777]">
+              <div className="col-span-full p-8 rounded-2xl bg-white border border-[#D8D8D3] text-center text-sm text-[#777777]">
                 No upcoming events listed at this time. Check back soon!
               </div>
             )}
@@ -510,7 +491,7 @@ export const Home: React.FC = () => {
             {galleryAlbums.slice(0, 3).map((album) => (
               <div
                 key={album.id}
-                className="group relative aspect-video rounded-xl bg-white border border-[#D8D8D3] overflow-hidden shadow-sm hover:shadow-md transition-all cursor-pointer"
+                className="group relative aspect-video rounded-2xl bg-white border border-[#D8D8D3] overflow-hidden shadow-neu-soft-card hover:shadow-md transition-all cursor-pointer"
                 onClick={() => navigate('/gallery')}
               >
                 <img
@@ -528,11 +509,11 @@ export const Home: React.FC = () => {
             {/* +24 More Photos Banner Card */}
             <Link
               to="/gallery"
-              className="group aspect-video rounded-xl bg-[#161616] text-white border border-[#161616] p-6 flex flex-col items-center justify-center text-center gap-2 shadow-sm hover:bg-[#242424] transition-colors cursor-pointer"
+              className="group aspect-video rounded-2xl bg-[#1E232A] text-white border border-[#1E232A] p-6 flex flex-col items-center justify-center text-center gap-2 shadow-lg hover:bg-[#2D303A] transition-colors cursor-pointer"
             >
               <ImageIcon className="w-6 h-6 text-amber-400 group-hover:scale-110 transition-transform" />
               <span className="font-display text-base font-bold">+24 More Photos</span>
-              <span className="text-xs font-mono text-[#777777]">View Event Albums →</span>
+              <span className="text-xs font-mono text-[#848B98]">View Event Albums →</span>
             </Link>
           </div>
         </div>
@@ -541,10 +522,10 @@ export const Home: React.FC = () => {
       {/* ========================================================================= */}
       {/* 06. JOIN IEDC CTA BANNER */}
       {/* ========================================================================= */}
-      <section className="relative w-full px-6 lg:px-16 py-24 bg-[#161616] text-white border-b border-[#D8D8D3] overflow-hidden">
+      <section className="relative w-full px-6 lg:px-16 py-24 bg-[#1E232A] text-white border-b border-[#D8D8D3] overflow-hidden">
         
         {/* Handwritten Script Watermark */}
-        <div className="absolute top-6 right-8 font-serif italic text-base sm:text-xl text-white/40 select-none">
+        <div className="absolute top-6 right-8 font-handwriting text-2xl sm:text-3xl text-white/40 select-none">
           Small Ideas Big Impact —
         </div>
 
@@ -565,18 +546,17 @@ export const Home: React.FC = () => {
           <div className="flex flex-wrap items-center gap-4 shrink-0">
             <Link
               to="/contact"
-              className="px-7 py-3.5 rounded-md bg-white text-[#161616] text-sm font-semibold tracking-wide hover:bg-neutral-100 transition-all duration-150 shadow-md flex items-center gap-2"
+              className="px-8 py-4 rounded-2xl bg-white text-[#1E232A] text-xs font-bold font-sans tracking-widest uppercase hover:bg-neutral-100 transition-all duration-150 shadow-md flex items-center gap-2"
             >
-              <span>Join IEDC</span>
+              <span>JOIN IEDC</span>
               <ArrowRight className="w-4 h-4" />
             </Link>
 
             <button
               onClick={() => setWizardOpen(true)}
-              className="px-7 py-3.5 rounded-md bg-transparent text-white border border-neutral-700 text-sm font-semibold tracking-wide hover:bg-neutral-800 transition-all duration-150 shadow-sm flex items-center gap-2 cursor-pointer"
+              className="px-8 py-4 rounded-2xl bg-transparent text-white border border-neutral-700 text-xs font-bold font-sans tracking-widest uppercase hover:bg-neutral-800 transition-all duration-150 shadow-sm flex items-center gap-2 cursor-pointer"
             >
-              <Lightbulb className="w-4 h-4 text-amber-400" />
-              <span>💡 Submit Your Idea</span>
+              <span>SUBMIT YOUR IDEA</span>
             </button>
           </div>
 

@@ -49,7 +49,23 @@
   }
 }
 
+.font-handwriting {
+  font-family: 'Caveat', cursive;
+}
+
 /* Custom Box Shadow utilities matching exact specification */
+.shadow-neu-soft-card {
+  box-shadow: 14px 14px 28px rgba(180, 186, 196, 0.5), -14px -14px 28px rgba(255, 255, 255, 0.95);
+}
+.shadow-neu-hub-disc {
+  box-shadow: 18px 18px 36px rgba(175, 182, 193, 0.55), -18px -18px 36px rgba(255, 255, 255, 0.95);
+}
+.shadow-neu-hub-inner {
+  box-shadow: inset 4px 4px 8px rgba(180, 186, 196, 0.4), inset -4px -4px 8px rgba(255, 255, 255, 0.9);
+}
+.shadow-neu-pill-button {
+  box-shadow: 6px 6px 14px rgba(180, 186, 196, 0.5), -6px -6px 14px rgba(255, 255, 255, 0.9);
+}
 .shadow-neu-card {
   box-shadow: 6px 6px 20px #e2e5eb, -6px -6px 20px #ffffff;
 }
