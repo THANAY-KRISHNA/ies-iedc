@@ -192,7 +192,7 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
       )}
 
       {/* Main Content Pane */}
-      <main className="flex-1 p-6 md:p-10 max-w-7xl overflow-y-auto">{children}</main>
+      <main className="flex-1 p-6 md:p-10 max-w-[1700px] overflow-y-auto">{children}</main>
     </div>
   );
 };

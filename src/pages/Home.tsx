@@ -91,7 +91,7 @@ export const Home: React.FC = () => {
       {/* ========================================================================= */}
       {/* 04. EDITORIAL HERO SECTION */}
       {/* ========================================================================= */}
-      <section className="relative w-full pt-6 sm:pt-12 px-4 sm:px-8 max-w-7xl mx-auto">
+      <section className="relative w-full pt-6 sm:pt-12 px-4 sm:px-8 max-w-[1700px] mx-auto">
         <div className="p-8 sm:p-14 rounded-2xl bg-white border border-[#D8D8D3] shadow-neu-card relative overflow-hidden engineering-grid">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center relative z-10">
             {/* Left Narrative Column (7 cols) */}
@@ -189,7 +189,7 @@ export const Home: React.FC = () => {
       {/* ========================================================================= */}
       {/* 07. STATUTORY BODIES & AFFILIATIONS SHOWCASE */}
       {/* ========================================================================= */}
-      <section className="w-full px-4 sm:px-8 max-w-7xl mx-auto">
+      <section className="w-full px-4 sm:px-8 max-w-[1700px] mx-auto">
         <div className="p-6 sm:p-8 rounded-2xl bg-[#EBEBE8]/50 border border-[#D8D8D3] shadow-neu-flat flex flex-col gap-6">
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 pb-4 border-b border-[#D8D8D3]">
             <span className="text-[10px] font-mono font-bold tracking-widest text-[#777777] uppercase">
@@ -259,7 +259,7 @@ export const Home: React.FC = () => {
       {/* ========================================================================= */}
       {/* 08. FOUNDATIONAL MANDATE: VISION & MISSION */}
       {/* ========================================================================= */}
-      <section className="w-full px-4 sm:px-8 max-w-7xl mx-auto" id="about">
+      <section className="w-full px-4 sm:px-8 max-w-[1700px] mx-auto" id="about">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
           {/* Vision */}
           <div className="p-8 sm:p-10 rounded-2xl bg-white border border-[#D8D8D3] shadow-neu-card flex flex-col justify-between">
@@ -315,7 +315,7 @@ export const Home: React.FC = () => {
       {/* ========================================================================= */}
       {/* 09. WHAT WE DO: THE THREE CONNECTED VERTICALS */}
       {/* ========================================================================= */}
-      <section className="w-full px-4 sm:px-8 max-w-7xl mx-auto" id="what-we-do">
+      <section className="w-full px-4 sm:px-8 max-w-[1700px] mx-auto" id="what-we-do">
         <div className="flex flex-col gap-8">
           <div className="flex flex-col sm:flex-row items-start sm:items-end justify-between gap-4 pb-4 border-b border-[#D8D8D3]">
             <div className="flex flex-col gap-1">
@@ -392,7 +392,7 @@ export const Home: React.FC = () => {
       {/* ========================================================================= */}
       {/* 10. LEARNING BY DOING & DIY SIGNATURE SECTION */}
       {/* ========================================================================= */}
-      <section className="w-full px-4 sm:px-8 max-w-7xl mx-auto">
+      <section className="w-full px-4 sm:px-8 max-w-[1700px] mx-auto">
         <div className="p-8 sm:p-12 rounded-2xl bg-[#161616] text-white shadow-neu-card flex flex-col md:flex-row items-start md:items-center justify-between gap-8">
           <div className="flex flex-col gap-3 max-w-2xl">
             <span className="text-[10px] font-mono font-bold tracking-widest text-[#D8D8D3] uppercase">
@@ -419,7 +419,7 @@ export const Home: React.FC = () => {
       {/* ========================================================================= */}
       {/* 11. PROGRAMME PROGRESSION JOURNEY */}
       {/* ========================================================================= */}
-      <section className="w-full px-4 sm:px-8 max-w-7xl mx-auto" id="journey">
+      <section className="w-full px-4 sm:px-8 max-w-[1700px] mx-auto" id="journey">
         <div className="flex flex-col gap-8">
           <div className="flex flex-col sm:flex-row items-start sm:items-end justify-between gap-4 pb-4 border-b border-[#D8D8D3]">
             <div className="flex flex-col gap-1">
@@ -461,7 +461,7 @@ export const Home: React.FC = () => {
       {/* ========================================================================= */}
       {/* 12. VERIFIED EVENTS SHOWCASE */}
       {/* ========================================================================= */}
-      <section className="w-full px-4 sm:px-8 max-w-7xl mx-auto" id="events">
+      <section className="w-full px-4 sm:px-8 max-w-[1700px] mx-auto" id="events">
         <div className="flex flex-col gap-8">
           <div className="flex flex-col sm:flex-row items-start sm:items-end justify-between gap-4 pb-4 border-b border-[#D8D8D3]">
             <div className="flex flex-col gap-1">
@@ -515,7 +515,7 @@ export const Home: React.FC = () => {
       {/* ========================================================================= */}
       {/* 13. LEADERSHIP & ACCREDITED TEAM */}
       {/* ========================================================================= */}
-      <section className="w-full px-4 sm:px-8 max-w-7xl mx-auto" id="team">
+      <section className="w-full px-4 sm:px-8 max-w-[1700px] mx-auto" id="team">
         <div className="flex flex-col gap-8">
           <div className="flex flex-col sm:flex-row items-start sm:items-end justify-between gap-4 pb-4 border-b border-[#D8D8D3]">
             <div className="flex flex-col gap-1">
@@ -587,7 +587,7 @@ export const Home: React.FC = () => {
       {/* ========================================================================= */}
       {/* 14. VERIFIED ACHIEVEMENTS (STRICT AUDIT POLICY) */}
       {/* ========================================================================= */}
-      <section className="w-full px-4 sm:px-8 max-w-7xl mx-auto" id="achievements">
+      <section className="w-full px-4 sm:px-8 max-w-[1700px] mx-auto" id="achievements">
         <div className="flex flex-col gap-8">
           <div className="flex flex-col sm:flex-row items-start sm:items-end justify-between gap-4 pb-4 border-b border-[#D8D8D3]">
             <div className="flex flex-col gap-1">
@@ -661,7 +661,7 @@ export const Home: React.FC = () => {
       {/* ========================================================================= */}
       {/* 15. IDEAS IN MOTION WALL */}
       {/* ========================================================================= */}
-      <section className="w-full px-4 sm:px-8 max-w-7xl mx-auto" id="ideas">
+      <section className="w-full px-4 sm:px-8 max-w-[1700px] mx-auto" id="ideas">
         <div className="flex flex-col gap-8">
           <div className="flex flex-col sm:flex-row items-start sm:items-end justify-between gap-4 pb-4 border-b border-[#D8D8D3]">
             <div className="flex flex-col gap-1">
@@ -718,7 +718,7 @@ export const Home: React.FC = () => {
       {/* ========================================================================= */}
       {/* 17. STARTUPS DIRECTORY PLACEHOLDER (STRICT AUDIT POLICY) */}
       {/* ========================================================================= */}
-      <section className="w-full px-4 sm:px-8 max-w-7xl mx-auto" id="startups">
+      <section className="w-full px-4 sm:px-8 max-w-[1700px] mx-auto" id="startups">
         <div className="p-8 rounded-2xl bg-[#EBEBE8]/40 border border-[#D8D8D3] shadow-neu-flat flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">
           <div className="flex flex-col gap-2 max-w-2xl">
             <span className="text-[10px] font-mono font-bold tracking-widest text-[#777777] uppercase">
@@ -743,7 +743,7 @@ export const Home: React.FC = () => {
       {/* ========================================================================= */}
       {/* 18. WORKSHOPS & REFERENCE VAULT */}
       {/* ========================================================================= */}
-      <section className="w-full px-4 sm:px-8 max-w-7xl mx-auto" id="workshops">
+      <section className="w-full px-4 sm:px-8 max-w-[1700px] mx-auto" id="workshops">
         <div className="flex flex-col gap-8">
           <div className="flex flex-col sm:flex-row items-start sm:items-end justify-between gap-4 pb-4 border-b border-[#D8D8D3]">
             <div className="flex flex-col gap-1">
@@ -793,7 +793,7 @@ export const Home: React.FC = () => {
       {/* ========================================================================= */}
       {/* 19. RESOURCES CATEGORY NAVIGATION PILLS */}
       {/* ========================================================================= */}
-      <section className="w-full px-4 sm:px-8 max-w-7xl mx-auto" id="resources">
+      <section className="w-full px-4 sm:px-8 max-w-[1700px] mx-auto" id="resources">
         <div className="flex flex-col gap-4">
           <span className="text-[10px] font-mono font-bold tracking-widest text-[#777777] uppercase">
             CAMPUS INNOVATION INFRASTRUCTURE & REFERENCE VAULT
@@ -821,7 +821,7 @@ export const Home: React.FC = () => {
       {/* ========================================================================= */}
       {/* 20. VISUAL DOCUMENTATION: CAMPUS INNOVATION GALLERY */}
       {/* ========================================================================= */}
-      <section className="w-full px-4 sm:px-8 max-w-7xl mx-auto" id="gallery">
+      <section className="w-full px-4 sm:px-8 max-w-[1700px] mx-auto" id="gallery">
         <div className="flex flex-col gap-8">
           <div className="flex flex-col sm:flex-row items-start sm:items-end justify-between gap-4 pb-4 border-b border-[#D8D8D3]">
             <div className="flex flex-col gap-1">
@@ -900,7 +900,7 @@ export const Home: React.FC = () => {
       {/* ========================================================================= */}
       {/* 21. CAMPUS NEWS & BULLETINS */}
       {/* ========================================================================= */}
-      <section className="w-full px-4 sm:px-8 max-w-7xl mx-auto" id="news">
+      <section className="w-full px-4 sm:px-8 max-w-[1700px] mx-auto" id="news">
         <div className="flex flex-col gap-8">
           <div className="flex flex-col sm:flex-row items-start sm:items-end justify-between gap-4 pb-4 border-b border-[#D8D8D3]">
             <div className="flex flex-col gap-1">
@@ -961,7 +961,7 @@ export const Home: React.FC = () => {
       {/* ========================================================================= */}
       {/* 22. JOIN IEDC CTA */}
       {/* ========================================================================= */}
-      <section className="w-full px-4 sm:px-8 max-w-7xl mx-auto">
+      <section className="w-full px-4 sm:px-8 max-w-[1700px] mx-auto">
         <div className="p-8 sm:p-14 rounded-2xl bg-[#161616] text-white shadow-neu-card flex flex-col items-center text-center gap-6 engineering-grid">
           <span className="text-[10px] font-mono font-bold tracking-widest text-[#D8D8D3] uppercase">
             BECOME PART OF THE CHARTER

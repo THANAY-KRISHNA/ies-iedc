@@ -34,7 +34,7 @@ export const Navbar: React.FC = () => {
   };
 
   return (
-    <header className="sticky top-4 z-40 w-full px-4 sm:px-8 max-w-7xl mx-auto">
+    <header className="sticky top-4 z-40 w-full px-4 sm:px-8 md:px-12 max-w-[1700px] mx-auto">
       <div className="bg-white/90 backdrop-blur-md border border-[#E5E5E0] shadow-neu-flat rounded-xl px-4 sm:px-6 h-16 flex items-center justify-between gap-4 transition-all">
         {/* Brand Mark Lockup */}
         <Link to="/" className="flex items-center gap-3 group shrink-0">

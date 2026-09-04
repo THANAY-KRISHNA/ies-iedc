@@ -8,7 +8,7 @@ export const Footer: React.FC = () => {
 
   return (
     <footer className="w-full bg-[#EBEBE8] border-t border-[#D8D8D3] pt-16 pb-12 px-6 lg:px-12 text-[#4A4A4A] text-xs" id="contact">
-      <div className="max-w-7xl mx-auto flex flex-col gap-12">
+      <div className="max-w-[1700px] mx-auto flex flex-col gap-12">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
           {/* Col 1 */}
           <div className="flex flex-col gap-3">
