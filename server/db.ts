@@ -96,21 +96,33 @@ function mapTeamMemberFromDb(row: any): TeamMember {
   };
 }
 
+function cleanDeptCode(dept?: string): string {
+  if (!dept) return 'CSE';
+  const code = dept.split(' - ')[0].trim().toUpperCase();
+  return code.substring(0, 10);
+}
+
 function mapTeamMemberToDb(data: Partial<TeamMember>) {
+  const nameStr = (data.name || 'Team Member').trim().substring(0, 150);
+  const roleTypeStr = (data.roleType || 'Student Lead').trim().substring(0, 50);
+  const positionStr = (data.position || data.roleType || 'Team Member').trim().substring(0, 100);
+  const deptCode = cleanDeptCode(data.department);
+  const yearId = (data.academicYear || '2025–26').trim().substring(0, 32);
+
   return {
     id: data.id,
-    academic_year_id: data.academicYear || '2025–26',
-    name: data.name,
-    role_type: data.roleType,
-    position: data.position || data.roleType,
-    department_code: data.department || 'CSE',
-    designation: data.designation || '',
+    academic_year_id: yearId,
+    name: nameStr,
+    role_type: roleTypeStr,
+    position: positionStr,
+    department_code: deptCode,
+    designation: (data.designation || '').substring(0, 150),
     responsibility: data.responsibility || '',
-    email: data.email || '',
+    email: (data.email || '').substring(0, 150),
     linkedin_url: data.linkedinUrl || '',
     photo_url: data.photoUrl || '',
     sort_order: typeof data.sortOrder === 'number' ? data.sortOrder : 99,
-    status: data.status || 'Published',
+    status: (data.status || 'Published').substring(0, 20),
     is_featured: !!data.isFeatured,
     updated_at: new Date().toISOString()
   };
@@ -415,6 +427,16 @@ class DatabaseEngine {
         }
 
         const dbRow = mapTeamMemberToDb(newMember);
+
+        if (dbRow.department_code) {
+          try {
+            await supabaseAdmin.from('departments').upsert({
+              id: `dept_${dbRow.department_code}`,
+              code: dbRow.department_code,
+              name: newMember.department || dbRow.department_code
+            });
+          } catch (e) {}
+        }
         const { data: insertedRow, error } = await supabaseAdmin
           .from('team_members')
           .insert(dbRow)
