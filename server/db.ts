@@ -185,6 +185,16 @@ function mapEventToDb(data: Partial<EventItem>) {
   };
 }
 
+function normalizeYear(year?: string): string {
+  if (!year) return '';
+  return year.replace(/[\u2010-\u2015\u2212-]/g, '-').trim();
+}
+
+function yearsMatch(yearA?: string, yearB?: string): boolean {
+  if (!yearA || !yearB) return false;
+  return normalizeYear(yearA) === normalizeYear(yearB);
+}
+
 class DatabaseEngine {
   private memoryState: DatabaseState;
 
@@ -375,17 +385,32 @@ class DatabaseEngine {
   public async getTeam(academicYear?: string, publishedOnly = false): Promise<TeamMember[]> {
     if (isSupabaseConfigured()) {
       try {
-        let query = supabaseAdmin.from('team_members').select('*');
-        if (academicYear && academicYear !== 'all') {
-          query = query.eq('academic_year_id', academicYear);
-        }
-        if (publishedOnly) {
-          query = query.eq('status', 'Published');
-        }
-        const { data, error } = await query.order('sort_order', { ascending: true });
+        const { data, error } = await supabaseAdmin.from('team_members').select('*').order('sort_order', { ascending: true });
         if (!error && data) {
-          const list = data.map(mapTeamMemberFromDb);
-          if (list.length > 0) return list;
+          if (data.length === 0) {
+            // Auto-seed Supabase team_members table if empty
+            try {
+              const seedRows = INITIAL_TEAM_MEMBERS.map(mapTeamMemberToDb);
+              await supabaseAdmin.from('team_members').upsert(seedRows);
+            } catch (e) {}
+            let list = INITIAL_TEAM_MEMBERS;
+            if (academicYear && academicYear !== 'all') {
+              list = list.filter(m => yearsMatch(m.academicYear, academicYear));
+            }
+            if (publishedOnly) {
+              list = list.filter(m => m.status === 'Published');
+            }
+            return list.sort((a, b) => a.sortOrder - b.sortOrder);
+          }
+
+          let list = data.map(mapTeamMemberFromDb);
+          if (academicYear && academicYear !== 'all') {
+            list = list.filter(m => yearsMatch(m.academicYear, academicYear));
+          }
+          if (publishedOnly) {
+            list = list.filter(m => m.status === 'Published');
+          }
+          return list.sort((a, b) => a.sortOrder - b.sortOrder);
         } else if (error) {
           console.warn('Supabase getTeam error, serving local list:', error.message);
         }
@@ -396,7 +421,7 @@ class DatabaseEngine {
 
     let list = this.memoryState.teamMembers;
     if (academicYear && academicYear !== 'all') {
-      list = list.filter(m => m.academicYear === academicYear);
+      list = list.filter(m => yearsMatch(m.academicYear, academicYear));
     }
     if (publishedOnly) {
       list = list.filter(m => m.status === 'Published');
