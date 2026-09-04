@@ -36,18 +36,19 @@ export interface Department {
 
 export interface TeamMember {
   id: string;
-  academicYear: string; // e.g. "2024–25"
+  academicYear: string; // e.g. "2025–26", "2024–25", "2023–24"
   name: string;
-  roleType: 'Nodal Officer' | 'Assistant Nodal Officer' | 'Department Coordinator' | 'IEDC Lead' | 'Student Lead' | 'Women Lead' | 'Executive Lead' | 'Core Member';
-  position: string; // e.g., "Nodal Officer", "Assistant Nodal Officer", "HOD / Assistant Professor", "Department Coordinator", "Student Lead I", "Finance Lead"
-  department?: string; // e.g., "R&AI", "CSE"
-  designation?: string; // Faculty designation if applicable e.g. "HOD / Assistant Professor"
+  roleType: string; // e.g. "Nodal Officer", "Assistant Nodal Officer", "Department Coordinator", "IEDC Lead", "CEO", "CFO", "CMO", "COO", "CTO", "CCO", "IPR & Research Lead", "Women Innovation Lead", "Community Lead", "Quality & Operations", "Creative & Innovation", "Technology", "Branding & Marketing", "Web Development", "Student Lead", "Core Member"
+  position: string; // e.g., "Nodal Officer", "HOD / Assistant Professor", "S7 CSE", etc.
+  department?: string; // e.g., "R&AI", "CSE", "CE", "ME", "EEE", "ECE", "DS", "S&H"
+  designation?: string;
   responsibility?: string;
   email?: string;
   linkedinUrl?: string;
-  photoUrl?: string;
+  photoUrl?: string; // Uploaded profile photo Base64 data string or URL
   sortOrder: number;
   status: 'Published' | 'Archived';
+  isFeatured?: boolean;
 }
 
 export interface EventItem {

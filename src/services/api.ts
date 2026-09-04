@@ -61,11 +61,99 @@ async function request<T>(endpoint: string, options?: RequestInit, fallback?: T)
   }
 }
 
+// Local Storage Team Data Helpers
+function getStoredTeam(): TeamMember[] {
+  try {
+    const raw = localStorage.getItem('iedc_team_members');
+    if (raw) {
+      return JSON.parse(raw);
+    }
+  } catch (e) {
+    console.error('Error reading iedc_team_members from localStorage', e);
+  }
+  // Initialize with INITIAL_TEAM_MEMBERS
+  try {
+    localStorage.setItem('iedc_team_members', JSON.stringify(INITIAL_TEAM_MEMBERS));
+  } catch (e) {}
+  return INITIAL_TEAM_MEMBERS;
+}
+
+function saveStoredTeam(members: TeamMember[]): void {
+  try {
+    localStorage.setItem('iedc_team_members', JSON.stringify(members));
+  } catch (e) {
+    console.error('Error saving iedc_team_members to localStorage', e);
+  }
+}
+
 export const api = {
   // --- PUBLIC ---
   getSettings: () => request<SiteSettings>('/public/settings', undefined, INITIAL_SITE_SETTINGS),
   getAcademicYears: () => request<AcademicYear[]>('/public/academic-years', undefined, INITIAL_ACADEMIC_YEARS),
-  getTeam: (year?: string) => request<TeamMember[]>(`/public/team${year ? `?year=${encodeURIComponent(year)}` : ''}`, undefined, INITIAL_TEAM_MEMBERS.filter(m => !year || m.academicYear === year)),
+  // Team Local Storage Methods (100% reactive & persistent)
+  getTeam: async (year?: string): Promise<TeamMember[]> => {
+    try {
+      const serverRes = await request<TeamMember[]>(`/public/team${year ? `?year=${encodeURIComponent(year)}` : ''}`);
+      if (serverRes && Array.isArray(serverRes) && serverRes.length > 0) return serverRes;
+    } catch (e) {}
+    let list = getStoredTeam();
+    if (year) {
+      list = list.filter(m => m.academicYear === year);
+    }
+    return list.filter(m => m.status !== 'Archived').sort((a, b) => (a.sortOrder || 99) - (b.sortOrder || 99));
+  },
+
+  adminGetTeam: async (year?: string): Promise<TeamMember[]> => {
+    try {
+      const serverRes = await request<TeamMember[]>(`/admin/team${year ? `?year=${encodeURIComponent(year)}` : ''}`);
+      if (serverRes && Array.isArray(serverRes) && serverRes.length > 0) return serverRes;
+    } catch (e) {}
+    let list = getStoredTeam();
+    if (year && year !== 'all') {
+      list = list.filter(m => m.academicYear === year);
+    }
+    return list.sort((a, b) => (a.sortOrder || 99) - (b.sortOrder || 99));
+  },
+
+  adminAddTeamMember: async (data: Partial<TeamMember>): Promise<TeamMember> => {
+    const newMember: TeamMember = {
+      id: `tm_${Date.now()}`,
+      academicYear: data.academicYear || '2025–26',
+      name: data.name || 'New Team Member',
+      roleType: data.roleType || 'Student Lead',
+      position: data.position || data.roleType || 'Team Member',
+      department: data.department || 'CSE',
+      responsibility: data.responsibility || '',
+      email: data.email || '',
+      linkedinUrl: data.linkedinUrl || '',
+      photoUrl: data.photoUrl || '',
+      sortOrder: data.sortOrder || 99,
+      status: data.status || 'Published',
+      isFeatured: data.isFeatured || false
+    };
+    const list = getStoredTeam();
+    list.unshift(newMember);
+    saveStoredTeam(list);
+    return newMember;
+  },
+
+  adminUpdateTeamMember: async (id: string, updates: Partial<TeamMember>): Promise<TeamMember> => {
+    const list = getStoredTeam();
+    const idx = list.findIndex(m => m.id === id);
+    if (idx !== -1) {
+      list[idx] = { ...list[idx], ...updates };
+      saveStoredTeam(list);
+      return list[idx];
+    }
+    throw new Error('Member not found');
+  },
+
+  adminDeleteTeamMember: async (id: string): Promise<{ message: string }> => {
+    let list = getStoredTeam();
+    list = list.filter(m => m.id !== id);
+    saveStoredTeam(list);
+    return { message: 'Member deleted successfully' };
+  },
   getEvents: (params?: { year?: string; category?: string; status?: string; search?: string }) => {
     const searchParams = new URLSearchParams();
     if (params?.year) searchParams.set('year', params.year);
@@ -124,15 +212,6 @@ export const api = {
   // --- ADMIN ---
   getStats: () => request<any>('/admin/stats'),
   getAuditLogs: () => request<ActivityLog[]>('/admin/audit-logs'),
-
-  // Admin Team
-  adminGetTeam: (year?: string) => request<TeamMember[]>(`/admin/team${year ? `?year=${encodeURIComponent(year)}` : ''}`),
-  adminAddTeamMember: (data: Partial<TeamMember>) =>
-    request<TeamMember>('/admin/team', { method: 'POST', body: JSON.stringify(data) }),
-  adminUpdateTeamMember: (id: string, updates: Partial<TeamMember>) =>
-    request<TeamMember>(`/admin/team/${id}`, { method: 'PUT', body: JSON.stringify(updates) }),
-  adminDeleteTeamMember: (id: string) =>
-    request<{ message: string }>(`/admin/team/${id}`, { method: 'DELETE' }),
 
   // Admin Academic Years
   adminAddAcademicYear: (data: Partial<AcademicYear>) =>
