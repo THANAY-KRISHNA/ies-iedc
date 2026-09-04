@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Menu, X, Plus, Lock } from 'lucide-react';
+import { Menu, X, PlusCircle, Lock } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 
 export const Navbar: React.FC = () => {
@@ -12,16 +12,14 @@ export const Navbar: React.FC = () => {
   const navLinks = [
     { name: 'About', href: isHome ? '#about' : '/#about' },
     { name: 'What We Do', href: isHome ? '#what-we-do' : '/#what-we-do' },
-    { name: 'Journey', href: isHome ? '#journey' : '/#journey' },
+    { name: 'Affiliations', href: isHome ? '#affiliations' : '/#affiliations' },
+    { name: 'Philosophy', href: isHome ? '#philosophy' : '/#philosophy' },
+    { name: 'Pipeline', href: isHome ? '#pipeline' : '/#pipeline' },
     { name: 'Events', href: isHome ? '#events' : '/#events' },
     { name: 'Team', href: isHome ? '#team' : '/#team' },
-    { name: 'Achievements', href: isHome ? '#achievements' : '/#achievements' },
     { name: 'Ideas', href: isHome ? '#ideas' : '/#ideas' },
     { name: 'Startups', href: isHome ? '#startups' : '/#startups' },
-    { name: 'Workshops', href: isHome ? '#workshops' : '/#workshops' },
     { name: 'Resources', href: isHome ? '#resources' : '/#resources' },
-    { name: 'Gallery', href: isHome ? '#gallery' : '/#gallery' },
-    { name: 'News', href: isHome ? '#news' : '/#news' },
     { name: 'Contact', href: isHome ? '#contact' : '/#contact' }
   ];
 
@@ -34,80 +32,85 @@ export const Navbar: React.FC = () => {
   };
 
   return (
-    <header className="sticky top-4 z-40 w-full px-4 sm:px-8 md:px-12 max-w-[1700px] mx-auto">
-      <div className="bg-white/90 backdrop-blur-md border border-[#E5E5E0] shadow-neu-flat rounded-xl px-4 sm:px-6 h-16 flex items-center justify-between gap-4 transition-all">
-        {/* Brand Mark Lockup */}
-        <Link to="/" className="flex items-center gap-3 group shrink-0">
-          <div className="w-10 h-10 rounded-lg bg-[#161616] border border-[#D8D8D3] flex items-center justify-center overflow-hidden p-1 shadow-neu-button transition-transform group-hover:scale-105">
+    <header className="sticky top-0 z-40 w-full bg-[#F8F9FA]/95 backdrop-blur-md border-b border-[#D5D9E0]/80 transition-all">
+      <div className="max-w-[1700px] mx-auto px-4 sm:px-6 lg:px-12 h-20 flex items-center justify-between gap-4">
+        {/* Official Wordmark & Logo Mark Lockup */}
+        <Link to="/" className="flex items-center gap-3.5 group shrink-0">
+          <div className="w-[46px] h-[46px] rounded-[6px] bg-[#000000] border border-[#D5D9E0] flex items-center justify-center overflow-hidden shadow-neu-button group-hover:border-[#10B981] transition-colors p-1">
             <img
-              alt="IES IEDC Bulb Logo"
+              src="https://lh3.googleusercontent.com/aida-public/AB6AXuDGky_twkb-r-fjGH7KFGWD67wikfcOAlvhh9O37tDCkEZpKPz344DIDOO7lXK3JHX-vfoZW4DwyCVUwlYLOfDH8QMzwWP7J93sn9AhqZNVnKxcQavbgtdTv-tumANwqlGEVttorxIZXy36OgyRLIK54b8tteqSIV3l6JwZp9VgVD0bsBeixtAS1ab7LMR2ZJw_zkJPocySdohgwCiSGrHbGoC0Kk1jX9B1usMagjUZpZWLc69Qjs3Z2EzNnqMHp0ceCkE"
+              alt="IES IEDC Official Emblem"
               className="w-full h-full object-contain"
-              src="https://lh3.googleusercontent.com/aida-public/AB6AXuAe2kzE2vPRLhxzqZsdHzF6N-egDPm7YSKJGkgEZ4YMzGBUeZpr9MX9X6FOTuU9ZL6sP8PhJu4PDuJrgGnvz1xjuPUwiENGio5jaIV3YKLnOHzFYQwHQfTPlkwWTWUCNbxxbq0iWcJnokvAlQ667EFu5_2nfVzIOJF0s0qpxDDXoSfglpt4woNI-Y6yGW4dnWmbVdVkSG3sZfdBAWHwTpUCvc4Ds2ggczKpevOBp_pLOPhzVMMBwwSwsy7jaXDyH7bFgoU"
             />
           </div>
           <div className="flex flex-col">
-            <span className="font-display font-bold text-[#161616] text-sm sm:text-base tracking-tight leading-none">
-              IES IEDC
-            </span>
-            <span className="text-[10px] text-[#777777] uppercase tracking-wider mt-0.5 font-medium">
+            <div className="flex items-center gap-2">
+              <span className="font-display text-lg font-bold tracking-tight text-[#1A365D] leading-none">
+                IES IEDC
+              </span>
+              <span className="text-[9px] px-1.5 py-0.5 rounded bg-[#10B981]/10 border border-[#10B981]/30 text-[#10B981] uppercase font-bold tracking-wider">
+                KSUM &amp; IIC
+              </span>
+            </div>
+            <span className="text-[11px] text-[#5F6B7D] tracking-wide font-normal mt-0.5">
               IES College of Engineering
             </span>
           </div>
         </Link>
 
-        {/* Monochromatic Center Links */}
-        <nav className="hidden xl:flex items-center gap-1 text-[12px] font-medium text-[#4A4A4A]">
+        {/* Navigation Links */}
+        <nav className="hidden xl:flex items-center gap-1 text-[13px] font-medium text-[#2B3547]">
           {navLinks.map(link => (
             <a
               key={link.name}
               href={link.href}
-              className="px-2.5 py-1.5 rounded-lg transition-all hover:text-[#161616] hover:bg-[#EBEBE8]/60"
+              className="px-3 py-1.5 rounded transition-all duration-150 active:scale-[0.96] active:shadow-neu-inset hover:bg-[#F1F2F5] hover:text-[#1A365D] select-none cursor-pointer"
             >
               {link.name}
             </a>
           ))}
         </nav>
 
-        {/* Header Actions */}
+        {/* Action Triggers */}
         <div className="flex items-center gap-2 sm:gap-3">
           <button
             onClick={handleOpenWizard}
-            className="tactile-btn px-3.5 py-1.5 sm:px-4 sm:py-2 rounded-lg bg-[#161616] text-white text-[11px] font-semibold uppercase tracking-wider shadow-neu-button flex items-center gap-1.5 cursor-pointer"
+            className="px-3.5 py-2 sm:px-4 sm:py-2.5 rounded-sm bg-[#1A365D] hover:bg-[#1A2232] text-white shadow-neu-button text-[12px] font-semibold tracking-wider uppercase transition-all duration-150 active:scale-95 active:shadow-neu-inset flex items-center gap-1.5 select-none cursor-pointer"
           >
-            <Plus className="w-3.5 h-3.5" />
+            <PlusCircle className="w-4 h-4 text-[#10B981]" />
             <span>Submit Idea</span>
           </button>
 
           <button
             onClick={handleOpenAdminDrawer}
-            title="IEDC Nodal Admin CMS"
-            className="tactile-btn px-2.5 py-1.5 sm:px-3 sm:py-2 rounded-lg bg-[#F0F0ED] border border-[#D8D8D3] text-[#777777] hover:text-[#161616] text-[11px] font-medium uppercase tracking-wider flex items-center gap-1 cursor-pointer"
+            title="IEDC Staff & Nodal Officer Portal"
+            className="px-3 py-2 sm:py-2.5 rounded-sm bg-[#F1F2F5] hover:bg-[#E9EBEF] border border-[#D5D9E0]/80 text-[#5F6B7D] hover:text-[#1A365D] text-[11px] font-medium uppercase tracking-wider transition-all duration-150 active:scale-95 active:shadow-neu-inset flex items-center gap-1.5 select-none cursor-pointer"
           >
-            <Lock className="w-3.5 h-3.5" />
-            <span className="hidden sm:inline">{user ? user.role.split(' ')[0] : 'Admin'}</span>
+            <span className="w-1.5 h-1.5 rounded-full bg-[#F59E0B]"></span>
+            <span>{user ? user.role.split(' ')[0] : 'Admin CMS'}</span>
           </button>
 
-          {/* Mobile menu toggle */}
+          {/* Mobile Menu Toggle */}
           <button
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className="xl:hidden p-2 rounded-lg bg-[#F0F0ED] border border-[#D8D8D3] text-[#161616] cursor-pointer"
+            className="xl:hidden p-2 rounded-sm bg-[#F1F2F5] border border-[#D5D9E0] text-[#1A365D] cursor-pointer"
             aria-label="Toggle navigation menu"
           >
-            {mobileMenuOpen ? <X className="w-4 h-4" /> : <Menu className="w-4 h-4" />}
+            {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
           </button>
         </div>
       </div>
 
       {/* Mobile Menu Dropdown */}
       {mobileMenuOpen && (
-        <div className="xl:hidden mt-2 bg-white/95 backdrop-blur-md border border-[#D8D8D3] rounded-2xl shadow-neu-card p-4 space-y-2">
-          <div className="grid grid-cols-2 gap-1 pb-3 border-b border-[#EBEBE8]">
+        <div className="xl:hidden border-t border-[#D5D9E0] bg-[#F8F9FA] p-4 space-y-3 shadow-neu-card">
+          <div className="grid grid-cols-2 gap-1.5 pb-3 border-b border-[#D5D9E0]">
             {navLinks.map(link => (
               <a
                 key={link.name}
                 href={link.href}
                 onClick={() => setMobileMenuOpen(false)}
-                className="px-3 py-2 text-xs font-semibold text-[#4A4A4A] hover:text-[#161616] hover:bg-[#F5F5F3] rounded-lg transition-colors"
+                className="px-3 py-2 text-xs font-semibold text-[#2B3547] hover:text-[#1A365D] hover:bg-[#F1F2F5] rounded transition-colors"
               >
                 {link.name}
               </a>
@@ -119,7 +122,7 @@ export const Navbar: React.FC = () => {
                 setMobileMenuOpen(false);
                 handleOpenWizard();
               }}
-              className="flex-1 py-2 text-center text-xs font-bold rounded-lg bg-[#161616] text-white uppercase tracking-wider"
+              className="flex-1 py-2.5 text-center text-xs font-bold rounded bg-[#1A365D] text-white uppercase tracking-wider"
             >
               Submit Idea
             </button>
@@ -128,7 +131,7 @@ export const Navbar: React.FC = () => {
                 setMobileMenuOpen(false);
                 handleOpenAdminDrawer();
               }}
-              className="flex-1 py-2 text-center text-xs font-bold rounded-lg bg-[#F0F0ED] border border-[#D8D8D3] text-[#242424] uppercase tracking-wider"
+              className="flex-1 py-2.5 text-center text-xs font-bold rounded bg-[#F1F2F5] border border-[#D5D9E0] text-[#1A365D] uppercase tracking-wider"
             >
               Admin CMS
             </button>

@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import {
   ArrowRight,
-  Sparkles,
+  ArrowDown,
+  Lightbulb,
+  PlusCircle,
+  Lock,
   Calendar,
   Users,
   Award,
-  Lightbulb,
   CheckCircle2,
   AlertCircle,
   ExternalLink,
@@ -14,29 +16,32 @@ import {
   Camera,
   Layers,
   Wrench,
-  Rocket
+  Rocket,
+  Shield,
+  Send,
+  HelpCircle,
+  Sparkles,
+  ChevronRight
 } from 'lucide-react';
 import { api } from '../services/api';
 import { EventItem, TeamMember, StudentIdea } from '../types';
 import { IdeaWizardModal } from '../components/modals/IdeaWizardModal';
 import { AdminQuickDrawer } from '../components/modals/AdminQuickDrawer';
-import { LightboxModal } from '../components/modals/LightboxModal';
 
 export const Home: React.FC = () => {
   // Modal states
   const [wizardOpen, setWizardOpen] = useState(false);
   const [adminDrawerOpen, setAdminDrawerOpen] = useState(false);
-  const [lightboxOpen, setLightboxOpen] = useState(false);
-  const [lightboxCaption, setLightboxCaption] = useState('');
-  const [lightboxImage, setLightboxImage] = useState<string | undefined>(undefined);
+
+  // Tab Filter States
+  const [eventFilter, setEventFilter] = useState('all');
+  const [teamTab, setTeamTab] = useState('2024-25');
 
   // Data states
-  const [selectedYear, setSelectedYear] = useState('2024–25');
   const [events, setEvents] = useState<EventItem[]>([]);
   const [teamMembers, setTeamMembers] = useState<TeamMember[]>([]);
-  const [ideas, setIdeas] = useState<StudentIdea[]>([]);
 
-  // Listen for global navbar & footer modal trigger events
+  // Global event listeners for modal triggers from Navbar/Footer
   useEffect(() => {
     const handleOpenWizard = () => setWizardOpen(true);
     const handleOpenAdmin = () => setAdminDrawerOpen(true);
@@ -50,16 +55,12 @@ export const Home: React.FC = () => {
     };
   }, []);
 
-  // Fetch initial data
+  // Fetch API data
   useEffect(() => {
     async function fetchData() {
       try {
-        const [evts, idList] = await Promise.all([
-          api.getEvents(),
-          api.getIdeas()
-        ]);
+        const evts = await api.getEvents();
         setEvents(evts);
-        setIdeas(idList);
       } catch (e) {
         console.error('Error fetching home data', e);
       }
@@ -67,118 +68,153 @@ export const Home: React.FC = () => {
     fetchData();
   }, []);
 
-  // Fetch team based on selected academic year
   useEffect(() => {
     async function fetchTeam() {
       try {
-        const members = await api.getTeam(selectedYear);
+        const yearQuery = teamTab === '2024-25' ? '2024–25' : teamTab === '2023-24' ? '2023–24' : '2025–26';
+        const members = await api.getTeam(yearQuery);
         setTeamMembers(members);
       } catch (e) {
-        console.error('Error fetching team', e);
+        console.error('Error fetching team data', e);
       }
     }
     fetchTeam();
-  }, [selectedYear]);
-
-  const openLightbox = (caption: string, src?: string) => {
-    setLightboxCaption(caption);
-    setLightboxImage(src);
-    setLightboxOpen(true);
-  };
+  }, [teamTab]);
 
   return (
-    <div className="flex flex-col gap-20 pb-20 overflow-x-hidden">
+    <div className="flex flex-col w-full bg-[#F8F9FA] text-[#1A2232] antialiased overflow-x-hidden">
       {/* ========================================================================= */}
-      {/* 04. EDITORIAL HERO SECTION */}
+      {/* 01. EDITORIAL HERO SECTION */}
       {/* ========================================================================= */}
-      <section className="relative w-full pt-6 sm:pt-12 px-4 sm:px-8 max-w-[1700px] mx-auto">
-        <div className="p-8 sm:p-14 rounded-2xl bg-white border border-[#D8D8D3] shadow-neu-card relative overflow-hidden engineering-grid">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center relative z-10">
+      <section className="w-full px-4 sm:px-6 lg:px-12 pt-12 pb-16 border-b border-[#D5D9E0]/60 bg-white/60">
+        <div className="max-w-[1700px] mx-auto flex flex-col gap-10">
+          {/* Top Editorial Metadata Row */}
+          <div className="flex flex-wrap items-center justify-between gap-4 pb-6 border-b border-[#D5D9E0]/60 text-xs font-mono uppercase tracking-wider text-[#5F6B7D]">
+            <div className="flex flex-wrap items-center gap-2 sm:gap-3">
+              <span className="px-2.5 py-1 rounded bg-[#F1F2F5] border border-[#D5D9E0] text-[#1A365D] font-bold tracking-widest text-[10px]">
+                INNOVATION &amp; ENTREPRENEURSHIP DEVELOPMENT CENTRE
+              </span>
+              <span className="text-[#D5D9E0] hidden sm:inline">•</span>
+              <span className="px-2 py-0.5 rounded bg-[#10B981]/10 border border-[#10B981]/30 text-[#10B981] text-[10px] font-semibold flex items-center gap-1">
+                <span className="w-1.5 h-1.5 rounded-full bg-[#10B981]"></span>
+                KSUM SANCTIONED HUB
+              </span>
+              <span className="px-2 py-0.5 rounded bg-[#F1F2F5] text-[#5F6B7D] border border-[#D5D9E0] text-[10px] font-semibold">
+                MINISTRY OF HRD IIC
+              </span>
+            </div>
+            <div className="flex items-center gap-2 text-[#1A2232] font-sans text-[11px] font-medium">
+              <span className="w-2 h-2 rounded-full bg-[#1A365D]"></span>
+              <span>GOVT. OF KERALA / APJ KTU AFFILIATED</span>
+            </div>
+          </div>
+
+          {/* Main Editorial Hero Grid */}
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
             {/* Left Narrative Column (7 cols) */}
             <div className="lg:col-span-7 flex flex-col gap-6">
-              <div className="flex items-center gap-2">
-                <span className="text-[10px] sm:text-xs font-mono font-bold tracking-widest text-[#777777] uppercase">
-                  INNOVATION & ENTREPRENEURSHIP DEVELOPMENT CENTRE
-                </span>
-                <span className="w-1.5 h-1.5 rounded-full bg-[#161616]" />
-                <span className="text-[10px] font-mono text-[#777777]">EST. 2016</span>
-              </div>
-
-              <div className="flex flex-col gap-1">
-                <h1 className="font-display font-extrabold text-4xl sm:text-6xl text-[#161616] tracking-tight leading-none">
+              <div className="flex flex-col gap-2">
+                <div className="inline-flex items-center gap-2 text-[#10B981] font-bold text-xs uppercase tracking-widest font-display">
+                  <span className="w-2 h-0.5 bg-[#10B981]"></span>
+                  Innovate • Create • Entrepreneur
+                </div>
+                <h1 className="font-display text-5xl sm:text-6xl lg:text-7xl font-extrabold tracking-tight text-[#1A365D] leading-[1.05]">
                   IES IEDC
                 </h1>
-                <p className="text-sm sm:text-base font-medium text-[#4A4A4A]">
+                <p className="font-display text-xl sm:text-2xl text-[#2B3547] font-medium tracking-tight mt-1">
                   IES College of Engineering, Chittilappilly, Thrissur
-                </p>
-                <p className="text-xs sm:text-sm font-semibold text-[#161616] tracking-wide mt-1">
-                  Innovate • Create • Entrepreneur
                 </p>
               </div>
 
-              <p className="text-xs sm:text-sm text-[#4A4A4A] leading-relaxed max-w-xl">
-                An innovation and entrepreneurship platform where students explore ideas, develop skills, build prototypes and create meaningful solutions.
-              </p>
+              <div className="p-6 sm:p-7 rounded-sm bg-[#F1F2F5] border border-[#D5D9E0] shadow-neu-flat border-l-4 border-l-[#1A365D] flex flex-col gap-3">
+                <div className="flex items-center justify-between text-[11px] font-bold uppercase tracking-wider text-[#1A365D]">
+                  <span>Verified Institutional Charter</span>
+                  <span className="font-mono text-[#5F6B7D] text-[10px]">EST. 2016 // REG. KL-TCR-IES</span>
+                </div>
+                <p className="text-sm sm:text-base text-[#2B3547] leading-relaxed font-normal">
+                  Established in 2016 under the aegis of the Kerala Startup Mission (KSUM), IES IEDC serves as an apex student-driven innovation body fostering technological competence, design thinking, and venture ideation.
+                </p>
+              </div>
 
-              <div className="flex flex-wrap items-center gap-3 pt-2">
+              {/* Action Buttons */}
+              <div className="flex flex-wrap sm:flex-nowrap items-center gap-4 pt-2">
                 <a
                   href="#what-we-do"
-                  className="tactile-btn px-6 py-3 rounded-xl bg-[#161616] text-white text-xs font-mono uppercase tracking-wider font-semibold shadow-neu-button flex items-center gap-2"
+                  className="w-full sm:w-auto px-7 py-3.5 rounded-sm bg-[#1A365D] text-white text-xs font-semibold tracking-wider uppercase hover:bg-[#1A2232] transition-all duration-150 active:scale-95 active:shadow-neu-inset shadow-neu-button flex items-center justify-center gap-2 select-none"
                 >
                   <span>Explore IEDC</span>
-                  <ArrowRight className="w-3.5 h-3.5" />
+                  <ArrowRight className="w-4 h-4" />
                 </a>
                 <button
                   onClick={() => setWizardOpen(true)}
-                  className="tactile-btn px-6 py-3 rounded-xl bg-[#F5F5F3] border border-[#D8D8D3] text-[#161616] text-xs font-mono uppercase tracking-wider font-semibold shadow-neu-button hover:bg-[#EBEBE8] cursor-pointer"
+                  className="w-full sm:w-auto px-7 py-3.5 rounded-sm bg-white text-[#1A365D] text-xs font-semibold tracking-wider uppercase hover:bg-[#F1F2F5] border border-[#D5D9E0] transition-all duration-150 active:scale-95 active:shadow-neu-inset shadow-neu-button flex items-center justify-center gap-2 cursor-pointer select-none"
                 >
-                  Submit Your Idea
+                  <Lightbulb className="w-4 h-4 text-[#10B981]" />
+                  <span>Submit Your Idea</span>
                 </button>
               </div>
             </div>
 
-            {/* Right Interactive 3-Vertical Cluster (5 cols) */}
-            <div className="lg:col-span-5 flex flex-col items-center justify-center">
-              <div className="relative w-72 h-72 sm:w-80 sm:h-80 rounded-full bg-[#F5F5F3] border border-[#D8D8D3] shadow-neu-flat flex items-center justify-center p-6">
-                {/* Center Hub Badge */}
-                <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-full bg-white border border-[#D8D8D3] shadow-neu-card flex flex-col items-center justify-center text-center p-2 z-20">
-                  <div className="w-10 h-10 mb-1">
-                    <img
-                      src="https://lh3.googleusercontent.com/aida-public/AB6AXuC012wASupr36I6ELjeIODGS4RVlaVUuIjEwtJxQ9UgbSOwZ3TXu7pZCDTIr8KCwjZd2RdWN6FaJ4ivZ-3oouTAf-iLj4rDfD2elV9YRZwq4GifdA3qtDLnTHzKO1wUcN0aR2vWOsVvvyJohagPgPcPsqhK5xrkilNsyNOB8SFGbjaCYsjpweryQ4pCNW_Rl6tYa6GkSgrewgJXTTHmeBBQPFvUeAd3DDi8bP2UxIEQv8qE2s1j6X0c4l86dS9SNnFjsVM"
-                      alt="IEDC Emblem"
-                      className="w-full h-full object-contain filter grayscale"
-                    />
+            {/* Right Architectural Credential Anchor (5 cols) */}
+            <div className="lg:col-span-5">
+              <div className="p-6 sm:p-8 rounded-sm bg-white border border-[#D5D9E0] shadow-neu-card flex flex-col gap-6 relative overflow-hidden">
+                {/* Top Emblem & ID Bar */}
+                <div className="flex items-center justify-between pb-5 border-b border-[#D5D9E0]/60">
+                  <div className="flex items-center gap-3.5">
+                    <div className="w-14 h-14 rounded-md bg-[#000000] border border-[#D5D9E0] flex items-center justify-center overflow-hidden shadow-neu-button shrink-0 p-1">
+                      <img
+                        src="https://lh3.googleusercontent.com/aida-public/AB6AXuBPXx29sBB589d6ZZ8RFQvHqyJThD0_bxUv_WqBhkexSPHfMFa2J77ZoKmDO0G94AwzRxy4pZbswkeHcnW17jZxkW2IYTG4hPt3zH7ZBJ1n2yMLy0Y29baeoMOXRyKkIqMfkKdbU64kyIjx_sARkCzGzTk2fkhIt944OKmAVSIChGi0JmZv807ti1zV0nyC26Svc_kSpi4xthhKtnAciL7icqDjGaj-Q9dYToCwmbBpvLUX8JI4HgQMizs3mgR5bwo3SM0"
+                        alt="Official IES IEDC Brand Emblem"
+                        className="w-full h-full object-contain"
+                      />
+                    </div>
+                    <div className="flex flex-col">
+                      <span className="font-display font-bold text-sm text-[#1A365D]">Institutional Testbed</span>
+                      <span className="text-[11px] text-[#5F6B7D] font-mono uppercase">Empirical Sandbox</span>
+                    </div>
                   </div>
-                  <span className="font-display font-black text-[11px] text-[#161616] tracking-tighter leading-none">
-                    TRI-HUB
-                  </span>
-                  <span className="text-[8px] font-mono text-[#777777] uppercase tracking-wider">
-                    ECOSYSTEM
+                  <span className="px-2 py-1 rounded bg-[#10B981]/10 text-[#10B981] font-mono text-[10px] font-bold border border-[#10B981]/20 uppercase tracking-wide">
+                    Active Chapter
                   </span>
                 </div>
 
-                {/* Satellite 1: Innovation */}
-                <div className="absolute top-2 left-1/2 -translate-x-1/2 -translate-y-2 p-2.5 rounded-xl bg-white border border-[#D8D8D3] shadow-neu-card flex items-center gap-2 z-10">
-                  <span className="text-[9px] font-mono font-bold text-[#161616]">01</span>
-                  <span className="text-[10px] font-bold text-[#242424] uppercase tracking-wider">
-                    INNOVATION
+                {/* 3 Verticals Summary */}
+                <div className="flex flex-col gap-3">
+                  <span className="text-[10px] font-bold uppercase tracking-widest text-[#5F6B7D] font-mono">
+                    Operational Framework
                   </span>
+                  <div className="grid grid-cols-1 gap-2.5">
+                    <div className="p-3 rounded bg-[#F1F2F5] border border-[#D5D9E0]/70 flex items-center justify-between">
+                      <div className="flex items-center gap-2.5">
+                        <span className="w-1.5 h-1.5 rounded-full bg-[#10B981]"></span>
+                        <span className="text-xs font-bold text-[#1A365D]">Innovation &amp; Design</span>
+                      </div>
+                      <span className="text-[11px] text-[#5F6B7D] font-mono">Vertical 01</span>
+                    </div>
+                    <div className="p-3 rounded bg-[#F1F2F5] border border-[#D5D9E0]/70 flex items-center justify-between">
+                      <div className="flex items-center gap-2.5">
+                        <span className="w-1.5 h-1.5 rounded-full bg-[#1A365D]"></span>
+                        <span className="text-xs font-bold text-[#1A365D]">Technical Exposure</span>
+                      </div>
+                      <span className="text-[11px] text-[#5F6B7D] font-mono">Vertical 02</span>
+                    </div>
+                    <div className="p-3 rounded bg-[#F1F2F5] border border-[#D5D9E0]/70 flex items-center justify-between">
+                      <div className="flex items-center gap-2.5">
+                        <span className="w-1.5 h-1.5 rounded-full bg-[#FF6B35]"></span>
+                        <span className="text-xs font-bold text-[#1A365D]">Entrepreneurship</span>
+                      </div>
+                      <span className="text-[11px] text-[#5F6B7D] font-mono">Vertical 03</span>
+                    </div>
+                  </div>
                 </div>
 
-                {/* Satellite 2: Technical */}
-                <div className="absolute bottom-6 left-2 p-2.5 rounded-xl bg-white border border-[#D8D8D3] shadow-neu-card flex items-center gap-2 z-10">
-                  <span className="text-[9px] font-mono font-bold text-[#161616]">02</span>
-                  <span className="text-[10px] font-bold text-[#242424] uppercase tracking-wider">
-                    TECHNICAL
-                  </span>
-                </div>
-
-                {/* Satellite 3: Entrepreneurship */}
-                <div className="absolute bottom-6 right-2 p-2.5 rounded-xl bg-white border border-[#D8D8D3] shadow-neu-card flex items-center gap-2 z-10">
-                  <span className="text-[9px] font-mono font-bold text-[#161616]">03</span>
-                  <span className="text-[10px] font-bold text-[#242424] uppercase tracking-wider">
-                    ENTREPRENEURSHIP
-                  </span>
+                {/* Ethos Tagline Pill */}
+                <div className="pt-4 border-t border-[#D5D9E0]/60 flex items-center justify-between text-[11px]">
+                  <div className="flex items-center gap-2">
+                    <Wrench className="w-4 h-4 text-[#10B981]" />
+                    <span className="font-bold text-[#1A2232]">Learning by Doing (DIY)</span>
+                  </div>
+                  <span className="text-[#5F6B7D] font-mono text-[10px]">7 DEPARTMENTS</span>
                 </div>
               </div>
             </div>
@@ -187,201 +223,267 @@ export const Home: React.FC = () => {
       </section>
 
       {/* ========================================================================= */}
-      {/* 07. STATUTORY BODIES & AFFILIATIONS SHOWCASE */}
+      {/* 02. OFFICIAL AFFILIATIONS & STRATEGIC ECOSYSTEM */}
       {/* ========================================================================= */}
-      <section className="w-full px-4 sm:px-8 max-w-[1700px] mx-auto">
-        <div className="p-6 sm:p-8 rounded-2xl bg-[#EBEBE8]/50 border border-[#D8D8D3] shadow-neu-flat flex flex-col gap-6">
-          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 pb-4 border-b border-[#D8D8D3]">
-            <span className="text-[10px] font-mono font-bold tracking-widest text-[#777777] uppercase">
-              STATUTORY AFFILIATIONS & INSTITUTIONAL CHARTERS
-            </span>
-            <span className="text-[11px] text-[#777777] font-mono">
-              APJ KTU • AICTE Approved • Government of Kerala
+      <section className="w-full px-4 sm:px-6 lg:px-12 py-10 bg-[#F1F2F5]/60 border-b border-[#D5D9E0]/60" id="affiliations">
+        <div className="max-w-[1700px] mx-auto flex flex-col gap-6">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div className="flex items-center gap-2.5">
+              <span className="w-2 h-2 rounded-full bg-[#10B981]"></span>
+              <span className="text-[11px] font-bold text-[#1A365D] uppercase tracking-widest">
+                Official Affiliations &amp; Strategic Ecosystem
+              </span>
+            </div>
+            <span className="text-xs text-[#5F6B7D] font-mono uppercase tracking-wider">
+              Statutory Bodies &amp; Frameworks
             </span>
           </div>
 
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6 items-center justify-items-center">
-            {/* KSUM */}
-            <div className="flex flex-col items-center gap-2 text-center">
-              <div className="partner-logo-box crop-ksum shadow-neu-button">
-                <img
-                  src="https://lh3.googleusercontent.com/aida-public/AB6AXuAlj1Ox7bhemgkYMAxvXtyJYKHVNoGuGCi_xLqcQgx_AAoNQJIG_S1gQvOFuSMqJa5P8ue2l1ZjRpIeJXsldDHwz7oF24vm3GpcFoKmNJuCjlxwIdzdmTiPVQtaZ_osrb323o8TJfS88SxfUvi3Y2q4LTEi5vgEbBqBF6EW67U9chwPrg_VCJI5-2kIQxtxDs5_2kOAMrfVCdWIM2fZ245kilrX7Gbyf5StRQlJDjiEiJF_GI4DVm1P9TMEa02GP5EujCU"
-                  alt="Kerala Startup Mission (KSUM)"
-                />
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+            {/* Partner 1: KSUM */}
+            <div className="p-4 rounded-sm bg-white border border-[#D5D9E0] shadow-neu-card flex flex-col justify-between gap-3 hover:border-[#1A365D]/50 transition-all">
+              <div className="flex items-center justify-between pb-2 border-b border-[#D5D9E0]/60">
+                <span className="text-[10px] font-bold text-[#FF6B35] uppercase tracking-wider">Apex State Body</span>
+                <span className="text-[10px] font-mono text-[#5F6B7D]">KL-TCR-IES</span>
               </div>
-              <span className="text-[10px] font-mono uppercase text-[#777777] mt-1">
-                KSUM PARTNER HUB
-              </span>
+              <div className="py-2 flex items-center justify-center bg-[#0e131b] rounded border border-[#D5D9E0]/40">
+                <div className="logo-crop-box crop-ksum">
+                  <img
+                    alt="Kerala Startup Mission IEDC - IES College of Engineering"
+                    src="https://lh3.googleusercontent.com/aida-public/AB6AXuANJ-mJAqf3uKPgkGwDihOomqkVW9KwuI_jbyedaVwIGdt46fs9C-yY9P4VyY-YYoIa0DREuZZEEFFcO4KzEWGNPkCGn-mOnLrJf01_eh3IuvRlcBOhlJm-Va79EqmwwN2962_miS3m9NoYSdRZzs9JaIGCykqtTEvIRFDDfk-2XNgj9eSaBX0yFZtcpEgLP5VGrz63A-6mCG5n-ENyLSK061y7NhMPnBI8AleavQIsTQ0beDyOwX_2k-G-K4kpubHauMU"
+                  />
+                </div>
+              </div>
+              <div className="flex flex-col">
+                <h4 className="font-display text-xs font-bold text-[#1A365D]">Kerala Startup Mission (KSUM)</h4>
+                <p className="text-[11px] text-[#5F6B7D] leading-tight mt-0.5">Sanctioned partner hub &amp; grant disbursal nodal center</p>
+              </div>
             </div>
 
-            {/* IIC */}
-            <div className="flex flex-col items-center gap-2 text-center">
-              <div className="partner-logo-box crop-iic shadow-neu-button">
-                <img
-                  src="https://lh3.googleusercontent.com/aida-public/AB6AXuCs6Xo5P9PGFqR9lbNLwHK0ICH9pbfqpdsMWFm329mDxvMd4KJP6KQCLz-d8BCGF8SECvOlbeYrEBdW24oxWTmV3maJtQuKIR24Vdh_l0Jo8FQ0Cmt7rsw890zlCvAbSDb7bGv6vxHqFLBq45_lh2DG0z1xunwFMUuldQ3HgO5vb6Z6eP_hRRo83BJwzYw"
-                  alt="Institution's Innovation Council (IIC)"
-                />
+            {/* Partner 2: IIC */}
+            <div className="p-4 rounded-sm bg-white border border-[#D5D9E0] shadow-neu-card flex flex-col justify-between gap-3 hover:border-[#1A365D]/50 transition-all">
+              <div className="flex items-center justify-between pb-2 border-b border-[#D5D9E0]/60">
+                <span className="text-[10px] font-bold text-[#1A365D] uppercase tracking-wider">Central Initiative</span>
+                <span className="text-[10px] font-mono text-[#5F6B7D]">Ministry of HRD</span>
               </div>
-              <span className="text-[10px] font-mono uppercase text-[#777777] mt-1">
-                IIC 3.5 STAR RATED
-              </span>
+              <div className="py-2 flex items-center justify-center bg-[#0e131b] rounded border border-[#D5D9E0]/40">
+                <div className="logo-crop-box crop-iic">
+                  <img
+                    alt="Institution's Innovation Council (Ministry of HRD Initiative)"
+                    src="https://lh3.googleusercontent.com/aida-public/AB6AXuCSxU7hjZauOllcG3rTsjuGL1_JA3wLDe_hr7FOkVjV-Q0RuDWsvsxz6qh7DjHDcCnKxtJ5h_I33zo0r6KYKqrn2_LT13LyPNxTie2r51err03in73523dOv8LwYWtn0UsAzXVk1t-KwqFcn1a7TLwdgCNnHRT7axIbAp4QPF_4ZsqwfAlfR0Fz1Yqz97MpUkDS3Er0HxC3oIIGnwiwPsw5p37_4yO5JWn2WvsML7oibxuur2kOO8QeiAqq1yfDTziJyEk"
+                  />
+                </div>
+              </div>
+              <div className="flex flex-col">
+                <h4 className="font-display text-xs font-bold text-[#1A365D]">Institution's Innovation Council</h4>
+                <p className="text-[11px] text-[#5F6B7D] leading-tight mt-0.5">MoE / AICTE nationwide campus innovation chapter</p>
+              </div>
             </div>
 
-            {/* IPL */}
-            <div className="flex flex-col items-center gap-2 text-center">
-              <div className="partner-logo-box crop-ipl shadow-neu-button">
-                <img
-                  src="https://lh3.googleusercontent.com/aida-public/AB6AXuBvMr2wZaIm5uBnEzPfQymU3IGK2L6PsL877JgwPUHFOQtDborRqOeUJOONtxTk3V4J7GGvHdaTd0dUnENWHc95t-souvoN6DBf4ie1t68iTgB7Z1FKfPzByojC0N4yCPYiwwzMGmjpgVO0WrTW7EJsD21erOXIW8SPigFMvddXGzJqS1fh-TaQYZ4iDdfq37QaHS-o4Wm1N1URT8Xyui7qb6c2fpWm_C-7SrqtIgtm54Fx_j-MiAQs5J5G3tyEeuL-F4k"
-                  alt="Innovators Premier League (IPL)"
-                />
+            {/* Partner 3: IPL */}
+            <div className="p-4 rounded-sm bg-white border border-[#D5D9E0] shadow-neu-card flex flex-col justify-between gap-3 hover:border-[#1A365D]/50 transition-all">
+              <div className="flex items-center justify-between pb-2 border-b border-[#D5D9E0]/60">
+                <span className="text-[10px] font-bold text-[#F59E0B] uppercase tracking-wider">State Competition</span>
+                <span className="text-[10px] font-mono text-[#5F6B7D]">KSUM Initiative</span>
               </div>
-              <span className="text-[10px] font-mono uppercase text-[#777777] mt-1">
-                IPL LEAGUE MEMBER
-              </span>
+              <div className="py-2 flex items-center justify-center bg-[#0e131b] rounded border border-[#D5D9E0]/40">
+                <div className="logo-crop-box crop-ipl">
+                  <img
+                    alt="IPL Innovators Premier League"
+                    src="https://lh3.googleusercontent.com/aida-public/AB6AXuDeE1P_2WnJoMfSjl-EROf5Tex5dsf8DgOOExt7IAYHlM0x4CeadjidaVJVRtZKYHl6HCx1DBSewOZ--gykxlrgz_fDG5MiGM1N-LFuAiRyPvbSwJgH7ZX6KZVr8A41j4d9JLQj8dTanHjtQYpUwAM7F5Y9p1ZImFIrKsQqzWF--QAd8ugaOv1fOQfo0VQ6DobOBYZ6EFbhbRUd_okKqrPjksPgrvfL7l0y9K6aR-iFO6wstzYpYPtzo1-HjVb2RtK9360"
+                  />
+                </div>
+              </div>
+              <div className="flex flex-col">
+                <h4 className="font-display text-xs font-bold text-[#1A365D]">Innovators' Premier League</h4>
+                <p className="text-[11px] text-[#5F6B7D] leading-tight mt-0.5">Competitive challenge leagues &amp; collegiate hackathons</p>
+              </div>
             </div>
 
-            {/* IES IEDC */}
-            <div className="flex flex-col items-center gap-2 text-center">
-              <div className="partner-logo-box crop-iesiedc shadow-neu-button">
-                <img
-                  src="https://lh3.googleusercontent.com/aida-public/AB6AXuDRNxZd1FkTfHyKa4wF_ifGpCl_iJ3fTCwwvmeBdCoqQ3t7dtWUJH2vWdRU-Jv1zCULsDKKEfI4c-CHdczQVSqE96I6u9tYdMJ8ePz0M5m1lGoMNHUO-jk299K3W2b3_tQgKYjRw5SK-NPQwuWyYYrnDmobaO23FLm1WJ0jBJdRgxuzYVglH_BefKaWIQ31-EWkaE5J1RxiA4ciLb3Qy9Q03RgC28sRC-VN-t2hp5JzFJfP46aXAMwyJSSmIbcixAyD7Mo"
-                  alt="IES IEDC Institutional Node"
-                />
+            {/* Partner 4: IES IEDC */}
+            <div className="p-4 rounded-sm bg-white border border-[#D5D9E0] shadow-neu-card flex flex-col justify-between gap-3 hover:border-[#10B981]/60 transition-all">
+              <div className="flex items-center justify-between pb-2 border-b border-[#D5D9E0]/60">
+                <span className="text-[10px] font-bold text-[#10B981] uppercase tracking-wider">Collegiate Apex</span>
+                <span className="text-[10px] font-mono text-[#5F6B7D]">Est. 2016</span>
               </div>
-              <span className="text-[10px] font-mono uppercase text-[#777777] mt-1">
-                NODAL CENTRE #2016
-              </span>
+              <div className="py-2 flex items-center justify-center bg-[#0e131b] rounded border border-[#D5D9E0]/40">
+                <div className="w-[145px] h-[58px] bg-[#000000] rounded flex items-center justify-center p-1.5">
+                  <img
+                    src="https://lh3.googleusercontent.com/aida-public/AB6AXuD_CQAW5wQQgLVy2XXJlptw34nHrZZj7XVkly_Quu7ESCrzXk4pGSqCVwr2tLPop3_fAMpS_tz4l_y8pxpAnE9UhSJ8oooFS4IvXu6YNplaglaG-NxyEuNd5rP8In3V7tB3pGxNByazmO0x_DN05ZK9jEvkJjKgFJSFPinlpxj3-Yqx58z6X0XpgFwcPXUziBDiHcWXJgSmsEuE2VDNXI-W1vHKJyJ1ouiCAR_-o5Fi5Ay2KquZx7pkyQXZ6Xi1Z4epBws"
+                    alt="IES IEDC Official Emblem"
+                    className="w-full h-full object-contain"
+                  />
+                </div>
+              </div>
+              <div className="flex flex-col">
+                <h4 className="font-display text-xs font-bold text-[#1A365D]">IES IEDC Centre</h4>
+                <p className="text-[11px] text-[#5F6B7D] leading-tight mt-0.5">Autonomous pre-incubation facility &amp; maker testbed</p>
+              </div>
             </div>
           </div>
         </div>
       </section>
 
       {/* ========================================================================= */}
-      {/* 08. FOUNDATIONAL MANDATE: VISION & MISSION */}
+      {/* 03. VISION & MISSION DUAL PILLARS */}
       {/* ========================================================================= */}
-      <section className="w-full px-4 sm:px-8 max-w-[1700px] mx-auto" id="about">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-          {/* Vision */}
-          <div className="p-8 sm:p-10 rounded-2xl bg-white border border-[#D8D8D3] shadow-neu-card flex flex-col justify-between">
-            <div className="flex flex-col gap-4">
-              <span className="text-[10px] font-mono font-bold tracking-widest text-[#777777] uppercase">
-                INSTITUTIONAL CHARTER // 01
-              </span>
-              <h2 className="font-display font-bold text-2xl text-[#161616]">Vision</h2>
-              <p className="text-xs sm:text-sm text-[#4A4A4A] leading-relaxed">
-                To create an innovation-driven ecosystem that empowers students to convert innovative ideas into viable technical solutions and successful entrepreneurial ventures.
+      <section className="w-full px-4 sm:px-6 lg:px-12 py-16 bg-[#F1F2F5]/40 border-b border-[#D5D9E0]/50" id="about">
+        <div className="max-w-[1700px] mx-auto flex flex-col gap-10">
+          <div className="flex flex-col gap-1 max-w-xl">
+            <span className="text-[11px] font-bold text-[#10B981] uppercase tracking-widest">Core Governance</span>
+            <h2 className="font-display text-2xl sm:text-3xl font-bold tracking-tight text-[#1A365D]">Vision &amp; Mission Mandate</h2>
+            <p className="text-sm text-[#5F6B7D]">Statutory founding statements ratified by College Governance and aligned with KSUM operational charters.</p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            {/* Vision Stone Tablet */}
+            <div className="p-8 lg:p-10 rounded-sm bg-white border border-[#D5D9E0] shadow-neu-card flex flex-col justify-between gap-8 border-l-4 border-l-[#10B981]">
+              <div className="flex flex-col gap-4">
+                <div className="flex items-center justify-between pb-3 border-b border-[#D5D9E0]/60">
+                  <span className="text-[11px] font-bold text-[#5F6B7D] uppercase tracking-widest">Section 01 // Vision</span>
+                  <span className="material-symbols-outlined text-[20px] text-[#10B981]">visibility</span>
+                </div>
+                <h3 className="font-display text-xl font-bold text-[#1A365D]">Institutional Vision</h3>
+                <blockquote className="text-base sm:text-lg text-[#2B3547] leading-relaxed font-serif italic text-[#1A2232]/90">
+                  “To inculcate an innovation culture among the students, to create future entrepreneurs and position the institution as a learning, innovation and entrepreneurial hub.”
+                </blockquote>
+              </div>
+              <div className="pt-4 border-t border-[#D5D9E0]/60 flex items-center gap-2 text-[11px] text-[#5F6B7D] uppercase font-medium">
+                <span className="w-1.5 h-1.5 rounded-full bg-[#10B981]"></span>
+                <span>Mandated by IES Board of Governance • Est. 2016</span>
+              </div>
+            </div>
+
+            {/* Mission Stone Tablet */}
+            <div className="p-8 lg:p-10 rounded-sm bg-white border border-[#D5D9E0] shadow-neu-card flex flex-col justify-between gap-8 border-l-4 border-l-[#1A365D]">
+              <div className="flex flex-col gap-4">
+                <div className="flex items-center justify-between pb-3 border-b border-[#D5D9E0]/60">
+                  <span className="text-[11px] font-bold text-[#5F6B7D] uppercase tracking-widest">Section 02 // Mission</span>
+                  <span className="material-symbols-outlined text-[20px] text-[#1A365D]">flag</span>
+                </div>
+                <h3 className="font-display text-xl font-bold text-[#1A365D]">Institutional Mission</h3>
+                <blockquote className="text-base sm:text-lg text-[#2B3547] leading-relaxed font-serif italic text-[#1A2232]/90">
+                  “To establish an innovation platform by introducing the State-of-the-art technologies through promoting innovation and entrepreneurship.”
+                </blockquote>
+              </div>
+              <div className="pt-4 border-t border-[#D5D9E0]/60 flex items-center gap-2 text-[11px] text-[#5F6B7D] uppercase font-medium">
+                <span className="w-1.5 h-1.5 rounded-full bg-[#1A365D]"></span>
+                <span>In Alignment with Kerala Startup Mission (KSUM) Directives</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ========================================================================= */}
+      {/* 04. WHAT WE DO: THREE CONNECTED VERTICALS */}
+      {/* ========================================================================= */}
+      <section className="w-full px-4 sm:px-6 lg:px-12 py-16 border-b border-[#D5D9E0]/50" id="what-we-do">
+        <div className="max-w-[1700px] mx-auto flex flex-col gap-12">
+          <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
+            <div className="flex flex-col gap-2 max-w-xl">
+              <span className="text-[11px] font-bold text-[#FF6B35] uppercase tracking-widest">Programmatic Scope</span>
+              <h2 className="font-display text-3xl sm:text-4xl font-bold tracking-tight text-[#1A365D]">The Three Connected Verticals</h2>
+              <p className="text-sm text-[#5F6B7D]">An integrated operational pipeline guiding raw curiosity into defensible technical enterprises.</p>
+            </div>
+            <div className="text-[11px] font-mono text-[#5F6B7D] uppercase tracking-wider bg-[#F1F2F5] px-3 py-1.5 rounded border border-[#D5D9E0]">
+              Framework: Discovery → Build → Deploy
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {/* Vertical 01 */}
+            <div className="p-8 rounded-sm bg-white border border-[#D5D9E0] shadow-neu-card flex flex-col justify-between gap-8 group hover:border-[#10B981]/60 transition-colors">
+              <div className="flex flex-col gap-4">
+                <div className="w-12 h-12 rounded bg-[#F1F2F5] shadow-neu-button flex items-center justify-center border border-[#D5D9E0] text-[#10B981]">
+                  <Lightbulb className="w-6 h-6" />
+                </div>
+                <span className="text-[11px] font-bold text-[#10B981] tracking-widest uppercase">Vertical 01</span>
+                <h3 className="font-display text-xl font-bold text-[#1A365D]">Innovation &amp; Design</h3>
+                <p className="text-sm text-[#2B3547]/90 leading-relaxed font-normal">
+                  Emphasizing problem discovery, empathetic research, and design thinking frameworks. Students dismantle regional socio-technical hurdles through unstructured ideation sprints, root-cause analyses, and peer critique.
+                </p>
+              </div>
+              <div className="pt-4 border-t border-[#D5D9E0]/60 flex flex-col gap-1 text-[12px]">
+                <span className="font-semibold text-[#1A365D] text-[11px] uppercase tracking-wider">Milestone Outcomes</span>
+                <span className="text-[#5F6B7D]">Problem Matrix • Reverse Engineering Labs • Design Validation</span>
+              </div>
+            </div>
+
+            {/* Vertical 02 */}
+            <div className="p-8 rounded-sm bg-white border border-[#D5D9E0] shadow-neu-card flex flex-col justify-between gap-8 group hover:border-[#1A365D]/60 transition-colors">
+              <div className="flex flex-col gap-4">
+                <div className="w-12 h-12 rounded bg-[#F1F2F5] shadow-neu-button flex items-center justify-center border border-[#D5D9E0] text-[#1A365D]">
+                  <Wrench className="w-6 h-6" />
+                </div>
+                <span className="text-[11px] font-bold text-[#1A365D] tracking-widest uppercase">Vertical 02</span>
+                <h3 className="font-display text-xl font-bold text-[#1A365D]">Technical Exposure</h3>
+                <p className="text-sm text-[#2B3547]/90 leading-relaxed font-normal">
+                  Delivering rigorous hands-on exposure to advanced manufacturing, additive 3D fabrication, robotics, microcontrollers, embedded IoT firmware, and generative AI toolchains under faculty and alumni guidance.
+                </p>
+              </div>
+              <div className="pt-4 border-t border-[#D5D9E0]/60 flex flex-col gap-1 text-[12px]">
+                <span className="font-semibold text-[#1A365D] text-[11px] uppercase tracking-wider">Milestone Outcomes</span>
+                <span className="text-[#5F6B7D]">Functional Prototypes • Hardware Testbeds • Open Repositories</span>
+              </div>
+            </div>
+
+            {/* Vertical 03 */}
+            <div className="p-8 rounded-sm bg-white border border-[#D5D9E0] shadow-neu-card flex flex-col justify-between gap-8 group hover:border-[#FF6B35]/60 transition-colors">
+              <div className="flex flex-col gap-4">
+                <div className="w-12 h-12 rounded bg-[#F1F2F5] shadow-neu-button flex items-center justify-center border border-[#D5D9E0] text-[#FF6B35]">
+                  <Rocket className="w-6 h-6" />
+                </div>
+                <span className="text-[11px] font-bold text-[#FF6B35] tracking-widest uppercase">Vertical 03</span>
+                <h3 className="font-display text-xl font-bold text-[#1A365D]">Entrepreneurship</h3>
+                <p className="text-sm text-[#2B3547]/90 leading-relaxed font-normal">
+                  Translating working prototypes into defensible market artifacts: provisional patent drafting, KSUM grant preparation, business model defense, and company incorporation advisory.
+                </p>
+              </div>
+              <div className="pt-4 border-t border-[#D5D9E0]/60 flex flex-col gap-1 text-[12px]">
+                <span className="font-semibold text-[#1A365D] text-[11px] uppercase tracking-wider">Milestone Outcomes</span>
+                <span className="text-[#5F6B7D]">IPR Filings • Business Model Canvas (BMC) • Seed Grant Readiness</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ========================================================================= */}
+      {/* 05. PHILOSOPHY HIGHLIGHT: LEARNING BY DOING & DIY */}
+      {/* ========================================================================= */}
+      <section className="w-full px-4 sm:px-6 lg:px-12 py-16 bg-[#F1F2F5]/40 border-b border-[#D5D9E0]/50" id="philosophy">
+        <div className="max-w-[1700px] mx-auto">
+          <div className="p-8 lg:p-14 rounded-sm bg-[#F1F2F5] border border-[#D5D9E0] shadow-neu-card flex flex-col lg:flex-row lg:items-center justify-between gap-10">
+            <div className="flex flex-col gap-4 max-w-2xl">
+              <span className="text-[11px] font-bold text-[#10B981] uppercase tracking-widest">Foundational Ethos</span>
+              <h2 className="font-display text-3xl sm:text-4xl lg:text-5xl font-extrabold text-[#1A365D] tracking-tight">
+                “Learning by Doing” &amp; <br className="hidden sm:inline" />Do It Yourself (DIY)
+              </h2>
+              <p className="text-[#2B3547] text-base sm:text-lg leading-relaxed pt-2">
+                Exploring ideas, testing prototypes, interdisciplinary team problem-solving, and practical technological immersion. We believe engineering education achieves potency only when theoretical formulae encounter tangible fabrication.
               </p>
             </div>
-            <div className="pt-6 mt-6 border-t border-[#D8D8D3] flex items-center justify-between text-[11px] font-mono text-[#777777]">
-              <span>APJ KTU Cluster Thrissur</span>
-              <span>Long-Term Directive</span>
-            </div>
-          </div>
-
-          {/* Mission */}
-          <div className="p-8 sm:p-10 rounded-2xl bg-white border border-[#D8D8D3] shadow-neu-card flex flex-col justify-between">
-            <div className="flex flex-col gap-4">
-              <span className="text-[10px] font-mono font-bold tracking-widest text-[#777777] uppercase">
-                OPERATIONAL MANDATE // 02
-              </span>
-              <h2 className="font-display font-bold text-2xl text-[#161616]">Mission</h2>
-              <ul className="space-y-2.5 text-xs sm:text-sm text-[#4A4A4A] leading-relaxed">
-                <li className="flex items-start gap-2">
-                  <span className="w-1.5 h-1.5 rounded-full bg-[#161616] mt-2 shrink-0" />
-                  <span>Foster innovation, creative thinking, and problem solving among engineering students.</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <span className="w-1.5 h-1.5 rounded-full bg-[#161616] mt-2 shrink-0" />
-                  <span>Support students in turning technical concepts into real prototypes.</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <span className="w-1.5 h-1.5 rounded-full bg-[#161616] mt-2 shrink-0" />
-                  <span>Provide mentoring, infrastructure, resources, and industry interaction.</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <span className="w-1.5 h-1.5 rounded-full bg-[#161616] mt-2 shrink-0" />
-                  <span>Build entrepreneurial culture through workshops, competitions, and startup initiatives.</span>
-                </li>
-              </ul>
-            </div>
-            <div className="pt-6 mt-6 border-t border-[#D8D8D3] flex items-center justify-between text-[11px] font-mono text-[#777777]">
-              <span>Four Core Pillars</span>
-              <span>Daily Practice</span>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* ========================================================================= */}
-      {/* 09. WHAT WE DO: THE THREE CONNECTED VERTICALS */}
-      {/* ========================================================================= */}
-      <section className="w-full px-4 sm:px-8 max-w-[1700px] mx-auto" id="what-we-do">
-        <div className="flex flex-col gap-8">
-          <div className="flex flex-col sm:flex-row items-start sm:items-end justify-between gap-4 pb-4 border-b border-[#D8D8D3]">
-            <div className="flex flex-col gap-1">
-              <span className="text-[10px] font-mono font-bold tracking-widest text-[#777777] uppercase">
-                CORE OPERATIONAL ARCHITECTURE
-              </span>
-              <h2 className="font-display font-bold text-2xl sm:text-3xl text-[#161616]">
-                What We Do
-              </h2>
-            </div>
-            <span className="text-xs text-[#777777] font-mono">
-              Three interlocked pillars forming a complete innovation pipeline
-            </span>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {/* Vertical 1: Innovation */}
-            <div className="p-8 rounded-2xl bg-white border border-[#D8D8D3] shadow-neu-card flex flex-col justify-between">
-              <div className="flex flex-col gap-4">
-                <div className="w-10 h-10 rounded-xl bg-[#F5F5F3] border border-[#D8D8D3] shadow-neu-button flex items-center justify-center font-mono font-bold text-xs text-[#161616]">
-                  01
-                </div>
-                <h3 className="font-display font-bold text-lg text-[#161616]">Innovation</h3>
-                <p className="text-xs text-[#4A4A4A] leading-relaxed">
-                  Cultivating creative thinking, design methodologies, structured problem identification, and technical validation across interdisciplinary student clusters.
-                </p>
-                <div className="flex flex-wrap gap-1.5 pt-2">
-                  <span className="px-2 py-0.5 rounded bg-[#F0F0ED] text-[10px] font-mono text-[#4A4A4A]">Ideation Sprints</span>
-                  <span className="px-2 py-0.5 rounded bg-[#F0F0ED] text-[10px] font-mono text-[#4A4A4A]">Design Thinking</span>
-                  <span className="px-2 py-0.5 rounded bg-[#F0F0ED] text-[10px] font-mono text-[#4A4A4A]">Problem Mapping</span>
+            <div className="flex flex-col gap-3 shrink-0 lg:w-80">
+              <div className="p-4 rounded bg-white border border-[#D5D9E0] shadow-neu-flat flex items-center gap-3">
+                <Sparkles className="w-6 h-6 text-[#10B981]" />
+                <div className="flex flex-col">
+                  <span className="text-[12px] font-bold text-[#1A365D]">Empirical Prototyping</span>
+                  <span className="text-[11px] text-[#5F6B7D]">Iterate rapidly in hardware and software</span>
                 </div>
               </div>
-            </div>
-
-            {/* Vertical 2: Technical */}
-            <div className="p-8 rounded-2xl bg-white border border-[#D8D8D3] shadow-neu-card flex flex-col justify-between">
-              <div className="flex flex-col gap-4">
-                <div className="w-10 h-10 rounded-xl bg-[#F5F5F3] border border-[#D8D8D3] shadow-neu-button flex items-center justify-center font-mono font-bold text-xs text-[#161616]">
-                  02
-                </div>
-                <h3 className="font-display font-bold text-lg text-[#161616]">Technical</h3>
-                <p className="text-xs text-[#4A4A4A] leading-relaxed">
-                  Rigorous hands-on engineering execution: hackathons, robotics, IoT telemetry, rapid 3D prototyping, PCB fabrication, and software infrastructure development.
-                </p>
-                <div className="flex flex-wrap gap-1.5 pt-2">
-                  <span className="px-2 py-0.5 rounded bg-[#F0F0ED] text-[10px] font-mono text-[#4A4A4A]">Maker Lab</span>
-                  <span className="px-2 py-0.5 rounded bg-[#F0F0ED] text-[10px] font-mono text-[#4A4A4A]">Hackathons</span>
-                  <span className="px-2 py-0.5 rounded bg-[#F0F0ED] text-[10px] font-mono text-[#4A4A4A]">IoT Firmware</span>
+              <div className="p-4 rounded bg-white border border-[#D5D9E0] shadow-neu-flat flex items-center gap-3">
+                <Users className="w-6 h-6 text-[#FF6B35]" />
+                <div className="flex flex-col">
+                  <span className="text-[12px] font-bold text-[#1A365D]">Interdisciplinary Synergy</span>
+                  <span className="text-[11px] text-[#5F6B7D]">Cross-pollination across all 7 departments</span>
                 </div>
               </div>
-            </div>
-
-            {/* Vertical 3: Entrepreneurship */}
-            <div className="p-8 rounded-2xl bg-white border border-[#D8D8D3] shadow-neu-card flex flex-col justify-between">
-              <div className="flex flex-col gap-4">
-                <div className="w-10 h-10 rounded-xl bg-[#F5F5F3] border border-[#D8D8D3] shadow-neu-button flex items-center justify-center font-mono font-bold text-xs text-[#161616]">
-                  03
-                </div>
-                <h3 className="font-display font-bold text-lg text-[#161616]">Entrepreneurship</h3>
-                <p className="text-xs text-[#4A4A4A] leading-relaxed">
-                  Guiding viable student prototypes toward formal startup registration, investor pitch preparation, KSUM seed grants, and patent filing support.
-                </p>
-                <div className="flex flex-wrap gap-1.5 pt-2">
-                  <span className="px-2 py-0.5 rounded bg-[#F0F0ED] text-[10px] font-mono text-[#4A4A4A]">Pitch Decks</span>
-                  <span className="px-2 py-0.5 rounded bg-[#F0F0ED] text-[10px] font-mono text-[#4A4A4A]">KSUM Seed Aid</span>
-                  <span className="px-2 py-0.5 rounded bg-[#F0F0ED] text-[10px] font-mono text-[#4A4A4A]">IP & Patents</span>
+              <div className="p-4 rounded bg-white border border-[#D5D9E0] shadow-neu-flat flex items-center gap-3">
+                <Shield className="w-6 h-6 text-[#1A365D]" />
+                <div className="flex flex-col">
+                  <span className="text-[12px] font-bold text-[#1A365D]">Institutional Rigor</span>
+                  <span className="text-[11px] text-[#5F6B7D]">Mentorship by accredited faculty &amp; KSUM</span>
                 </div>
               </div>
             </div>
@@ -390,626 +492,594 @@ export const Home: React.FC = () => {
       </section>
 
       {/* ========================================================================= */}
-      {/* 10. LEARNING BY DOING & DIY SIGNATURE SECTION */}
+      {/* 06. PROGRAMME PROGRESSION JOURNEY (8 STAGES) */}
       {/* ========================================================================= */}
-      <section className="w-full px-4 sm:px-8 max-w-[1700px] mx-auto">
-        <div className="p-8 sm:p-12 rounded-2xl bg-[#161616] text-white shadow-neu-card flex flex-col md:flex-row items-start md:items-center justify-between gap-8">
-          <div className="flex flex-col gap-3 max-w-2xl">
-            <span className="text-[10px] font-mono font-bold tracking-widest text-[#D8D8D3] uppercase">
-              EDUCATIONAL PHILOSOPHY
-            </span>
-            <h2 className="font-display font-bold text-2xl sm:text-3xl tracking-tight text-white">
-              Learning by Doing: The DIY Engineering Ethos
-            </h2>
-            <p className="text-xs sm:text-sm text-[#D8D8D3] leading-relaxed">
-              We reject passive theoretical learning. At IES IEDC, every participant is guided to hold solder, configure microcontrollers, write clean code, and directly test prototypes with end users.
-            </p>
-          </div>
-          <div className="flex flex-col sm:flex-row gap-3 w-full md:w-auto">
-            <button
-              onClick={() => setWizardOpen(true)}
-              className="px-6 py-3 rounded-xl bg-white text-[#161616] text-xs font-mono uppercase font-semibold hover:bg-[#F0F0ED] cursor-pointer transition-colors shadow-lg"
-            >
-              Build With Us
-            </button>
-          </div>
-        </div>
-      </section>
-
-      {/* ========================================================================= */}
-      {/* 11. PROGRAMME PROGRESSION JOURNEY */}
-      {/* ========================================================================= */}
-      <section className="w-full px-4 sm:px-8 max-w-[1700px] mx-auto" id="journey">
-        <div className="flex flex-col gap-8">
-          <div className="flex flex-col sm:flex-row items-start sm:items-end justify-between gap-4 pb-4 border-b border-[#D8D8D3]">
-            <div className="flex flex-col gap-1">
-              <span className="text-[10px] font-mono font-bold tracking-widest text-[#777777] uppercase">
-                STUDENT INCUBATION LIFECYCLE
-              </span>
-              <h2 className="font-display font-bold text-2xl sm:text-3xl text-[#161616]">
-                Programme Progression Journey
-              </h2>
+      <section className="w-full px-4 sm:px-6 lg:px-12 py-16 border-b border-[#D5D9E0]/50" id="pipeline">
+        <div className="max-w-[1700px] mx-auto flex flex-col gap-12">
+          <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
+            <div className="flex flex-col gap-2">
+              <span className="text-[11px] font-bold text-[#1A365D] uppercase tracking-widest">Incubation Roadmap</span>
+              <h2 className="font-display text-3xl sm:text-4xl font-bold tracking-tight text-[#1A365D]">Programme Progression Journey</h2>
+              <p className="text-sm text-[#5F6B7D]">Official chronological trajectory adapted from Kerala Startup Mission guidelines.</p>
             </div>
-            <span className="text-xs text-[#777777] font-mono">
-              From fresh engineering admission to verified venture launch
-            </span>
+            <div className="flex items-center gap-2 text-xs text-[#5F6B7D] font-medium">
+              <span className="w-2 h-2 rounded-full bg-[#10B981]"></span>
+              <span>8 Milestones from Mindset to Venture</span>
+            </div>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-7 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-4">
             {[
-              { step: '01', title: 'Orientation', desc: 'Induction & culture onboarding' },
-              { step: '02', title: 'Ideation', desc: 'Problem definition sprints' },
-              { step: '03', title: 'Hands-on', desc: 'Hardware & software labs' },
-              { step: '04', title: 'Hackathons', desc: 'Competitive prototype building' },
-              { step: '05', title: 'Grants', desc: 'KSUM seed funding aid' },
-              { step: '06', title: 'Mentorship', desc: 'Industry & faculty advisory' },
-              { step: '07', title: 'Launch', desc: 'Startup pre-incubation' }
+              { step: '01', title: 'Innovation Mindset', desc: 'Attitude formulation & inquiry' },
+              { step: '02', title: 'Design Thinking', desc: 'Human-centric problem scoping' },
+              { step: '03', title: 'Ideation Sprints', desc: 'Empirical hypothesis tests' },
+              { step: '04', title: 'Skill Exposure', desc: '3D CAD, robotics & AI tools' },
+              { step: '05', title: 'Business Basics', desc: 'Cost structures & IPR basics' },
+              { step: '06', title: 'Case Studies', desc: 'Enterprise analysis & critique' },
+              { step: '07', title: 'Model Canvas', desc: 'Formal BMC formulation' }
             ].map(item => (
               <div
                 key={item.step}
-                className="p-4 rounded-xl bg-white border border-[#D8D8D3] shadow-neu-flat flex flex-col justify-between gap-2"
+                className="p-4 rounded-sm bg-white border border-[#D5D9E0] shadow-neu-flat flex flex-col justify-between gap-4"
               >
-                <span className="font-mono text-xs font-bold text-[#161616]">{item.step}</span>
-                <span className="font-display text-xs font-bold text-[#161616]">{item.title}</span>
-                <span className="text-[11px] text-[#777777] leading-tight">{item.desc}</span>
+                <span className="text-[11px] font-mono font-bold text-[#5F6B7D]">{item.step}</span>
+                <div className="flex flex-col gap-1">
+                  <span className="font-display text-xs font-bold text-[#1A365D]">{item.title}</span>
+                  <span className="text-[11px] text-[#5F6B7D] leading-snug">{item.desc}</span>
+                </div>
               </div>
             ))}
+
+            {/* Step 8 Highlighted */}
+            <div className="p-4 rounded-sm bg-[#1A365D] border-2 border-[#10B981] shadow-neu-button flex flex-col justify-between gap-4 text-white">
+              <span className="text-[11px] font-mono font-bold text-[#10B981]">08</span>
+              <div className="flex flex-col gap-1">
+                <span className="font-display text-xs font-extrabold text-white">Prototype / Venture</span>
+                <span className="text-[11px] text-white/80 font-medium leading-snug">Venture incubation &amp; grants</span>
+              </div>
+            </div>
           </div>
         </div>
       </section>
 
       {/* ========================================================================= */}
-      {/* 12. VERIFIED EVENTS SHOWCASE */}
+      {/* 07. VERIFIED EVENTS & ACTIVITIES */}
       {/* ========================================================================= */}
-      <section className="w-full px-4 sm:px-8 max-w-[1700px] mx-auto" id="events">
-        <div className="flex flex-col gap-8">
-          <div className="flex flex-col sm:flex-row items-start sm:items-end justify-between gap-4 pb-4 border-b border-[#D8D8D3]">
-            <div className="flex flex-col gap-1">
-              <span className="text-[10px] font-mono font-bold tracking-widest text-[#777777] uppercase">
-                VERIFIED SOURCE RECORDS
-              </span>
-              <h2 className="font-display font-bold text-2xl sm:text-3xl text-[#161616]">
-                Verified Events Calendar
-              </h2>
+      <section className="w-full px-4 sm:px-6 lg:px-12 py-16 bg-[#F1F2F5]/30 border-b border-[#D5D9E0]/50" id="events">
+        <div className="max-w-[1700px] mx-auto flex flex-col gap-12">
+          <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
+            <div className="flex flex-col gap-2 max-w-xl">
+              <span className="text-[11px] font-bold text-[#1A365D] uppercase tracking-widest">Institutional Calendar</span>
+              <h2 className="font-display text-3xl sm:text-4xl font-bold tracking-tight text-[#1A365D]">Verified Events &amp; Activities</h2>
+              <p className="text-sm text-[#5F6B7D]">Authoritative records documented by the IEDC Nodal Secretariat across academic years.</p>
             </div>
-            <span className="text-xs text-[#777777] font-mono">
-              6 official historical programmes documented with source citations
-            </span>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {events.map(evt => (
-              <div
-                key={evt.id}
-                className="p-6 rounded-2xl bg-white border border-[#D8D8D3] shadow-neu-card flex flex-col justify-between gap-4"
-              >
-                <div className="flex flex-col gap-3">
-                  <div className="flex items-center justify-between text-xs font-mono">
-                    <span className="px-2 py-0.5 rounded bg-[#F0F0ED] border border-[#D8D8D3] text-[#161616] font-semibold">
-                      {evt.displayDate || evt.academicYear}
-                    </span>
-                    <span className="text-[10px] text-[#777777] uppercase tracking-wider">
-                      {evt.category}
-                    </span>
-                  </div>
-
-                  <h3 className="font-display font-bold text-base text-[#161616] leading-snug">
-                    {evt.title}
-                  </h3>
-
-                  <p className="text-xs text-[#4A4A4A] leading-relaxed line-clamp-3">
-                    {evt.description}
-                  </p>
-                </div>
-
-                <div className="pt-4 border-t border-[#D8D8D3] flex items-center justify-between text-[11px] font-mono text-[#777777]">
-                  <span>Status: Completed</span>
-                  <span className="text-[#161616] font-semibold">{evt.academicYear}</span>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ========================================================================= */}
-      {/* 13. LEADERSHIP & ACCREDITED TEAM */}
-      {/* ========================================================================= */}
-      <section className="w-full px-4 sm:px-8 max-w-[1700px] mx-auto" id="team">
-        <div className="flex flex-col gap-8">
-          <div className="flex flex-col sm:flex-row items-start sm:items-end justify-between gap-4 pb-4 border-b border-[#D8D8D3]">
-            <div className="flex flex-col gap-1">
-              <span className="text-[10px] font-mono font-bold tracking-widest text-[#777777] uppercase">
-                INSTITUTIONAL GOVERNANCE
-              </span>
-              <h2 className="font-display font-bold text-2xl sm:text-3xl text-[#161616]">
-                Leadership & Accredited Team
-              </h2>
-            </div>
-
-            {/* Interactive Academic Year Selector */}
-            <div className="flex items-center gap-1.5 p-1 rounded-xl bg-[#F0F0ED] border border-[#D8D8D3] shadow-neu-inset text-xs font-mono">
-              {['2024–25', '2025–26', '2023–24'].map(year => (
+            {/* Filter Tabs */}
+            <div className="p-1 rounded-sm bg-[#F1F2F5] border border-[#D5D9E0]/80 shadow-neu-inset flex items-center gap-1 text-[12px]">
+              {['all', '2025-26', '2024-25', '2023-24'].map(tab => (
                 <button
-                  key={year}
-                  onClick={() => setSelectedYear(year)}
-                  className={`px-3 py-1.5 rounded-lg transition-all cursor-pointer ${
-                    selectedYear === year
-                      ? 'bg-white text-[#161616] font-bold shadow-neu-button'
-                      : 'text-[#777777] hover:text-[#161616]'
+                  key={tab}
+                  onClick={() => setEventFilter(tab)}
+                  className={`px-3 py-1.5 rounded-sm font-medium uppercase tracking-wider transition-all duration-150 cursor-pointer select-none ${
+                    eventFilter === tab
+                      ? 'bg-[#1A365D] text-white'
+                      : 'text-[#5F6B7D] hover:text-[#1A365D]'
                   }`}
                 >
-                  {year}
+                  {tab === 'all' ? 'All' : tab === '2025-26' ? '2025–26' : tab === '2024-25' ? '2024–25' : '2023–24'}
                 </button>
               ))}
             </div>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {teamMembers.map(member => (
-              <div
-                key={member.id}
-                className="p-6 rounded-2xl bg-white border border-[#D8D8D3] shadow-neu-card flex flex-col justify-between gap-4"
-              >
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {/* Event 1 */}
+            {(eventFilter === 'all' || eventFilter === '2025-26') && (
+              <div className="p-8 rounded-sm bg-white border border-[#D5D9E0] shadow-neu-card flex flex-col justify-between gap-6">
                 <div className="flex flex-col gap-3">
-                  <div className="flex items-center justify-between">
-                    <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-[#F0F0ED] text-[#777777] uppercase">
-                      {member.roleType}
-                    </span>
-                    <span className="text-[10px] font-mono text-[#777777]">
-                      {member.academicYear}
-                    </span>
+                  <div className="flex items-center justify-between text-[11px]">
+                    <span className="px-2 py-0.5 rounded bg-[#F1F2F5] border border-[#D5D9E0] font-semibold uppercase text-[#1A365D]">AY 2025–26</span>
+                    <span className="text-[#5F6B7D] font-medium">104 Participants</span>
                   </div>
-
-                  <div className="flex flex-col">
-                    <h3 className="font-display font-bold text-base text-[#161616]">
-                      {member.name}
-                    </h3>
-                    <span className="text-xs font-semibold text-[#4A4A4A] mt-0.5">
-                      {member.position}
-                    </span>
-                    <span className="text-[11px] text-[#777777] mt-0.5">
-                      {member.department}
-                    </span>
-                  </div>
+                  <h3 className="font-display text-lg font-bold text-[#1A365D]">IEDC Annual Institutional Orientation</h3>
+                  <p className="text-sm text-[#2B3547]/80 leading-relaxed">
+                    Comprehensive orientation introducing the student body to KSUM grants, campus pre-incubation facilities, and the innovation roadmap for the academic calendar.
+                  </p>
                 </div>
-
-                <div className="pt-3 border-t border-[#D8D8D3] flex items-center justify-between text-[11px] font-mono text-[#777777]">
-                  <span>Accredited Council</span>
-                  <span className="text-emerald-700 font-semibold">Active</span>
+                <div className="pt-4 border-t border-[#D5D9E0]/60 flex items-center justify-between text-xs text-[#5F6B7D]">
+                  <span className="flex items-center gap-1.5"><Calendar className="w-4 h-4" /> 21/03/2026</span>
+                  <span className="font-semibold text-[#10B981] flex items-center gap-1">
+                    <span className="w-1.5 h-1.5 rounded-full bg-[#10B981]"></span> Verified Record
+                  </span>
                 </div>
               </div>
-            ))}
+            )}
+
+            {/* Event 2 */}
+            {(eventFilter === 'all' || eventFilter === '2025-26') && (
+              <div className="p-8 rounded-sm bg-white border border-[#D5D9E0] shadow-neu-card flex flex-col justify-between gap-6">
+                <div className="flex flex-col gap-3">
+                  <div className="flex items-center justify-between text-[11px]">
+                    <span className="px-2 py-0.5 rounded bg-[#F1F2F5] border border-[#D5D9E0] font-semibold uppercase text-[#1A365D]">AY 2025–26</span>
+                    <span className="text-[#5F6B7D] font-medium">Workshop</span>
+                  </div>
+                  <h3 className="font-display text-lg font-bold text-[#1A365D]">Innovation Workshop &amp; Prototyping Sprints</h3>
+                  <p className="text-sm text-[#2B3547]/80 leading-relaxed">
+                    Intensive design session facilitating interdisciplinary engineering teams in rapid problem formulation and initial low-fidelity mockups.
+                  </p>
+                </div>
+                <div className="pt-4 border-t border-[#D5D9E0]/60 flex items-center justify-between text-xs text-[#5F6B7D]">
+                  <span className="flex items-center gap-1.5"><Calendar className="w-4 h-4" /> 28/02/2026</span>
+                  <span className="font-semibold text-[#10B981] flex items-center gap-1">
+                    <span className="w-1.5 h-1.5 rounded-full bg-[#10B981]"></span> Verified Record
+                  </span>
+                </div>
+              </div>
+            )}
+
+            {/* Event 3 */}
+            {(eventFilter === 'all' || eventFilter === '2025-26') && (
+              <div className="p-8 rounded-sm bg-white border border-[#D5D9E0] shadow-neu-card flex flex-col justify-between gap-6">
+                <div className="flex flex-col gap-3">
+                  <div className="flex items-center justify-between text-[11px]">
+                    <span className="px-2 py-0.5 rounded bg-[#F1F2F5] border border-[#D5D9E0] font-semibold uppercase text-[#1A365D]">AY 2025–26</span>
+                    <span className="text-[#5F6B7D] font-medium">Technical Series</span>
+                  </div>
+                  <h3 className="font-display text-lg font-bold text-[#1A365D]">AI Tools &amp; Modern Capabilities Suite</h3>
+                  <p className="text-sm text-[#2B3547]/80 leading-relaxed">
+                    Exploration of foundational models, generative pipelines, and automating engineering workflows using modern AI tools suite.
+                  </p>
+                </div>
+                <div className="pt-4 border-t border-[#D5D9E0]/60 flex items-center justify-between text-xs text-[#5F6B7D]">
+                  <span className="flex items-center gap-1.5"><Calendar className="w-4 h-4" /> 17/02/2026</span>
+                  <span className="font-semibold text-[#10B981] flex items-center gap-1">
+                    <span className="w-1.5 h-1.5 rounded-full bg-[#10B981]"></span> Verified Record
+                  </span>
+                </div>
+              </div>
+            )}
+
+            {/* Event 4 */}
+            {(eventFilter === 'all' || eventFilter === '2025-26') && (
+              <div className="p-8 rounded-sm bg-white border border-[#D5D9E0] shadow-neu-card flex flex-col justify-between gap-6">
+                <div className="flex flex-col gap-3">
+                  <div className="flex items-center justify-between text-[11px]">
+                    <span className="px-2 py-0.5 rounded bg-[#F1F2F5] border border-[#D5D9E0] font-semibold uppercase text-[#1A365D]">AY 2025–26</span>
+                    <span className="px-2 py-0.5 rounded bg-[#F59E0B]/10 text-[#F59E0B] border border-[#F59E0B]/30 font-semibold text-[10px] uppercase tracking-wider">Archival Notice</span>
+                  </div>
+                  <h3 className="font-display text-lg font-bold text-[#1A365D]">Residential IEDC Innovation Camp</h3>
+                  <p className="text-sm text-[#2B3547]/80 leading-relaxed">
+                    Overnight hackathon and venture refinement residential camp designed to accelerate pending student proposals.
+                  </p>
+                  <div className="p-3 rounded bg-[#F1F2F5] border border-[#D5D9E0] text-[11px] text-[#1A2232] font-medium">
+                    [Needs Admin Review - Date Inconsistency in Source Record: 09/01/2026 – 10/01/2025]
+                  </div>
+                </div>
+                <div className="pt-4 border-t border-[#D5D9E0]/60 flex items-center justify-between text-xs text-[#5F6B7D]">
+                  <span className="flex items-center gap-1.5"><AlertCircle className="w-4 h-4 text-[#F59E0B]" /> Source Log Annotation</span>
+                  <span className="font-semibold text-[#1A2232]">Audit Documented</span>
+                </div>
+              </div>
+            )}
+
+            {/* Event 5 */}
+            {(eventFilter === 'all' || eventFilter === '2024-25') && (
+              <div className="p-8 rounded-sm bg-white border border-[#D5D9E0] shadow-neu-card flex flex-col justify-between gap-6">
+                <div className="flex flex-col gap-3">
+                  <div className="flex items-center justify-between text-[11px]">
+                    <span className="px-2 py-0.5 rounded bg-[#F1F2F5] border border-[#D5D9E0] font-semibold uppercase text-[#1A365D]">AY 2024–25</span>
+                    <span className="text-[#5F6B7D] font-medium">SIH Official</span>
+                  </div>
+                  <h3 className="font-display text-lg font-bold text-[#1A365D]">Smart India Hackathon Internal Screening</h3>
+                  <p className="text-sm text-[#2B3547]/80 leading-relaxed">
+                    Rigorous evaluation round featuring campus teams contending for national nomination. Exactly 12 elite teams selected for submission.
+                  </p>
+                </div>
+                <div className="pt-4 border-t border-[#D5D9E0]/60 flex items-center justify-between text-xs text-[#5F6B7D]">
+                  <span className="flex items-center gap-1.5"><CheckCircle2 className="w-4 h-4 text-[#FF6B35]" /> 12 Teams Selected</span>
+                  <span className="font-semibold text-[#1A365D]">National Level</span>
+                </div>
+              </div>
+            )}
+
+            {/* Event 6 */}
+            {(eventFilter === 'all' || eventFilter === '2023-24') && (
+              <div className="p-8 rounded-sm bg-white border border-[#D5D9E0] shadow-neu-card flex flex-col justify-between gap-6">
+                <div className="flex flex-col gap-3">
+                  <div className="flex items-center justify-between text-[11px]">
+                    <span className="px-2 py-0.5 rounded bg-[#F1F2F5] border border-[#D5D9E0] font-semibold uppercase text-[#1A365D]">AY 2023–24</span>
+                    <span className="text-[#5F6B7D] font-medium">Expert Webinar</span>
+                  </div>
+                  <h3 className="font-display text-lg font-bold text-[#1A365D]">IPR Webinar: Drafting &amp; Filing Safeguards</h3>
+                  <p className="text-sm text-[#2B3547]/80 leading-relaxed">
+                    Expert presentation by Dr. Joe Gnanaraj on safeguarding academic technical novelty under Indian Patent Law.
+                  </p>
+                </div>
+                <div className="pt-4 border-t border-[#D5D9E0]/60 flex items-center justify-between text-xs text-[#5F6B7D]">
+                  <span className="flex items-center gap-1.5"><Award className="w-4 h-4" /> Dr Joe Gnanaraj</span>
+                  <span className="font-semibold text-[#1A2232]">Archive Log</span>
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </section>
 
       {/* ========================================================================= */}
-      {/* 14. VERIFIED ACHIEVEMENTS (STRICT AUDIT POLICY) */}
+      {/* 08. VERIFIED TEAM STRUCTURE */}
       {/* ========================================================================= */}
-      <section className="w-full px-4 sm:px-8 max-w-[1700px] mx-auto" id="achievements">
-        <div className="flex flex-col gap-8">
-          <div className="flex flex-col sm:flex-row items-start sm:items-end justify-between gap-4 pb-4 border-b border-[#D8D8D3]">
-            <div className="flex flex-col gap-1">
-              <span className="text-[10px] font-mono font-bold tracking-widest text-[#777777] uppercase">
-                ACCREDITATION BENCHMARKS
-              </span>
-              <h2 className="font-display font-bold text-2xl sm:text-3xl text-[#161616]">
-                Verified Institutional Achievements
-              </h2>
+      <section className="w-full px-4 sm:px-6 lg:px-12 py-16 border-b border-[#D5D9E0]/50" id="team">
+        <div className="max-w-[1700px] mx-auto flex flex-col gap-12">
+          <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
+            <div className="flex flex-col gap-2 max-w-xl">
+              <span className="text-[11px] font-bold text-[#1A365D] uppercase tracking-widest">Leadership &amp; Roster</span>
+              <h2 className="font-display text-3xl sm:text-4xl font-bold tracking-tight text-[#1A365D]">Verified Team Structure</h2>
+              <p className="text-sm text-[#5F6B7D]">Accredited nodal governance and student executive committees.</p>
             </div>
-            <span className="text-xs text-[#777777] font-mono">
-              Strict audit policy: zero placeholder entries permitted
-            </span>
+            {/* Academic Year Selector */}
+            <div className="p-1 rounded-sm bg-[#F1F2F5] border border-[#D5D9E0]/80 shadow-neu-inset flex items-center gap-1 text-[12px]">
+              <button
+                onClick={() => setTeamTab('2024-25')}
+                className={`px-3 py-1.5 rounded-sm font-medium uppercase tracking-wider transition-all cursor-pointer ${
+                  teamTab === '2024-25' ? 'bg-[#1A365D] text-white' : 'text-[#5F6B7D] hover:text-[#1A365D]'
+                }`}
+              >
+                2024–25 Verified
+              </button>
+              <button
+                onClick={() => setTeamTab('2025-26')}
+                className={`px-3 py-1.5 rounded-sm font-medium uppercase tracking-wider transition-all cursor-pointer ${
+                  teamTab === '2025-26' ? 'bg-[#1A365D] text-white' : 'text-[#5F6B7D] hover:text-[#1A365D]'
+                }`}
+              >
+                2025–26 (Structure)
+              </button>
+              <button
+                onClick={() => setTeamTab('2023-24')}
+                className={`px-3 py-1.5 rounded-sm font-medium uppercase tracking-wider transition-all cursor-pointer ${
+                  teamTab === '2023-24' ? 'bg-[#1A365D] text-white' : 'text-[#5F6B7D] hover:text-[#1A365D]'
+                }`}
+              >
+                2023–24 Archive
+              </button>
+            </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div className="p-6 rounded-2xl bg-white border border-[#D8D8D3] shadow-neu-card flex flex-col justify-between">
-              <div className="flex flex-col gap-3">
-                <span className="text-[10px] font-mono uppercase text-[#777777] font-bold">
-                  NATIONAL RECOGNITION
-                </span>
-                <h3 className="font-display font-bold text-lg text-[#161616]">
-                  IIC 3.5 Star Rating
-                </h3>
-                <p className="text-xs text-[#4A4A4A] leading-relaxed">
-                  Conferred by Ministry of Education Innovation Cell (MIC), Government of India, for active campus entrepreneurial initiatives.
-                </p>
-              </div>
-              <span className="pt-4 border-t border-[#D8D8D3] text-[10px] font-mono text-[#777777]">
-                Government of India MIC Certified
-              </span>
-            </div>
+          {/* 2024-25 Roster Pane */}
+          {teamTab === '2024-25' && (
+            <div className="flex flex-col gap-10">
+              {/* Nodal Officers */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div className="p-8 rounded-sm bg-white border border-[#D5D9E0] shadow-neu-card flex items-start gap-5">
+                  <div className="w-12 h-12 rounded bg-[#F1F2F5] shadow-neu-button flex items-center justify-center border border-[#D5D9E0] shrink-0 text-[#1A365D]">
+                    <Award className="w-6 h-6" />
+                  </div>
+                  <div className="flex flex-col gap-1">
+                    <span className="text-[11px] font-bold text-[#10B981] uppercase tracking-widest">Nodal Officer</span>
+                    <h3 className="font-display text-xl font-bold text-[#1A365D]">Shahaziya Parvez</h3>
+                    <span className="text-xs text-[#2B3547]">Head of Department / Asst Professor • Robotics &amp; AI</span>
+                    <span className="text-[11px] text-[#5F6B7D] pt-2">Official KSUM Nodal Point of Contact</span>
+                  </div>
+                </div>
 
-            <div className="p-6 rounded-2xl bg-white border border-[#D8D8D3] shadow-neu-card flex flex-col justify-between">
-              <div className="flex flex-col gap-3">
-                <span className="text-[10px] font-mono uppercase text-[#777777] font-bold">
-                  HACKATHON EXCELLENCE
-                </span>
-                <h3 className="font-display font-bold text-lg text-[#161616]">
-                  Smart India Hackathon Finalist
-                </h3>
-                <p className="text-xs text-[#4A4A4A] leading-relaxed">
-                  Student engineering squad advanced to regional zonal finals addressing Ministry agricultural telemetry challenges.
-                </p>
+                <div className="p-8 rounded-sm bg-white border border-[#D5D9E0] shadow-neu-card flex items-start gap-5">
+                  <div className="w-12 h-12 rounded bg-[#F1F2F5] shadow-neu-button flex items-center justify-center border border-[#D5D9E0] shrink-0 text-[#1A365D]">
+                    <Shield className="w-6 h-6" />
+                  </div>
+                  <div className="flex flex-col gap-1">
+                    <span className="text-[11px] font-bold text-[#FF6B35] uppercase tracking-widest">Assistant Nodal Officer</span>
+                    <h3 className="font-display text-xl font-bold text-[#1A365D]">Prabhavathi P</h3>
+                    <span className="text-xs text-[#2B3547]">Assistant Professor • Science &amp; Humanities</span>
+                    <span className="text-[11px] text-[#5F6B7D] pt-2">Operations &amp; Compliance Oversight</span>
+                  </div>
+                </div>
               </div>
-              <span className="pt-4 border-t border-[#D8D8D3] text-[10px] font-mono text-[#777777]">
-                SIH Regional Zonal Finalist
-              </span>
-            </div>
 
-            <div className="p-6 rounded-2xl bg-white border border-[#D8D8D3] shadow-neu-card flex flex-col justify-between">
-              <div className="flex flex-col gap-3">
-                <span className="text-[10px] font-mono uppercase text-[#777777] font-bold">
-                  STATE PARTNERSHIP
-                </span>
-                <h3 className="font-display font-bold text-lg text-[#161616]">
-                  Kerala Startup Mission Sanction
-                </h3>
-                <p className="text-xs text-[#4A4A4A] leading-relaxed">
-                  Continued grant aid and incubation partnership renewal under KSUM IEDC scheme for student-led technology prototypes.
+              {/* Student Executive Grid */}
+              <div className="flex flex-col gap-4">
+                <div className="flex items-center justify-between pb-2 border-b border-[#D5D9E0]/60">
+                  <span className="text-xs font-bold uppercase tracking-wider text-[#1A365D]">Student Executive Council (2024–25)</span>
+                  <span className="text-[11px] text-[#5F6B7D]">Published Roster</span>
+                </div>
+                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
+                  <div className="p-4 rounded bg-white border border-[#D5D9E0] shadow-neu-flat flex flex-col gap-1">
+                    <span className="text-[10px] uppercase font-bold text-[#10B981]">IEDC Lead (Joint)</span>
+                    <span className="text-sm font-bold text-[#1A365D]">Edwin Joy</span>
+                    <span className="text-[11px] text-[#5F6B7D]">Lead Exec</span>
+                  </div>
+                  <div className="p-4 rounded bg-white border border-[#D5D9E0] shadow-neu-flat flex flex-col gap-1">
+                    <span className="text-[10px] uppercase font-bold text-[#10B981]">IEDC Lead (Joint)</span>
+                    <span className="text-sm font-bold text-[#1A365D]">Fathima Dilsha</span>
+                    <span className="text-[11px] text-[#5F6B7D]">Lead Exec</span>
+                  </div>
+                  <div className="p-4 rounded bg-white border border-[#D5D9E0] shadow-neu-flat flex flex-col gap-1">
+                    <span className="text-[10px] uppercase font-bold text-[#1A365D]">Student Lead I</span>
+                    <span className="text-sm font-bold text-[#1A365D]">Ajmal P R</span>
+                    <span className="text-[11px] text-[#5F6B7D]">Outreach</span>
+                  </div>
+                  <div className="p-4 rounded bg-white border border-[#D5D9E0] shadow-neu-flat flex flex-col gap-1">
+                    <span className="text-[10px] uppercase font-bold text-[#1A365D]">Student Lead II</span>
+                    <span className="text-sm font-bold text-[#1A365D]">Rudhra V S</span>
+                    <span className="text-[11px] text-[#5F6B7D]">Execution</span>
+                  </div>
+                  <div className="p-4 rounded bg-white border border-[#D5D9E0] shadow-neu-flat flex flex-col gap-1">
+                    <span className="text-[10px] uppercase font-bold text-[#FF6B35]">Women's Lead</span>
+                    <span className="text-sm font-bold text-[#1A365D]">Nidha</span>
+                    <span className="text-[11px] text-[#5F6B7D]">Initiatives</span>
+                  </div>
+                  <div className="p-4 rounded bg-white border border-[#D5D9E0] shadow-neu-flat flex flex-col gap-1">
+                    <span className="text-[10px] uppercase font-bold text-[#5F6B7D]">Finance</span>
+                    <span className="text-sm font-bold text-[#1A365D]">Liya &amp; Vishnu</span>
+                    <span className="text-[11px] text-[#5F6B7D]">Treasury</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* 2025-26 Roster Pane */}
+          {teamTab === '2025-26' && (
+            <div className="p-12 rounded-sm bg-white border border-[#D5D9E0] shadow-neu-card flex flex-col items-center text-center gap-4 max-w-xl mx-auto">
+              <div className="w-12 h-12 rounded-full bg-[#F1F2F5] shadow-neu-button flex items-center justify-center border border-[#D5D9E0] text-[#10B981]">
+                <CheckCircle2 className="w-6 h-6" />
+              </div>
+              <div className="flex flex-col gap-2">
+                <span className="text-[11px] font-bold text-[#5F6B7D] uppercase tracking-widest">Academic Year 2025–26</span>
+                <h3 className="font-display text-xl font-bold text-[#1A365D]">Structure Ready for CMS Entry</h3>
+                <p className="text-sm text-[#2B3547]/80 leading-relaxed">
+                  The student executive council for AY 2025–26 is currently undergoing scrutiny and will be published via the institutional CMS upon completion of annual induction protocols.
                 </p>
               </div>
-              <span className="pt-4 border-t border-[#D8D8D3] text-[10px] font-mono text-[#777777]">
-                Kerala Startup Mission Sanctioned
-              </span>
+              <button
+                className="mt-2 px-5 py-2.5 rounded bg-[#F1F2F5] border border-[#D5D9E0] text-xs font-semibold uppercase tracking-wider text-[#1A365D] hover:bg-[#E9EBEF] transition-all cursor-pointer"
+                onClick={() => setAdminDrawerOpen(true)}
+              >
+                Nodal CMS Access →
+              </button>
+            </div>
+          )}
+
+          {/* 2023-24 Roster Pane */}
+          {teamTab === '2023-24' && (
+            <div className="p-8 rounded-sm bg-white border border-[#D5D9E0] shadow-neu-card flex flex-col gap-6">
+              <div className="flex items-center justify-between pb-3 border-b border-[#D5D9E0]/60">
+                <span className="text-xs font-bold uppercase tracking-wider text-[#1A365D]">Academic Year 2023–24 Alumni Leads</span>
+                <span className="text-[11px] text-[#5F6B7D] uppercase font-semibold">Archived Log</span>
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                <div className="p-4 rounded bg-[#F1F2F5] border border-[#D5D9E0] flex flex-col gap-1">
+                  <span className="text-[10px] font-bold text-[#5F6B7D] uppercase">Student Lead</span>
+                  <span className="text-base font-bold text-[#1A365D]">Shabeer Mohammed</span>
+                  <span className="text-xs text-[#5F6B7D]">AY 2023–24</span>
+                </div>
+                <div className="p-4 rounded bg-[#F1F2F5] border border-[#D5D9E0] flex flex-col gap-1">
+                  <span className="text-[10px] font-bold text-[#5F6B7D] uppercase">Student Lead</span>
+                  <span className="text-base font-bold text-[#1A365D]">Nafih Najeeb</span>
+                  <span className="text-xs text-[#5F6B7D]">AY 2023–24</span>
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+      </section>
+
+      {/* ========================================================================= */}
+      {/* 09. STUDENT IDEAS / PRE-INCUBATION CALLOUT */}
+      {/* ========================================================================= */}
+      <section className="w-full px-4 sm:px-6 lg:px-12 py-16 bg-[#F1F2F5]/30 border-b border-[#D5D9E0]/50" id="ideas">
+        <div className="max-w-[1700px] mx-auto flex flex-col gap-12">
+          <div className="p-8 lg:p-12 rounded-sm bg-white border border-[#D5D9E0] shadow-neu-card flex flex-col lg:flex-row items-start lg:items-center justify-between gap-8">
+            <div className="flex flex-col gap-3 max-w-2xl">
+              <span className="text-[11px] font-bold text-[#10B981] uppercase tracking-widest">Campus Pre-Incubation</span>
+              <h2 className="font-display text-3xl sm:text-4xl font-bold tracking-tight text-[#1A365D]">
+                Have an Idea? Submit for Incubation
+              </h2>
+              <p className="text-sm sm:text-base text-[#2B3547] leading-relaxed">
+                Transform your engineering project or technological hypothesis into an accredited enterprise. Submissions receive structured faculty review, lab prototyping support, and guidance on KSUM Idea Grant applications.
+              </p>
+            </div>
+            <div className="shrink-0 w-full lg:w-auto">
+              <button
+                onClick={() => setWizardOpen(true)}
+                className="w-full lg:w-auto px-8 py-4 rounded-sm bg-[#1A365D] text-white text-xs font-semibold tracking-wider uppercase hover:bg-[#1A2232] transition-all shadow-neu-button flex items-center justify-center gap-2 cursor-pointer"
+              >
+                <Send className="w-4 h-4 text-[#10B981]" />
+                <span>Submit Your Idea</span>
+              </button>
+            </div>
+          </div>
+
+          {/* 4-Step Guide */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div className="p-6 rounded bg-[#F1F2F5] border border-[#D5D9E0]/80 shadow-neu-flat flex flex-col gap-2">
+              <span className="font-mono text-xs font-bold text-[#10B981]">01 // PROPOSAL</span>
+              <h4 className="font-display text-base font-bold text-[#1A365D]">Formulate Statement</h4>
+              <p className="text-xs text-[#5F6B7D] leading-relaxed">Define the acute industrial or civic problem and your proposed technical delta.</p>
+            </div>
+            <div className="p-6 rounded bg-[#F1F2F5] border border-[#D5D9E0]/80 shadow-neu-flat flex flex-col gap-2">
+              <span className="font-mono text-xs font-bold text-[#1A365D]">02 // SCRUTINY</span>
+              <h4 className="font-display text-base font-bold text-[#1A365D]">Nodal Review</h4>
+              <p className="text-xs text-[#5F6B7D] leading-relaxed">Department coordinators evaluate feasibility, prior art, and ethical compliance.</p>
+            </div>
+            <div className="p-6 rounded bg-[#F1F2F5] border border-[#D5D9E0]/80 shadow-neu-flat flex flex-col gap-2">
+              <span className="font-mono text-xs font-bold text-[#FF6B35]">03 // PROTOTYPING</span>
+              <h4 className="font-display text-base font-bold text-[#1A365D]">Lab Access</h4>
+              <p className="text-xs text-[#5F6B7D] leading-relaxed">Access IEDC additive manufacturing, microcontroller kits, and testbench facilities.</p>
+            </div>
+            <div className="p-6 rounded bg-[#F1F2F5] border border-[#D5D9E0]/80 shadow-neu-flat flex flex-col gap-2">
+              <span className="font-mono text-xs font-bold text-[#F59E0B]">04 // INCUBATION</span>
+              <h4 className="font-display text-base font-bold text-[#1A365D]">Grant Defense</h4>
+              <p className="text-xs text-[#5F6B7D] leading-relaxed">Defend your Business Model Canvas before KSUM for institutional seed grant funding.</p>
             </div>
           </div>
         </div>
       </section>
 
       {/* ========================================================================= */}
-      {/* 15. IDEAS IN MOTION WALL */}
+      {/* 10. COMPLIANCE & VERIFIED AUDIT SECTIONS */}
       {/* ========================================================================= */}
-      <section className="w-full px-4 sm:px-8 max-w-[1700px] mx-auto" id="ideas">
-        <div className="flex flex-col gap-8">
-          <div className="flex flex-col sm:flex-row items-start sm:items-end justify-between gap-4 pb-4 border-b border-[#D8D8D3]">
-            <div className="flex flex-col gap-1">
-              <span className="text-[10px] font-mono font-bold tracking-widest text-[#777777] uppercase">
-                STUDENT INCUBATION PIPELINE
-              </span>
-              <h2 className="font-display font-bold text-2xl sm:text-3xl text-[#161616]">
-                Ideas in Motion Wall
-              </h2>
+      <section className="w-full px-4 sm:px-6 lg:px-12 py-16 border-b border-[#D5D9E0]/50" id="achievements">
+        <div className="max-w-[1700px] mx-auto grid grid-cols-1 md:grid-cols-2 gap-8">
+          {/* Official Achievements */}
+          <div className="p-8 lg:p-10 rounded-sm bg-white border border-[#D5D9E0] shadow-neu-card flex flex-col justify-between gap-6">
+            <div className="flex flex-col gap-4">
+              <div className="flex items-center justify-between pb-3 border-b border-[#D5D9E0]/60">
+                <span className="text-[11px] font-bold text-[#10B981] uppercase tracking-widest">Institutional Audit</span>
+                <Shield className="w-5 h-5 text-[#10B981]" />
+              </div>
+              <h3 className="font-display text-2xl font-bold text-[#1A365D]">Official Achievements</h3>
+              <p className="text-sm text-[#2B3547]/90 leading-relaxed font-normal">
+                Verified achievements will be published here. (Achievements are updated directly by the IEDC administration upon confirmation with the College Academic Board and KSUM).
+              </p>
             </div>
+            <div className="pt-4 border-t border-[#D5D9E0]/60 text-[11px] text-[#5F6B7D] font-medium flex items-center gap-2">
+              <span className="w-1.5 h-1.5 rounded-full bg-[#10B981]"></span>
+              <span>Zero unverified metrics policy</span>
+            </div>
+          </div>
+
+          {/* Startups Directory */}
+          <div className="p-8 lg:p-10 rounded-sm bg-white border border-[#D5D9E0] shadow-neu-card flex flex-col justify-between gap-6" id="startups">
+            <div className="flex flex-col gap-4">
+              <div className="flex items-center justify-between pb-3 border-b border-[#D5D9E0]/60">
+                <span className="text-[11px] font-bold text-[#FF6B35] uppercase tracking-widest">Campus Ventures</span>
+                <Rocket className="w-5 h-5 text-[#FF6B35]" />
+              </div>
+              <h3 className="font-display text-2xl font-bold text-[#1A365D]">Verified Startups Index</h3>
+              <p className="text-sm text-[#2B3547]/90 leading-relaxed font-normal">
+                Verified campus startups and venture disclosures will be published here. Student founders may submit pre-incubation requests through the Ideas portal.
+              </p>
+            </div>
+            <div className="pt-4 border-t border-[#D5D9E0]/60 text-[11px] text-[#5F6B7D] font-medium flex items-center gap-2">
+              <span className="w-1.5 h-1.5 rounded-full bg-[#1A365D]"></span>
+              <span>Pre-Incubation Pipeline Synchronized</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ========================================================================= */}
+      {/* 11. WORKSHOPS & RESOURCES */}
+      {/* ========================================================================= */}
+      <section className="w-full px-4 sm:px-6 lg:px-12 py-16 bg-[#F1F2F5]/30 border-b border-[#D5D9E0]/50" id="resources">
+        <div className="max-w-[1700px] mx-auto flex flex-col gap-12">
+          <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
+            <div className="flex flex-col gap-2 max-w-xl">
+              <span className="text-[11px] font-bold text-[#1A365D] uppercase tracking-widest">Reference Vault</span>
+              <h2 className="font-display text-3xl sm:text-4xl font-bold tracking-tight text-[#1A365D]">Workshops &amp; Resources</h2>
+              <p className="text-sm text-[#5F6B7D]">Official blueprints, filing manuals, and incubator frameworks for students.</p>
+            </div>
+            <span className="text-xs text-[#5F6B7D] font-mono uppercase">Curated Institutional Kits</span>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div className="p-6 rounded bg-white border border-[#D5D9E0] shadow-neu-flat flex flex-col justify-between gap-6">
+              <div className="flex flex-col gap-2">
+                <span className="text-[10px] font-bold text-[#1A365D] uppercase tracking-wider">IPR Documentation</span>
+                <h4 className="font-display text-base font-bold text-[#1A365D]">Patent Claim Guidelines</h4>
+                <p className="text-xs text-[#5F6B7D] leading-relaxed">Provisional application drafting and prior-art search protocols via InPASS for undergraduate student inventors.</p>
+              </div>
+              <div className="pt-3 border-t border-[#D5D9E0]/60 flex items-center justify-between text-xs">
+                <span className="text-[#5F6B7D] text-[11px]">PDF Manual</span>
+                <span className="font-semibold text-[#1A365D] text-[11px] uppercase tracking-wider">Verified Spec</span>
+              </div>
+            </div>
+
+            <div className="p-6 rounded bg-white border border-[#D5D9E0] shadow-neu-flat flex flex-col justify-between gap-6">
+              <div className="flex flex-col gap-2">
+                <span className="text-[10px] font-bold text-[#1A365D] uppercase tracking-wider">Business Canvas</span>
+                <h4 className="font-display text-base font-bold text-[#1A365D]">Osterwalder BMC Template</h4>
+                <p className="text-xs text-[#5F6B7D] leading-relaxed">High-resolution 9-box business model canvas formatted specifically for collegiate engineering defense.</p>
+              </div>
+              <div className="pt-3 border-t border-[#D5D9E0]/60 flex items-center justify-between text-xs">
+                <span className="text-[#5F6B7D] text-[11px]">A3 Canvas Kit</span>
+                <span className="font-semibold text-[#1A365D] text-[11px] uppercase tracking-wider">Verified Spec</span>
+              </div>
+            </div>
+
+            <div className="p-6 rounded bg-white border border-[#D5D9E0] shadow-neu-flat flex flex-col justify-between gap-6">
+              <div className="flex flex-col gap-2">
+                <span className="text-[10px] font-bold text-[#1A365D] uppercase tracking-wider">KSUM Grants</span>
+                <h4 className="font-display text-base font-bold text-[#1A365D]">KSUM Idea Grant Norms</h4>
+                <p className="text-xs text-[#5F6B7D] leading-relaxed">Eligibility checklists and milestone requirements for accessing Kerala Startup Mission financial schemes.</p>
+              </div>
+              <div className="pt-3 border-t border-[#D5D9E0]/60 flex items-center justify-between text-xs">
+                <span className="text-[#5F6B7D] text-[11px]">Scheme Manual</span>
+                <span className="font-semibold text-[#1A365D] text-[11px] uppercase tracking-wider">Verified Spec</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ========================================================================= */}
+      {/* 12. CAMPUS NEWS & DISPATCHES */}
+      {/* ========================================================================= */}
+      <section className="w-full px-4 sm:px-6 lg:px-12 py-16 border-b border-[#D5D9E0]/50" id="news">
+        <div className="max-w-[1700px] mx-auto flex flex-col gap-10">
+          <div className="flex items-center justify-between pb-3 border-b border-[#D5D9E0]/60">
+            <div className="flex items-center gap-3">
+              <span className="w-2 h-2 rounded-full bg-[#1A365D]"></span>
+              <h3 className="font-display text-xl font-bold text-[#1A365D]">Campus Innovation Dispatches</h3>
+            </div>
+            <span className="text-xs font-semibold text-[#5F6B7D] uppercase tracking-wider">IESCE Bulletin</span>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+            <div className="p-6 rounded bg-white border border-[#D5D9E0] shadow-neu-flat flex flex-col justify-between gap-4">
+              <div className="flex flex-col gap-2">
+                <span className="text-[10px] uppercase font-bold text-[#FF6B35]">Notice</span>
+                <h4 className="font-display text-base font-bold text-[#1A365D]">Smart India Hackathon 2024 Nominations</h4>
+                <p className="text-xs text-[#5F6B7D] leading-relaxed">12 internal project teams nominated for national level scrutiny following college stage review.</p>
+              </div>
+              <span className="text-[11px] text-[#2B3547] font-medium">Archival Dispatch</span>
+            </div>
+
+            <div className="p-6 rounded bg-white border border-[#D5D9E0] shadow-neu-flat flex flex-col justify-between gap-4">
+              <div className="flex flex-col gap-2">
+                <span className="text-[10px] uppercase font-bold text-[#10B981]">Workshop Series</span>
+                <h4 className="font-display text-base font-bold text-[#1A365D]">Additive Fabrication Lab Expansion</h4>
+                <p className="text-xs text-[#5F6B7D] leading-relaxed">Lab access protocols updated for undergraduate robotics and mechanical prototyping teams.</p>
+              </div>
+              <span className="text-[11px] text-[#2B3547] font-medium">Campus Bulletin</span>
+            </div>
+
+            <div className="p-6 rounded bg-white border border-[#D5D9E0] shadow-neu-flat flex flex-col justify-between gap-4">
+              <div className="flex flex-col gap-2">
+                <span className="text-[10px] uppercase font-bold text-[#1A365D]">Webinar</span>
+                <h4 className="font-display text-base font-bold text-[#1A365D]">IPR Guidance by Dr. Biju K</h4>
+                <p className="text-xs text-[#5F6B7D] leading-relaxed">Comprehensive session conducted for 100+ registered engineering participants on patent filing.</p>
+              </div>
+              <span className="text-[11px] text-[#2B3547] font-medium">Event Log Archive</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ========================================================================= */}
+      {/* 13. JOIN IEDC CTA BANNER */}
+      {/* ========================================================================= */}
+      <section className="w-full px-4 sm:px-6 lg:px-12 py-16 bg-[#F1F2F5]/50">
+        <div className="max-w-5xl mx-auto p-10 lg:p-14 rounded-sm bg-white border border-[#D5D9E0] shadow-neu-card flex flex-col sm:flex-row sm:items-center justify-between gap-8 text-center sm:text-left">
+          <div className="flex flex-col gap-2">
+            <span className="text-[11px] font-bold text-[#10B981] uppercase tracking-widest">Student Chapter Enrollment</span>
+            <h2 className="font-display text-2xl sm:text-3xl font-extrabold text-[#1A365D]">Join the IEDC Student Movement</h2>
+            <p className="text-sm text-[#5F6B7D] max-w-lg">Open to all students across all engineering branches. No prior founder experience required.</p>
+          </div>
+          <div className="flex flex-col sm:flex-row items-center gap-3 shrink-0">
             <button
               onClick={() => setWizardOpen(true)}
-              className="tactile-btn px-4 py-2 rounded-xl bg-[#161616] text-white text-xs font-mono uppercase tracking-wider font-semibold shadow-neu-button cursor-pointer"
+              className="w-full sm:w-auto px-6 py-3 rounded-sm bg-[#1A365D] text-white text-xs font-semibold uppercase tracking-wider hover:bg-[#1A2232] transition-all shadow-neu-button flex items-center gap-2 cursor-pointer"
             >
-              Lodge Your Proposal
+              <PlusCircle className="w-4 h-4 text-[#10B981]" />
+              <span>Apply as Student Member</span>
             </button>
           </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {ideas.map(idea => (
-              <div
-                key={idea.id}
-                className="p-6 rounded-2xl bg-white border border-[#D8D8D3] shadow-neu-card flex flex-col justify-between gap-4"
-              >
-                <div className="flex flex-col gap-3">
-                  <div className="flex items-center justify-between text-xs font-mono">
-                    <span className="px-2 py-0.5 rounded bg-[#F0F0ED] border border-[#D8D8D3] text-[#242424] font-semibold">
-                      {idea.technology || 'Technology'}
-                    </span>
-                    <span className="text-[10px] text-[#777777]">
-                      {idea.status}
-                    </span>
-                  </div>
-
-                  <h3 className="font-display font-bold text-base text-[#161616]">
-                    {idea.projectName}
-                  </h3>
-
-                  <p className="text-xs text-[#4A4A4A] leading-relaxed line-clamp-3">
-                    {idea.problem || idea.description}
-                  </p>
-                </div>
-
-                <div className="pt-3 border-t border-[#D8D8D3] flex items-center justify-between text-[11px] font-mono text-[#777777]">
-                  <span>Lead: {idea.studentName}</span>
-                  <span>{idea.department}</span>
-                </div>
-              </div>
-            ))}
-          </div>
         </div>
       </section>
 
-      {/* ========================================================================= */}
-      {/* 17. STARTUPS DIRECTORY PLACEHOLDER (STRICT AUDIT POLICY) */}
-      {/* ========================================================================= */}
-      <section className="w-full px-4 sm:px-8 max-w-[1700px] mx-auto" id="startups">
-        <div className="p-8 rounded-2xl bg-[#EBEBE8]/40 border border-[#D8D8D3] shadow-neu-flat flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">
-          <div className="flex flex-col gap-2 max-w-2xl">
-            <span className="text-[10px] font-mono font-bold tracking-widest text-[#777777] uppercase">
-              VENTURE REGISTRATION AUDIT
-            </span>
-            <h3 className="font-display font-bold text-xl text-[#161616]">
-              Startups Directory Under Audit
-            </h3>
-            <p className="text-xs text-[#4A4A4A] leading-relaxed">
-              In accordance with our zero-fabrication institutional charter, early-stage student teams currently in prototyping and customer validation are recorded as active ideas before formal MCA incorporation.
-            </p>
-          </div>
-          <button
-            onClick={() => setWizardOpen(true)}
-            className="px-5 py-2.5 rounded-xl bg-white border border-[#D8D8D3] text-xs font-mono font-semibold uppercase text-[#161616] hover:bg-[#F5F5F3] shadow-neu-button cursor-pointer"
-          >
-            Apply for Pre-Incubation
-          </button>
-        </div>
-      </section>
-
-      {/* ========================================================================= */}
-      {/* 18. WORKSHOPS & REFERENCE VAULT */}
-      {/* ========================================================================= */}
-      <section className="w-full px-4 sm:px-8 max-w-[1700px] mx-auto" id="workshops">
-        <div className="flex flex-col gap-8">
-          <div className="flex flex-col sm:flex-row items-start sm:items-end justify-between gap-4 pb-4 border-b border-[#D8D8D3]">
-            <div className="flex flex-col gap-1">
-              <span className="text-[10px] font-mono font-bold tracking-widest text-[#777777] uppercase">
-                HANDS-ON TECHNICAL CURRICULUM
-              </span>
-              <h2 className="font-display font-bold text-2xl sm:text-3xl text-[#161616]">
-                Workshops & Technical Training
-              </h2>
-            </div>
-            <span className="text-xs text-[#777777] font-mono">
-              Regular hardware and software masterclasses
-            </span>
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {[
-              { title: 'PCB Design & Etching', instructor: 'Electronics Lab Faculty', desc: 'KiCad schematic capture, layout routing, chemical etching, and testing.' },
-              { title: '3D Prototyping & CAD', instructor: 'Mechanical Lab Lead', desc: 'SolidWorks parametric design, slicing parameters, and FDM 3D printing.' },
-              { title: 'IoT & Telemetry', instructor: 'Robotics Department', desc: 'ESP32 firmware, MQTT communication, AWS IoT core broker integration.' },
-              { title: 'IP & Patent Filing', instructor: 'KSUM IPR Cell', desc: 'Prior art searches, patent specification drafting, and provisional filing.' }
-            ].map(w => (
-              <div
-                key={w.title}
-                className="p-6 rounded-2xl bg-white border border-[#D8D8D3] shadow-neu-card flex flex-col justify-between gap-3"
-              >
-                <div className="flex flex-col gap-2">
-                  <span className="text-[10px] font-mono text-[#777777] uppercase font-bold">
-                    TECHNICAL MODULE
-                  </span>
-                  <h3 className="font-display font-bold text-sm text-[#161616]">
-                    {w.title}
-                  </h3>
-                  <p className="text-xs text-[#4A4A4A] leading-relaxed">
-                    {w.desc}
-                  </p>
-                </div>
-                <div className="pt-3 border-t border-[#D8D8D3] text-[10px] font-mono text-[#777777]">
-                  By: {w.instructor}
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ========================================================================= */}
-      {/* 19. RESOURCES CATEGORY NAVIGATION PILLS */}
-      {/* ========================================================================= */}
-      <section className="w-full px-4 sm:px-8 max-w-[1700px] mx-auto" id="resources">
-        <div className="flex flex-col gap-4">
-          <span className="text-[10px] font-mono font-bold tracking-widest text-[#777777] uppercase">
-            CAMPUS INNOVATION INFRASTRUCTURE & REFERENCE VAULT
-          </span>
-          <div className="flex flex-wrap items-center gap-3">
-            {[
-              'Maker Lab Equipment Access',
-              'Rapid 3D Prototyping Suite',
-              'KSUM Seed Funding Guidelines',
-              'APJ KTU Activity Point Portal',
-              'IPR & Patent Documentation',
-              'Nodal Advisory Registry'
-            ].map(pill => (
-              <span
-                key={pill}
-                className="px-4 py-2 rounded-xl bg-white border border-[#D8D8D3] shadow-neu-flat text-xs font-mono text-[#242424] font-medium"
-              >
-                {pill}
-              </span>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ========================================================================= */}
-      {/* 20. VISUAL DOCUMENTATION: CAMPUS INNOVATION GALLERY */}
-      {/* ========================================================================= */}
-      <section className="w-full px-4 sm:px-8 max-w-[1700px] mx-auto" id="gallery">
-        <div className="flex flex-col gap-8">
-          <div className="flex flex-col sm:flex-row items-start sm:items-end justify-between gap-4 pb-4 border-b border-[#D8D8D3]">
-            <div className="flex flex-col gap-1">
-              <span className="text-[10px] font-mono font-bold tracking-widest text-[#777777] uppercase">
-                CAMPUS PHOTO DOCUMENTATION
-              </span>
-              <h2 className="font-display font-bold text-2xl sm:text-3xl text-[#161616]">
-                Innovation Gallery
-              </h2>
-            </div>
-            <span className="text-xs text-[#777777] font-mono">
-              Click any photograph to inspect archive record
-            </span>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {/* Featured Maker Lab Image */}
-            <div
-              onClick={() =>
-                openLightbox(
-                  'IES IEDC Maker Lab & Hardware Prototyping Facility',
-                  'https://lh3.googleusercontent.com/aida-public/AB6AXuA9ALmZOsdJ6qx82WemXAqE5oVz5PtVW8wm8z_DlWsJBCvBLOZWRG99JEyO3Od5UzsO04FmpfKvyhGPar8L21_dyQBGk2oRFuwqAIn8fHKRJ7hdzjvnsW2LCA7Wuxwkui_IxTfkImUp75oc4t2h4NM7d8P2aCtqsNg3Tr9SmrNzOZEV6vaSa3vFDNJ-gjttI2gtpuwLrvUJWRuoXF15MEeciDec5Q03Y9G3ntJ41GVXYhgA_a8YP6qzqcQ0-izdRRJAoug'
-                )
-              }
-              className="md:col-span-2 relative h-72 sm:h-80 rounded-2xl overflow-hidden border border-[#D8D8D3] shadow-neu-card cursor-pointer group"
-            >
-              <img
-                src="https://lh3.googleusercontent.com/aida-public/AB6AXuA9ALmZOsdJ6qx82WemXAqE5oVz5PtVW8wm8z_DlWsJBCvBLOZWRG99JEyO3Od5UzsO04FmpfKvyhGPar8L21_dyQBGk2oRFuwqAIn8fHKRJ7hdzjvnsW2LCA7Wuxwkui_IxTfkImUp75oc4t2h4NM7d8P2aCtqsNg3Tr9SmrNzOZEV6vaSa3vFDNJ-gjttI2gtpuwLrvUJWRuoXF15MEeciDec5Q03Y9G3ntJ41GVXYhgA_a8YP6qzqcQ0-izdRRJAoug"
-                alt="Maker Lab"
-                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent p-6 flex flex-col justify-end">
-                <span className="text-[10px] font-mono uppercase text-white font-bold">
-                  CAMPUS HARDWARE FACILITY
-                </span>
-                <h3 className="font-display font-bold text-lg text-white">
-                  Maker Lab & Hardware Bench
-                </h3>
-                <span className="text-xs text-[#D8D8D3]">
-                  Equipped with 3D printers, oscilloscope rigs, solder rework stations.
-                </span>
-              </div>
-            </div>
-
-            {/* Lightbox Trigger Card 2 */}
-            <div
-              onClick={() =>
-                openLightbox(
-                  'Student Innovation Team Field Tests',
-                  'https://lh3.googleusercontent.com/aida-public/AB6AXuAbeELhIPWjSf8CNYtdCMVuXWC-Cz_Lpgax7SF8KkNmvK1CVbKNkgLLvJImRINdXQGe4vY-02CPXq3BKsXDkZ5A3uqCjPlCnBYlVtDXOd2nI0w8MzwU-aNIZaUfJoCYijWueXiu_d1WiVaNL5x2OlwW6u0veK_fPfx8KPHU3j_FPIeTx81x0uiiC87gzNDQwYFkK8JDCIQo1wwwk3iQujdMZ3tr1I290QOaEJbH1oVjUsAxytAfIGglS2xkW2UwKSS03nc'
-                )
-              }
-              className="relative h-72 sm:h-80 rounded-2xl overflow-hidden border border-[#D8D8D3] shadow-neu-card cursor-pointer group bg-[#161616] p-6 flex flex-col justify-between"
-            >
-              <img
-                src="https://lh3.googleusercontent.com/aida-public/AB6AXuAbeELhIPWjSf8CNYtdCMVuXWC-Cz_Lpgax7SF8KkNmvK1CVbKNkgLLvJImRINdXQGe4vY-02CPXq3BKsXDkZ5A3uqCjPlCnBYlVtDXOd2nI0w8MzwU-aNIZaUfJoCYijWueXiu_d1WiVaNL5x2OlwW6u0veK_fPfx8KPHU3j_FPIeTx81x0uiiC87gzNDQwYFkK8JDCIQo1wwwk3iQujdMZ3tr1I290QOaEJbH1oVjUsAxytAfIGglS2xkW2UwKSS03nc"
-                alt="Hackathon Team"
-                className="w-full h-40 object-cover rounded-xl filter grayscale group-hover:scale-105 transition-transform"
-              />
-              <div className="flex flex-col gap-1 mt-2">
-                <span className="text-[10px] font-mono text-[#777777] uppercase font-bold">
-                  HACKATHON SPRINTS
-                </span>
-                <h3 className="font-display font-bold text-base text-white">
-                  Field Testing & Prototype Rigs
-                </h3>
-                <span className="text-[11px] text-[#777777]">
-                  Inspect high-resolution photographic audit records.
-                </span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* ========================================================================= */}
-      {/* 21. CAMPUS NEWS & BULLETINS */}
-      {/* ========================================================================= */}
-      <section className="w-full px-4 sm:px-8 max-w-[1700px] mx-auto" id="news">
-        <div className="flex flex-col gap-8">
-          <div className="flex flex-col sm:flex-row items-start sm:items-end justify-between gap-4 pb-4 border-b border-[#D8D8D3]">
-            <div className="flex flex-col gap-1">
-              <span className="text-[10px] font-mono font-bold tracking-widest text-[#777777] uppercase">
-                OFFICIAL ANNOUNCEMENTS
-              </span>
-              <h2 className="font-display font-bold text-2xl sm:text-3xl text-[#161616]">
-                Campus Bulletins & News
-              </h2>
-            </div>
-            <span className="text-xs text-[#777777] font-mono">
-              Live updates from the Nodal Secretariat
-            </span>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {[
-              {
-                date: 'SEP 2025',
-                title: 'Academic Year 2025–26 Executive Council Formed',
-                desc: 'Official notification regarding appointment of Student Leads across Innovation, Technology, and Entrepreneurship verticals.'
-              },
-              {
-                date: 'AUG 2025',
-                title: 'Kerala Startup Mission Idea Grant Call Open',
-                desc: 'Sanction for student hardware prototypes up to ₹2 Lakhs per qualified project. Detailed nodal briefing schedule announced.'
-              },
-              {
-                date: 'JUL 2025',
-                title: 'Robotics Maker Lab Equipment Upgraded',
-                desc: 'Arrival of high-precision multi-material 3D printers and DSO test equipment available for registered project clusters.'
-              }
-            ].map(n => (
-              <div
-                key={n.title}
-                className="p-6 rounded-2xl bg-white border border-[#D8D8D3] shadow-neu-card flex flex-col justify-between gap-4"
-              >
-                <div className="flex flex-col gap-3">
-                  <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-[#F0F0ED] border border-[#D8D8D3] text-[#242424] self-start font-semibold">
-                    {n.date}
-                  </span>
-                  <h3 className="font-display font-bold text-base text-[#161616]">
-                    {n.title}
-                  </h3>
-                  <p className="text-xs text-[#4A4A4A] leading-relaxed">
-                    {n.desc}
-                  </p>
-                </div>
-                <div className="pt-3 border-t border-[#D8D8D3] text-[10px] font-mono text-[#777777]">
-                  Issued by: IES IEDC Nodal Office
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ========================================================================= */}
-      {/* 22. JOIN IEDC CTA */}
-      {/* ========================================================================= */}
-      <section className="w-full px-4 sm:px-8 max-w-[1700px] mx-auto">
-        <div className="p-8 sm:p-14 rounded-2xl bg-[#161616] text-white shadow-neu-card flex flex-col items-center text-center gap-6 engineering-grid">
-          <span className="text-[10px] font-mono font-bold tracking-widest text-[#D8D8D3] uppercase">
-            BECOME PART OF THE CHARTER
-          </span>
-          <h2 className="font-display font-black text-3xl sm:text-5xl tracking-tight text-white max-w-2xl leading-tight">
-            BUILD WHAT MATTERS.
-          </h2>
-          <p className="text-xs sm:text-sm text-[#D8D8D3] max-w-xl leading-relaxed">
-            Whether you have an early electrical schematic or an ambitious software thesis, the IES IEDC ecosystem provides the workbench, funding conduits, and mentorship to bring it to reality.
-          </p>
-          <div className="flex flex-wrap items-center justify-center gap-4 pt-2">
-            <button
-              onClick={() => setWizardOpen(true)}
-              className="px-8 py-3.5 rounded-xl bg-white text-[#161616] text-xs font-mono uppercase font-bold tracking-wider hover:bg-[#F0F0ED] cursor-pointer shadow-lg"
-            >
-              Submit Your Idea
-            </button>
-            <a
-              href="#contact"
-              className="px-8 py-3.5 rounded-xl bg-transparent border border-white/40 text-white text-xs font-mono uppercase font-semibold hover:bg-white/10"
-            >
-              Contact Nodal Office
-            </a>
-          </div>
-        </div>
-      </section>
-
-      {/* MODALS */}
-      <IdeaWizardModal
-        isOpen={wizardOpen}
-        onClose={() => setWizardOpen(false)}
-        onSubmitted={() => {
-          api.getIdeas().then(setIdeas);
-        }}
-      />
-
-      <AdminQuickDrawer
-        isOpen={adminDrawerOpen}
-        onClose={() => setAdminDrawerOpen(false)}
-        ideaCount={ideas.length}
-      />
-
-      <LightboxModal
-        isOpen={lightboxOpen}
-        onClose={() => setLightboxOpen(false)}
-        caption={lightboxCaption}
-        imageSrc={lightboxImage}
-      />
+      {/* Dynamic Modals */}
+      {wizardOpen && <IdeaWizardModal isOpen={wizardOpen} onClose={() => setWizardOpen(false)} />}
+      {adminDrawerOpen && <AdminQuickDrawer isOpen={adminDrawerOpen} onClose={() => setAdminDrawerOpen(false)} />}
     </div>
   );
 };
