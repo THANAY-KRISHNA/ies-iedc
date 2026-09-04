@@ -8,8 +8,8 @@ export const apiRouter = Router();
 // ==========================================
 // AUTH & USERS
 // ==========================================
-apiRouter.get('/auth/demo-users', (_req: Request, res: Response) => {
-  const users = db.getUsers().map(u => ({
+apiRouter.get('/auth/demo-users', async (_req: Request, res: Response) => {
+  const users = (await db.getUsers()).map(u => ({
     id: u.id,
     name: u.name,
     email: u.email,
@@ -18,13 +18,13 @@ apiRouter.get('/auth/demo-users', (_req: Request, res: Response) => {
   res.json({ users });
 });
 
-apiRouter.post('/auth/login', (req: Request, res: Response) => {
+apiRouter.post('/auth/login', async (req: Request, res: Response) => {
   const { email } = req.body;
   if (!email) {
     return res.status(400).json({ error: 'Email is required.' });
   }
 
-  const result = loginUser(email);
+  const result = await loginUser(email);
   if (!result) {
     return res.status(401).json({ error: 'User not found with this email address.' });
   }
@@ -41,25 +41,26 @@ apiRouter.get('/auth/me', authenticateToken, (req: AuthRequest, res: Response) =
 // ==========================================
 
 // Settings
-apiRouter.get('/public/settings', (_req: Request, res: Response) => {
-  res.json(db.getSiteSettings());
+apiRouter.get('/public/settings', async (_req: Request, res: Response) => {
+  res.json(await db.getSiteSettings());
 });
 
 // Academic Years
-apiRouter.get('/public/academic-years', (_req: Request, res: Response) => {
-  res.json(db.getAcademicYears());
+apiRouter.get('/public/academic-years', async (_req: Request, res: Response) => {
+  res.json(await db.getAcademicYears());
 });
 
 // Team
-apiRouter.get('/public/team', (req: Request, res: Response) => {
+apiRouter.get('/public/team', async (req: Request, res: Response) => {
   const year = req.query.year as string | undefined;
-  res.json(db.getTeam(year, true));
+  const list = await db.getTeam(year, true);
+  res.json(list);
 });
 
 // Events
-apiRouter.get('/public/events', (req: Request, res: Response) => {
+apiRouter.get('/public/events', async (req: Request, res: Response) => {
   const { year, category, status, search } = req.query;
-  const events = db.getEvents({
+  const events = await db.getEvents({
     year: year as string,
     category: category as string,
     status: status as string,
@@ -69,8 +70,8 @@ apiRouter.get('/public/events', (req: Request, res: Response) => {
   res.json(events);
 });
 
-apiRouter.get('/public/events/:slug', (req: Request, res: Response) => {
-  const event = db.getEventBySlug(req.params.slug);
+apiRouter.get('/public/events/:slug', async (req: Request, res: Response) => {
+  const event = await db.getEventBySlug(req.params.slug);
   if (!event || !event.published) {
     return res.status(404).json({ error: 'Event not found or not published.' });
   }
@@ -78,9 +79,9 @@ apiRouter.get('/public/events/:slug', (req: Request, res: Response) => {
 });
 
 // Achievements (Only published verified achievements)
-apiRouter.get('/public/achievements', (req: Request, res: Response) => {
+apiRouter.get('/public/achievements', async (req: Request, res: Response) => {
   const { year, category } = req.query;
-  const achievements = db.getAchievements({
+  const achievements = await db.getAchievements({
     year: year as string,
     category: category as string,
     publishedOnly: true
@@ -89,26 +90,25 @@ apiRouter.get('/public/achievements', (req: Request, res: Response) => {
 });
 
 // Startups
-apiRouter.get('/public/startups', (_req: Request, res: Response) => {
-  res.json(db.getStartups(true));
+apiRouter.get('/public/startups', async (_req: Request, res: Response) => {
+  res.json(await db.getStartups(true));
 });
 
-// Student Ideas (developing/completed/accepted showcase)
-apiRouter.get('/public/ideas', (_req: Request, res: Response) => {
-  const all = db.getIdeas();
-  // Filter out rejected/new for public, only show developing/completed/accepted
+// Student Ideas
+apiRouter.get('/public/ideas', async (_req: Request, res: Response) => {
+  const all = await db.getIdeas();
   const publicShowcase = all.filter(i => ['Developing', 'Completed', 'Accepted'].includes(i.status));
   res.json(publicShowcase);
 });
 
 // Submit Idea (Public form)
-apiRouter.post('/public/ideas/submit', (req: Request, res: Response) => {
+apiRouter.post('/public/ideas/submit', async (req: Request, res: Response) => {
   const { projectName, studentName, studentEmail, studentPhone, department, academicYear, problem, proposedSolution, technology, description, imageUrl } = req.body;
   if (!projectName || !studentName || !studentEmail || !problem || !proposedSolution) {
     return res.status(400).json({ error: 'Project name, student name, email, problem statement, and proposed solution are required.' });
   }
 
-  const idea = db.submitIdea({
+  const idea = await db.submitIdea({
     projectName,
     studentName,
     studentEmail,
@@ -126,30 +126,30 @@ apiRouter.post('/public/ideas/submit', (req: Request, res: Response) => {
 });
 
 // Workshops
-apiRouter.get('/public/workshops', (_req: Request, res: Response) => {
-  res.json(db.getWorkshops(true));
+apiRouter.get('/public/workshops', async (_req: Request, res: Response) => {
+  res.json(await db.getWorkshops(true));
 });
 
 // Resources
-apiRouter.get('/public/resources', (req: Request, res: Response) => {
+apiRouter.get('/public/resources', async (req: Request, res: Response) => {
   const category = req.query.category as string | undefined;
-  res.json(db.getResources(category, true));
+  res.json(await db.getResources(category, true));
 });
 
 // Gallery
-apiRouter.get('/public/gallery', (req: Request, res: Response) => {
+apiRouter.get('/public/gallery', async (req: Request, res: Response) => {
   const category = req.query.category as string | undefined;
-  res.json(db.getGallery(category, true));
+  res.json(await db.getGallery(category, true));
 });
 
 // News
-apiRouter.get('/public/news', (req: Request, res: Response) => {
+apiRouter.get('/public/news', async (req: Request, res: Response) => {
   const { search } = req.query;
-  res.json(db.getNews({ search: search as string, publishedOnly: true }));
+  res.json(await db.getNews({ search: search as string, publishedOnly: true }));
 });
 
-apiRouter.get('/public/news/:slug', (req: Request, res: Response) => {
-  const article = db.getNewsBySlug(req.params.slug);
+apiRouter.get('/public/news/:slug', async (req: Request, res: Response) => {
+  const article = await db.getNewsBySlug(req.params.slug);
   if (!article || article.status !== 'Published') {
     return res.status(404).json({ error: 'Article not found.' });
   }
@@ -157,13 +157,13 @@ apiRouter.get('/public/news/:slug', (req: Request, res: Response) => {
 });
 
 // Join Application (Public Form)
-apiRouter.post('/public/join/submit', (req: Request, res: Response) => {
+apiRouter.post('/public/join/submit', async (req: Request, res: Response) => {
   const { fullName, email, phone, department, semester, rollNumber, interestAreas, previousExperience, whyJoin } = req.body;
   if (!fullName || !email || !phone || !department || !semester || !rollNumber || !whyJoin) {
     return res.status(400).json({ error: 'Please provide all mandatory application fields.' });
   }
 
-  const submission = db.submitJoin({
+  const submission = await db.submitJoin({
     fullName,
     email,
     phone,
@@ -183,42 +183,42 @@ apiRouter.post('/public/join/submit', (req: Request, res: Response) => {
 // ==========================================
 
 // Dashboard Stats & Logs
-apiRouter.get('/admin/stats', authenticateToken, (_req: AuthRequest, res: Response) => {
-  res.json(db.getStats());
+apiRouter.get('/admin/stats', authenticateToken, async (_req: AuthRequest, res: Response) => {
+  res.json(await db.getStats());
 });
 
-apiRouter.get('/admin/audit-logs', authenticateToken, (_req: AuthRequest, res: Response) => {
-  res.json(db.getActivityLogs());
+apiRouter.get('/admin/audit-logs', authenticateToken, async (_req: AuthRequest, res: Response) => {
+  res.json(await db.getActivityLogs());
 });
 
-// Team Management (Team Admin or Super Admin)
-apiRouter.get('/admin/team', authenticateToken, requireRole(['Team Admin']), (req: AuthRequest, res: Response) => {
+// Team Management
+apiRouter.get('/admin/team', authenticateToken, requireRole(['Team Admin']), async (req: AuthRequest, res: Response) => {
   const year = req.query.year as string | undefined;
-  res.json(db.getTeam(year, false));
+  res.json(await db.getTeam(year, false));
 });
 
-apiRouter.post('/admin/team', authenticateToken, requireRole(['Team Admin']), (req: AuthRequest, res: Response) => {
-  const member = db.addTeamMember(req.body, req.user?.name);
+apiRouter.post('/admin/team', authenticateToken, requireRole(['Team Admin']), async (req: AuthRequest, res: Response) => {
+  const member = await db.addTeamMember(req.body, req.user?.name);
   res.status(201).json(member);
 });
 
-apiRouter.put('/admin/team/:id', authenticateToken, requireRole(['Team Admin']), (req: AuthRequest, res: Response) => {
-  const updated = db.updateTeamMember(req.params.id, req.body, req.user?.name);
+apiRouter.put('/admin/team/:id', authenticateToken, requireRole(['Team Admin']), async (req: AuthRequest, res: Response) => {
+  const updated = await db.updateTeamMember(req.params.id, req.body, req.user?.name);
   if (!updated) return res.status(404).json({ error: 'Team member not found.' });
   res.json(updated);
 });
 
-apiRouter.delete('/admin/team/:id', authenticateToken, requireRole(['Team Admin']), (req: AuthRequest, res: Response) => {
-  const success = db.deleteTeamMember(req.params.id, req.user?.name);
+apiRouter.delete('/admin/team/:id', authenticateToken, requireRole(['Team Admin']), async (req: AuthRequest, res: Response) => {
+  const success = await db.deleteTeamMember(req.params.id, req.user?.name);
   if (!success) return res.status(404).json({ error: 'Team member not found.' });
   res.json({ message: 'Team member removed.' });
 });
 
 // Academic Years
-apiRouter.post('/admin/academic-years', authenticateToken, requireRole(['Team Admin']), (req: AuthRequest, res: Response) => {
+apiRouter.post('/admin/academic-years', authenticateToken, requireRole(['Team Admin']), async (req: AuthRequest, res: Response) => {
   const { year, notes, isCurrent } = req.body;
   if (!year) return res.status(400).json({ error: 'Academic year name is required.' });
-  const newYear = db.addAcademicYear({
+  const newYear = await db.addAcademicYear({
     id: `ay_${year.replace(/[^a-zA-Z0-9]/g, '_')}`,
     year,
     notes,
@@ -227,10 +227,10 @@ apiRouter.post('/admin/academic-years', authenticateToken, requireRole(['Team Ad
   res.status(201).json(newYear);
 });
 
-// Events Management (Content Admin or Super Admin)
-apiRouter.get('/admin/events', authenticateToken, requireRole(['Content Admin']), (req: AuthRequest, res: Response) => {
+// Events Management
+apiRouter.get('/admin/events', authenticateToken, requireRole(['Content Admin']), async (req: AuthRequest, res: Response) => {
   const { year, category, status, search } = req.query;
-  res.json(db.getEvents({
+  res.json(await db.getEvents({
     year: year as string,
     category: category as string,
     status: status as string,
@@ -239,167 +239,167 @@ apiRouter.get('/admin/events', authenticateToken, requireRole(['Content Admin'])
   }));
 });
 
-apiRouter.post('/admin/events', authenticateToken, requireRole(['Content Admin']), (req: AuthRequest, res: Response) => {
-  const event = db.addEvent(req.body, req.user?.name);
+apiRouter.post('/admin/events', authenticateToken, requireRole(['Content Admin']), async (req: AuthRequest, res: Response) => {
+  const event = await db.addEvent(req.body, req.user?.name);
   res.status(201).json(event);
 });
 
-apiRouter.put('/admin/events/:id', authenticateToken, requireRole(['Content Admin']), (req: AuthRequest, res: Response) => {
-  const updated = db.updateEvent(req.params.id, req.body, req.user?.name);
+apiRouter.put('/admin/events/:id', authenticateToken, requireRole(['Content Admin']), async (req: AuthRequest, res: Response) => {
+  const updated = await db.updateEvent(req.params.id, req.body, req.user?.name);
   if (!updated) return res.status(404).json({ error: 'Event not found.' });
   res.json(updated);
 });
 
-apiRouter.delete('/admin/events/:id', authenticateToken, requireRole(['Content Admin']), (req: AuthRequest, res: Response) => {
-  const success = db.deleteEvent(req.params.id, req.user?.name);
+apiRouter.delete('/admin/events/:id', authenticateToken, requireRole(['Content Admin']), async (req: AuthRequest, res: Response) => {
+  const success = await db.deleteEvent(req.params.id, req.user?.name);
   if (!success) return res.status(404).json({ error: 'Event not found.' });
   res.json({ message: 'Event deleted.' });
 });
 
-// Achievements (Achievement Admin or Super Admin)
-apiRouter.get('/admin/achievements', authenticateToken, requireRole(['Achievement Admin']), (req: AuthRequest, res: Response) => {
+// Achievements
+apiRouter.get('/admin/achievements', authenticateToken, requireRole(['Achievement Admin']), async (req: AuthRequest, res: Response) => {
   const { year, category } = req.query;
-  res.json(db.getAchievements({ year: year as string, category: category as string, publishedOnly: false }));
+  res.json(await db.getAchievements({ year: year as string, category: category as string, publishedOnly: false }));
 });
 
-apiRouter.post('/admin/achievements', authenticateToken, requireRole(['Achievement Admin']), (req: AuthRequest, res: Response) => {
-  const achievement = db.addAchievement(req.body, req.user?.name);
+apiRouter.post('/admin/achievements', authenticateToken, requireRole(['Achievement Admin']), async (req: AuthRequest, res: Response) => {
+  const achievement = await db.addAchievement(req.body, req.user?.name);
   res.status(201).json(achievement);
 });
 
-apiRouter.put('/admin/achievements/:id', authenticateToken, requireRole(['Achievement Admin']), (req: AuthRequest, res: Response) => {
-  const updated = db.updateAchievement(req.params.id, req.body, req.user?.name);
+apiRouter.put('/admin/achievements/:id', authenticateToken, requireRole(['Achievement Admin']), async (req: AuthRequest, res: Response) => {
+  const updated = await db.updateAchievement(req.params.id, req.body, req.user?.name);
   if (!updated) return res.status(404).json({ error: 'Achievement not found.' });
   res.json(updated);
 });
 
-apiRouter.delete('/admin/achievements/:id', authenticateToken, requireRole(['Achievement Admin']), (req: AuthRequest, res: Response) => {
-  const success = db.deleteAchievement(req.params.id, req.user?.name);
+apiRouter.delete('/admin/achievements/:id', authenticateToken, requireRole(['Achievement Admin']), async (req: AuthRequest, res: Response) => {
+  const success = await db.deleteAchievement(req.params.id, req.user?.name);
   if (!success) return res.status(404).json({ error: 'Achievement not found.' });
   res.json({ message: 'Achievement deleted.' });
 });
 
-// Ideas Management (Content Admin or Super Admin)
-apiRouter.get('/admin/ideas', authenticateToken, requireRole(['Content Admin']), (req: AuthRequest, res: Response) => {
+// Ideas Management
+apiRouter.get('/admin/ideas', authenticateToken, requireRole(['Content Admin']), async (req: AuthRequest, res: Response) => {
   const { status, search } = req.query;
-  res.json(db.getIdeas({ status: status as string, search: search as string }));
+  res.json(await db.getIdeas({ status: status as string, search: search as string }));
 });
 
-apiRouter.put('/admin/ideas/:id', authenticateToken, requireRole(['Content Admin']), (req: AuthRequest, res: Response) => {
-  const updated = db.updateIdea(req.params.id, req.body, req.user?.name);
+apiRouter.put('/admin/ideas/:id', authenticateToken, requireRole(['Content Admin']), async (req: AuthRequest, res: Response) => {
+  const updated = await db.updateIdea(req.params.id, req.body, req.user?.name);
   if (!updated) return res.status(404).json({ error: 'Idea not found.' });
   res.json(updated);
 });
 
-// Startups Management (Content Admin or Super Admin)
-apiRouter.get('/admin/startups', authenticateToken, requireRole(['Content Admin']), (_req: AuthRequest, res: Response) => {
-  res.json(db.getStartups(false));
+// Startups Management
+apiRouter.get('/admin/startups', authenticateToken, requireRole(['Content Admin']), async (_req: AuthRequest, res: Response) => {
+  res.json(await db.getStartups(false));
 });
 
-apiRouter.post('/admin/startups', authenticateToken, requireRole(['Content Admin']), (req: AuthRequest, res: Response) => {
-  const startup = db.addStartup(req.body, req.user?.name);
+apiRouter.post('/admin/startups', authenticateToken, requireRole(['Content Admin']), async (req: AuthRequest, res: Response) => {
+  const startup = await db.addStartup(req.body, req.user?.name);
   res.status(201).json(startup);
 });
 
-apiRouter.put('/admin/startups/:id', authenticateToken, requireRole(['Content Admin']), (req: AuthRequest, res: Response) => {
-  const updated = db.updateStartup(req.params.id, req.body, req.user?.name);
+apiRouter.put('/admin/startups/:id', authenticateToken, requireRole(['Content Admin']), async (req: AuthRequest, res: Response) => {
+  const updated = await db.updateStartup(req.params.id, req.body, req.user?.name);
   if (!updated) return res.status(404).json({ error: 'Startup not found.' });
   res.json(updated);
 });
 
-apiRouter.delete('/admin/startups/:id', authenticateToken, requireRole(['Content Admin']), (req: AuthRequest, res: Response) => {
-  const success = db.deleteStartup(req.params.id, req.user?.name);
+apiRouter.delete('/admin/startups/:id', authenticateToken, requireRole(['Content Admin']), async (req: AuthRequest, res: Response) => {
+  const success = await db.deleteStartup(req.params.id, req.user?.name);
   if (!success) return res.status(404).json({ error: 'Startup not found.' });
   res.json({ message: 'Startup removed.' });
 });
 
 // Workshops Management
-apiRouter.get('/admin/workshops', authenticateToken, requireRole(['Content Admin']), (_req: AuthRequest, res: Response) => {
-  res.json(db.getWorkshops(false));
+apiRouter.get('/admin/workshops', authenticateToken, requireRole(['Content Admin']), async (_req: AuthRequest, res: Response) => {
+  res.json(await db.getWorkshops(false));
 });
 
-apiRouter.post('/admin/workshops', authenticateToken, requireRole(['Content Admin']), (req: AuthRequest, res: Response) => {
-  const ws = db.addWorkshop(req.body, req.user?.name);
+apiRouter.post('/admin/workshops', authenticateToken, requireRole(['Content Admin']), async (req: AuthRequest, res: Response) => {
+  const ws = await db.addWorkshop(req.body, req.user?.name);
   res.status(201).json(ws);
 });
 
-apiRouter.put('/admin/workshops/:id', authenticateToken, requireRole(['Content Admin']), (req: AuthRequest, res: Response) => {
-  const updated = db.updateWorkshop(req.params.id, req.body, req.user?.name);
+apiRouter.put('/admin/workshops/:id', authenticateToken, requireRole(['Content Admin']), async (req: AuthRequest, res: Response) => {
+  const updated = await db.updateWorkshop(req.params.id, req.body, req.user?.name);
   if (!updated) return res.status(404).json({ error: 'Workshop not found.' });
   res.json(updated);
 });
 
-apiRouter.delete('/admin/workshops/:id', authenticateToken, requireRole(['Content Admin']), (req: AuthRequest, res: Response) => {
-  const success = db.deleteWorkshop(req.params.id, req.user?.name);
+apiRouter.delete('/admin/workshops/:id', authenticateToken, requireRole(['Content Admin']), async (req: AuthRequest, res: Response) => {
+  const success = await db.deleteWorkshop(req.params.id, req.user?.name);
   if (!success) return res.status(404).json({ error: 'Workshop not found.' });
   res.json({ message: 'Workshop deleted.' });
 });
 
 // Resources Management
-apiRouter.get('/admin/resources', authenticateToken, requireRole(['Content Admin']), (req: AuthRequest, res: Response) => {
+apiRouter.get('/admin/resources', authenticateToken, requireRole(['Content Admin']), async (req: AuthRequest, res: Response) => {
   const category = req.query.category as string | undefined;
-  res.json(db.getResources(category, false));
+  res.json(await db.getResources(category, false));
 });
 
-apiRouter.post('/admin/resources', authenticateToken, requireRole(['Content Admin']), (req: AuthRequest, res: Response) => {
-  const resItem = db.addResource(req.body, req.user?.name);
+apiRouter.post('/admin/resources', authenticateToken, requireRole(['Content Admin']), async (req: AuthRequest, res: Response) => {
+  const resItem = await db.addResource(req.body, req.user?.name);
   res.status(201).json(resItem);
 });
 
-apiRouter.put('/admin/resources/:id', authenticateToken, requireRole(['Content Admin']), (req: AuthRequest, res: Response) => {
-  const updated = db.updateResource(req.params.id, req.body, req.user?.name);
+apiRouter.put('/admin/resources/:id', authenticateToken, requireRole(['Content Admin']), async (req: AuthRequest, res: Response) => {
+  const updated = await db.updateResource(req.params.id, req.body, req.user?.name);
   if (!updated) return res.status(404).json({ error: 'Resource not found.' });
   res.json(updated);
 });
 
-apiRouter.delete('/admin/resources/:id', authenticateToken, requireRole(['Content Admin']), (req: AuthRequest, res: Response) => {
-  const success = db.deleteResource(req.params.id, req.user?.name);
+apiRouter.delete('/admin/resources/:id', authenticateToken, requireRole(['Content Admin']), async (req: AuthRequest, res: Response) => {
+  const success = await db.deleteResource(req.params.id, req.user?.name);
   if (!success) return res.status(404).json({ error: 'Resource not found.' });
   res.json({ message: 'Resource deleted.' });
 });
 
 // Gallery Management
-apiRouter.get('/admin/gallery', authenticateToken, requireRole(['Content Admin']), (req: AuthRequest, res: Response) => {
+apiRouter.get('/admin/gallery', authenticateToken, requireRole(['Content Admin']), async (req: AuthRequest, res: Response) => {
   const category = req.query.category as string | undefined;
-  res.json(db.getGallery(category, false));
+  res.json(await db.getGallery(category, false));
 });
 
-apiRouter.post('/admin/gallery', authenticateToken, requireRole(['Content Admin']), (req: AuthRequest, res: Response) => {
-  const album = db.addGalleryAlbum(req.body, req.user?.name);
+apiRouter.post('/admin/gallery', authenticateToken, requireRole(['Content Admin']), async (req: AuthRequest, res: Response) => {
+  const album = await db.addGalleryAlbum(req.body, req.user?.name);
   res.status(201).json(album);
 });
 
-apiRouter.put('/admin/gallery/:id', authenticateToken, requireRole(['Content Admin']), (req: AuthRequest, res: Response) => {
-  const updated = db.updateGalleryAlbum(req.params.id, req.body, req.user?.name);
+apiRouter.put('/admin/gallery/:id', authenticateToken, requireRole(['Content Admin']), async (req: AuthRequest, res: Response) => {
+  const updated = await db.updateGalleryAlbum(req.params.id, req.body, req.user?.name);
   if (!updated) return res.status(404).json({ error: 'Album not found.' });
   res.json(updated);
 });
 
-apiRouter.delete('/admin/gallery/:id', authenticateToken, requireRole(['Content Admin']), (req: AuthRequest, res: Response) => {
-  const success = db.deleteGalleryAlbum(req.params.id, req.user?.name);
+apiRouter.delete('/admin/gallery/:id', authenticateToken, requireRole(['Content Admin']), async (req: AuthRequest, res: Response) => {
+  const success = await db.deleteGalleryAlbum(req.params.id, req.user?.name);
   if (!success) return res.status(404).json({ error: 'Album not found.' });
   res.json({ message: 'Gallery album deleted.' });
 });
 
 // News Management
-apiRouter.get('/admin/news', authenticateToken, requireRole(['Content Admin']), (req: AuthRequest, res: Response) => {
+apiRouter.get('/admin/news', authenticateToken, requireRole(['Content Admin']), async (req: AuthRequest, res: Response) => {
   const { status, search } = req.query;
-  res.json(db.getNews({ status: status as string, search: search as string, publishedOnly: false }));
+  res.json(await db.getNews({ status: status as string, search: search as string, publishedOnly: false }));
 });
 
-apiRouter.post('/admin/news', authenticateToken, requireRole(['Content Admin']), (req: AuthRequest, res: Response) => {
-  const article = db.addNews(req.body, req.user?.name);
+apiRouter.post('/admin/news', authenticateToken, requireRole(['Content Admin']), async (req: AuthRequest, res: Response) => {
+  const article = await db.addNews(req.body, req.user?.name);
   res.status(201).json(article);
 });
 
-apiRouter.put('/admin/news/:id', authenticateToken, requireRole(['Content Admin']), (req: AuthRequest, res: Response) => {
-  const updated = db.updateNews(req.params.id, req.body, req.user?.name);
+apiRouter.put('/admin/news/:id', authenticateToken, requireRole(['Content Admin']), async (req: AuthRequest, res: Response) => {
+  const updated = await db.updateNews(req.params.id, req.body, req.user?.name);
   if (!updated) return res.status(404).json({ error: 'Article not found.' });
   res.json(updated);
 });
 
-apiRouter.delete('/admin/news/:id', authenticateToken, requireRole(['Content Admin']), (req: AuthRequest, res: Response) => {
-  const success = db.deleteNews(req.params.id, req.user?.name);
+apiRouter.delete('/admin/news/:id', authenticateToken, requireRole(['Content Admin']), async (req: AuthRequest, res: Response) => {
+  const success = await db.deleteNews(req.params.id, req.user?.name);
   if (!success) return res.status(404).json({ error: 'Article not found.' });
   res.json({ message: 'News article deleted.' });
 });
@@ -416,66 +416,66 @@ apiRouter.post('/upload', authenticateToken, async (req: AuthRequest, res: Respo
 });
 
 // Submissions
-apiRouter.get('/admin/submissions', authenticateToken, requireRole(['Team Admin']), (_req: AuthRequest, res: Response) => {
-  res.json(db.getSubmissions());
+apiRouter.get('/admin/submissions', authenticateToken, requireRole(['Team Admin']), async (_req: AuthRequest, res: Response) => {
+  res.json(await db.getSubmissions());
 });
 
-apiRouter.put('/admin/submissions/:id', authenticateToken, requireRole(['Team Admin']), (req: AuthRequest, res: Response) => {
-  const updated = db.updateSubmission(req.params.id, req.body, req.user?.name);
+apiRouter.put('/admin/submissions/:id', authenticateToken, requireRole(['Team Admin']), async (req: AuthRequest, res: Response) => {
+  const updated = await db.updateSubmission(req.params.id, req.body, req.user?.name);
   if (!updated) return res.status(404).json({ error: 'Submission not found.' });
   res.json(updated);
 });
 
 // Settings & Homepage
-apiRouter.get('/admin/settings', authenticateToken, requireRole(['Super Admin']), (_req: AuthRequest, res: Response) => {
-  res.json(db.getSiteSettings());
+apiRouter.get('/admin/settings', authenticateToken, requireRole(['Super Admin']), async (_req: AuthRequest, res: Response) => {
+  res.json(await db.getSiteSettings());
 });
 
-apiRouter.put('/admin/settings', authenticateToken, requireRole(['Super Admin']), (req: AuthRequest, res: Response) => {
-  const updated = db.updateSiteSettings(req.body, req.user?.name);
+apiRouter.put('/admin/settings', authenticateToken, requireRole(['Super Admin']), async (req: AuthRequest, res: Response) => {
+  const updated = await db.updateSiteSettings(req.body, req.user?.name);
   res.json(updated);
 });
 
-// Users Management (Super Admin only)
-apiRouter.get('/admin/users', authenticateToken, requireRole(['Super Admin']), (_req: AuthRequest, res: Response) => {
-  res.json(db.getUsers());
+// Users Management
+apiRouter.get('/admin/users', authenticateToken, requireRole(['Super Admin']), async (_req: AuthRequest, res: Response) => {
+  res.json(await db.getUsers());
 });
 
-apiRouter.put('/admin/users/:id/role', authenticateToken, requireRole(['Super Admin']), (req: AuthRequest, res: Response) => {
+apiRouter.put('/admin/users/:id/role', authenticateToken, requireRole(['Super Admin']), async (req: AuthRequest, res: Response) => {
   const { role } = req.body;
-  const updated = db.updateUserRole(req.params.id, role, req.user?.name);
+  const updated = await db.updateUserRole(req.params.id, role, req.user?.name);
   if (!updated) return res.status(404).json({ error: 'User not found.' });
   res.json(updated);
 });
 
 // Posters Management
-apiRouter.get('/admin/posters', authenticateToken, requireRole(['Content Admin']), (_req: AuthRequest, res: Response) => {
-  res.json(db.getPosters());
+apiRouter.get('/admin/posters', authenticateToken, requireRole(['Content Admin']), async (_req: AuthRequest, res: Response) => {
+  res.json(await db.getPosters());
 });
 
-apiRouter.post('/admin/posters', authenticateToken, requireRole(['Content Admin']), (req: AuthRequest, res: Response) => {
-  const item = db.addPoster(req.body, req.user?.name);
+apiRouter.post('/admin/posters', authenticateToken, requireRole(['Content Admin']), async (req: AuthRequest, res: Response) => {
+  const item = await db.addPoster(req.body, req.user?.name);
   res.status(201).json(item);
 });
 
-apiRouter.delete('/admin/posters/:id', authenticateToken, requireRole(['Content Admin']), (req: AuthRequest, res: Response) => {
-  const success = db.deletePoster(req.params.id, req.user?.name);
+apiRouter.delete('/admin/posters/:id', authenticateToken, requireRole(['Content Admin']), async (req: AuthRequest, res: Response) => {
+  const success = await db.deletePoster(req.params.id, req.user?.name);
   if (!success) return res.status(404).json({ error: 'Poster not found.' });
   res.json({ message: 'Poster deleted.' });
 });
 
 // Media Library Management
-apiRouter.get('/admin/media', authenticateToken, (_req: AuthRequest, res: Response) => {
-  res.json(db.getMediaItems());
+apiRouter.get('/admin/media', authenticateToken, async (_req: AuthRequest, res: Response) => {
+  res.json(await db.getMediaItems());
 });
 
-apiRouter.post('/admin/media', authenticateToken, (req: AuthRequest, res: Response) => {
-  const item = db.addMediaItem(req.body, req.user?.name);
+apiRouter.post('/admin/media', authenticateToken, async (req: AuthRequest, res: Response) => {
+  const item = await db.addMediaItem(req.body, req.user?.name);
   res.status(201).json(item);
 });
 
-apiRouter.delete('/admin/media/:id', authenticateToken, (req: AuthRequest, res: Response) => {
-  const success = db.deleteMediaItem(req.params.id, req.user?.name);
+apiRouter.delete('/admin/media/:id', authenticateToken, async (req: AuthRequest, res: Response) => {
+  const success = await db.deleteMediaItem(req.params.id, req.user?.name);
   if (!success) return res.status(404).json({ error: 'Media file not found.' });
   res.json({ message: 'Media file deleted.' });
 });
