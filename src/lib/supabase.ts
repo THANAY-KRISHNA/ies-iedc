@@ -16,7 +16,7 @@ const supabaseUrl =
   getEnvVar('VITE_SUPABASE_URL') ||
   getEnvVar('NEXT_PUBLIC_SUPABASE_URL') ||
   getEnvVar('SUPABASE_URL') ||
-  'https://xyzcompany.supabase.co';
+  'https://peollhilachrsmjcxqtg.supabase.co';
 
 const supabaseAnonKey =
   getEnvVar('VITE_SUPABASE_ANON_KEY') ||
