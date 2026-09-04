@@ -11,8 +11,8 @@ export interface AuthRequest extends Request {
 const sessionTokens: Map<string, User> = new Map();
 
 // Initialize demo sessions
-export function initializeAuth() {
-  const users = db.getUsers();
+export async function initializeAuth() {
+  const users = await db.getUsers();
   users.forEach(u => {
     sessionTokens.set(`token_${u.id}`, u);
   });
@@ -59,8 +59,8 @@ export function requireRole(allowedRoles: UserRole[]) {
 }
 
 // Login helper with user/email alias resolution
-export function loginUser(emailOrUsername: string): { user: User; token: string } | null {
-  const users = db.getUsers();
+export async function loginUser(emailOrUsername: string): Promise<{ user: User; token: string } | null> {
+  const users = await db.getUsers();
   const input = emailOrUsername.trim().toLowerCase();
 
   let targetEmail = input;
