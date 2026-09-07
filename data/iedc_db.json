@@ -5,7 +5,7 @@
       "name": "Prof. Shahaziya Parvez",
       "email": "nodal.officer@iesce.info",
       "role": "Super Admin",
-      "lastLogin": "2026-09-07T17:30:52.217Z"
+      "lastLogin": "2026-09-07T17:48:56.947Z"
     },
     {
       "id": "usr_content",
@@ -1421,6 +1421,26 @@
   ],
   "submissions": [],
   "activityLogs": [
+    {
+      "userName": "Prof. Shahaziya Parvez",
+      "userRole": "Team Admin",
+      "action": "Deleted",
+      "contentType": "Team Member",
+      "contentId": "tm_1788803337453_02gv",
+      "contentSummary": "Removed team member Dr. Test Realtime Member",
+      "id": "log_1788803337461_id2z",
+      "timestamp": "2026-09-07T17:48:57.461Z"
+    },
+    {
+      "userName": "Prof. Shahaziya Parvez",
+      "userRole": "Team Admin",
+      "action": "Created",
+      "contentType": "Team Member",
+      "contentId": "tm_1788803337453_02gv",
+      "contentSummary": "Added team member Dr. Test Realtime Member (Chief Innovation Officer)",
+      "id": "log_1788803337454_mzp2",
+      "timestamp": "2026-09-07T17:48:57.454Z"
+    },
     {
       "userName": "Prof. Shahaziya Parvez",
       "userRole": "Team Admin",

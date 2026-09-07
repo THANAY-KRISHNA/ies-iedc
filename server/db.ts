@@ -102,6 +102,59 @@ function cleanDeptCode(dept?: string): string {
   return code.substring(0, 10);
 }
 
+async function ensureAcademicYearInDb(yearNameOrId?: string): Promise<string> {
+  const defaultYear = '2025–26';
+  const input = (yearNameOrId || defaultYear).trim();
+  if (!input) return defaultYear;
+
+  if (!isSupabaseConfigured()) return input;
+
+  try {
+    const { data: existing } = await supabaseAdmin
+      .from('academic_years')
+      .select('id, year_name')
+      .or(`id.eq.${input},year_name.eq.${input}`);
+
+    if (existing && existing.length > 0) {
+      return existing[0].id;
+    }
+
+    const cleanId = input.startsWith('ay_') ? input : `ay_${input.replace(/[^a-zA-Z0-9]/g, '_')}`;
+    const { data: inserted, error } = await supabaseAdmin
+      .from('academic_years')
+      .upsert({
+        id: cleanId,
+        year_name: input,
+        is_current: false
+      })
+      .select('id')
+      .single();
+
+    if (!error && inserted) {
+      return inserted.id;
+    }
+  } catch (e) {
+    console.warn('ensureAcademicYearInDb error:', e);
+  }
+
+  return input;
+}
+
+async function ensureDepartmentInDb(deptCodeOrName?: string): Promise<string> {
+  const code = cleanDeptCode(deptCodeOrName);
+  if (!isSupabaseConfigured()) return code;
+
+  try {
+    await supabaseAdmin.from('departments').upsert({
+      id: `dept_${code}`,
+      code: code,
+      name: deptCodeOrName || code
+    });
+  } catch (e) {}
+
+  return code;
+}
+
 function mapTeamMemberToDb(data: Partial<TeamMember>) {
   const nameStr = (data.name || 'Team Member').trim().substring(0, 150);
   const roleTypeStr = (data.roleType || 'Student Lead').trim().substring(0, 50);
@@ -440,27 +493,15 @@ class DatabaseEngine {
 
     if (isSupabaseConfigured()) {
       try {
-        if (newMember.academicYear) {
-          try {
-            await supabaseAdmin.from('academic_years').upsert({
-              id: newMember.academicYear,
-              year_name: newMember.academicYear,
-              is_current: false
-            });
-          } catch (e) {}
-        }
+        const resolvedYearId = await ensureAcademicYearInDb(newMember.academicYear);
+        const resolvedDeptCode = await ensureDepartmentInDb(newMember.department);
 
-        const dbRow = mapTeamMemberToDb(newMember);
+        const dbRow = {
+          ...mapTeamMemberToDb(newMember),
+          academic_year_id: resolvedYearId,
+          department_code: resolvedDeptCode
+        };
 
-        if (dbRow.department_code) {
-          try {
-            await supabaseAdmin.from('departments').upsert({
-              id: `dept_${dbRow.department_code}`,
-              code: dbRow.department_code,
-              name: newMember.department || dbRow.department_code
-            });
-          } catch (e) {}
-        }
         const { data: insertedRow, error } = await supabaseAdmin
           .from('team_members')
           .insert(dbRow)
@@ -511,7 +552,13 @@ class DatabaseEngine {
 
     if (isSupabaseConfigured()) {
       try {
-        const dbUpdates = mapTeamMemberToDb({ id, ...updates });
+        const dbUpdates: any = mapTeamMemberToDb({ id, ...updates });
+        if (updates.academicYear) {
+          dbUpdates.academic_year_id = await ensureAcademicYearInDb(updates.academicYear);
+        }
+        if (updates.department) {
+          dbUpdates.department_code = await ensureDepartmentInDb(updates.department);
+        }
         const { data: row, error } = await supabaseAdmin
           .from('team_members')
           .update(dbUpdates)

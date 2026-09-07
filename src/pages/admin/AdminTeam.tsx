@@ -235,9 +235,9 @@ export const AdminTeam: React.FC = () => {
       } else {
         loadTeam();
       }
-    } catch (err) {
+    } catch (err: any) {
       console.error('Failed to save team member:', err);
-      alert('Error saving team member. Please try again.');
+      alert(`Error saving team member: ${err?.message || 'Please try again.'}`);
     }
   };
 
