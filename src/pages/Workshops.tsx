@@ -1,9 +1,10 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { SectionHeader } from '../components/ui/SectionHeader';
 import { Badge } from '../components/ui/Badge';
 import { EmptyState } from '../components/ui/EmptyState';
 import { LoadingState } from '../components/ui/LoadingState';
 import { api } from '../services/api';
+import { useRealtimeSync } from '../services/realtime';
 import { WorkshopItem } from '../types';
 import { Calendar, MapPin, CheckCircle, ExternalLink, Award, Users } from 'lucide-react';
 
@@ -11,19 +12,22 @@ export const Workshops: React.FC = () => {
   const [workshops, setWorkshops] = useState<WorkshopItem[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
 
-  useEffect(() => {
-    async function load() {
-      try {
-        const data = await api.getWorkshops();
-        setWorkshops(data);
-      } catch (err) {
-        console.error('Failed to load workshops:', err);
-      } finally {
-        setLoading(false);
-      }
+  const load = useCallback(async () => {
+    try {
+      const data = await api.getWorkshops();
+      setWorkshops(data);
+    } catch (err) {
+      console.error('Failed to load workshops:', err);
+    } finally {
+      setLoading(false);
     }
-    load();
   }, []);
+
+  useEffect(() => {
+    load();
+  }, [load]);
+
+  useRealtimeSync(['workshops'], load);
 
   return (
     <div className="max-w-[1700px] mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-12">

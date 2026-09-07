@@ -1,6 +1,7 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { AdminLayout } from '../../components/admin/AdminLayout';
 import { api } from '../../services/api';
+import { useRealtimeSync } from '../../services/realtime';
 import { StudentIdea } from '../../types';
 import { Sparkles, Edit, Search, Lock, ShieldAlert } from 'lucide-react';
 
@@ -15,11 +16,7 @@ export const AdminIdeas: React.FC = () => {
   const [adminNotes, setAdminNotes] = useState('');
   const [saving, setSaving] = useState(false);
 
-  useEffect(() => {
-    loadIdeas();
-  }, []);
-
-  async function loadIdeas() {
+  const loadIdeas = useCallback(async () => {
     setLoading(true);
     try {
       const data = await api.adminGetIdeas();
@@ -29,7 +26,13 @@ export const AdminIdeas: React.FC = () => {
     } finally {
       setLoading(false);
     }
-  }
+  }, []);
+
+  useEffect(() => {
+    loadIdeas();
+  }, [loadIdeas]);
+
+  useRealtimeSync(['ideas'], loadIdeas);
 
   const handleOpenReview = (idea: StudentIdea) => {
     setSelectedIdea(idea);

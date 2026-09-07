@@ -1,7 +1,8 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { AdminLayout } from '../../components/admin/AdminLayout';
 import { api } from '../../services/api';
+import { useRealtimeSync } from '../../services/realtime';
 import { Achievement, AcademicYear } from '../../types';
 import { INITIAL_DEPARTMENTS } from '../../data/initialData';
 import { Plus, Edit, Trash2, Award, Search } from 'lucide-react';
@@ -30,14 +31,7 @@ export const AdminAchievements: React.FC = () => {
     published: true
   });
 
-  useEffect(() => {
-    loadData();
-    if (searchParams.get('action') === 'new') {
-      handleOpenAdd();
-    }
-  }, []);
-
-  async function loadData() {
+  const loadData = useCallback(async () => {
     setLoading(true);
     try {
       const [list, years] = await Promise.all([
@@ -51,7 +45,16 @@ export const AdminAchievements: React.FC = () => {
     } finally {
       setLoading(false);
     }
-  }
+  }, []);
+
+  useEffect(() => {
+    loadData();
+    if (searchParams.get('action') === 'new') {
+      handleOpenAdd();
+    }
+  }, [loadData]);
+
+  useRealtimeSync(['achievements', 'academicYears'], loadData);
 
   const handleOpenAdd = () => {
     setEditingItem(null);

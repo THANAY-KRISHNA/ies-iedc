@@ -1,6 +1,7 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { AdminLayout } from '../../components/admin/AdminLayout';
 import { api } from '../../services/api';
+import { useRealtimeSync } from '../../services/realtime';
 import { StartupItem, AcademicYear } from '../../types';
 import { Plus, Edit, Trash2, Rocket, Search, Globe } from 'lucide-react';
 
@@ -30,11 +31,7 @@ export const AdminStartups: React.FC = () => {
     published: true
   });
 
-  useEffect(() => {
-    loadData();
-  }, []);
-
-  async function loadData() {
+  const loadData = useCallback(async () => {
     setLoading(true);
     try {
       const [list, years] = await Promise.all([
@@ -44,11 +41,17 @@ export const AdminStartups: React.FC = () => {
       setStartups(list);
       setAcademicYears(years);
     } catch (err) {
-      console.error('Failed to load startups:', err);
+      console.error('Failed to load startups data:', err);
     } finally {
       setLoading(false);
     }
-  }
+  }, []);
+
+  useEffect(() => {
+    loadData();
+  }, [loadData]);
+
+  useRealtimeSync(['startups', 'academicYears'], loadData);
 
   const handleOpenAdd = () => {
     setEditingItem(null);

@@ -1,9 +1,10 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { Badge } from '../../components/ui/Badge';
 import { Button } from '../../components/ui/Button';
 import { SearchFilterBar } from '../../components/ui/SearchFilterBar';
 import { LoadingState } from '../../components/ui/LoadingState';
 import { api } from '../../services/api';
+import { useRealtimeSync } from '../../services/realtime';
 import { JoinSubmission } from '../../types';
 import { Inbox, Mail, Phone, CheckCircle2, XCircle, Clock } from 'lucide-react';
 
@@ -12,11 +13,7 @@ export const AdminSubmissions: React.FC = () => {
   const [search, setSearch] = useState('');
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    loadSubmissions();
-  }, []);
-
-  async function loadSubmissions() {
+  const loadSubmissions = useCallback(async () => {
     setLoading(true);
     try {
       const data = await api.adminGetSubmissions();
@@ -26,7 +23,13 @@ export const AdminSubmissions: React.FC = () => {
     } finally {
       setLoading(false);
     }
-  }
+  }, []);
+
+  useEffect(() => {
+    loadSubmissions();
+  }, [loadSubmissions]);
+
+  useRealtimeSync(['submissions'], loadSubmissions);
 
   const handleUpdateStatus = async (id: string, status: JoinSubmission['status']) => {
     try {

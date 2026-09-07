@@ -1,6 +1,7 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { api } from '../../services/api';
+import { useRealtimeSync } from '../../services/realtime';
 import { ActivityLog } from '../../types';
 import {
   Calendar,
@@ -18,19 +19,22 @@ export const AdminDashboard: React.FC = () => {
   const [logs, setLogs] = useState<ActivityLog[]>([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    async function loadDashboardData() {
-      try {
-        const activity = await api.getAuditLogs();
-        setLogs(activity.slice(0, 10));
-      } catch (err) {
-        console.error('Failed to load recent updates:', err);
-      } finally {
-        setLoading(false);
-      }
+  const loadDashboardData = useCallback(async () => {
+    try {
+      const activity = await api.getAuditLogs();
+      setLogs(activity.slice(0, 10));
+    } catch (err) {
+      console.error('Failed to load recent updates:', err);
+    } finally {
+      setLoading(false);
     }
-    loadDashboardData();
   }, []);
+
+  useEffect(() => {
+    loadDashboardData();
+  }, [loadDashboardData]);
+
+  useRealtimeSync(['all'], loadDashboardData);
 
   const quickActions = [
     {

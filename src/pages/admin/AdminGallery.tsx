@@ -1,7 +1,8 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { AdminLayout } from '../../components/admin/AdminLayout';
 import { api } from '../../services/api';
+import { useRealtimeSync } from '../../services/realtime';
 import { GalleryAlbum, GalleryImage, AcademicYear, EventItem } from '../../types';
 import { Plus, Upload, Trash2, Eye, Star, Save, Image as ImageIcon, Check, ArrowUp, ArrowDown } from 'lucide-react';
 
@@ -26,14 +27,7 @@ export const AdminGallery: React.FC = () => {
   const [published, setPublished] = useState(true);
   const [uploading, setUploading] = useState(false);
 
-  useEffect(() => {
-    loadData();
-    if (searchParams.get('action') === 'new') {
-      handleCreateAlbum();
-    }
-  }, []);
-
-  async function loadData() {
+  const loadData = useCallback(async () => {
     setLoading(true);
     try {
       const [albumList, years, evtList] = await Promise.all([
@@ -49,7 +43,16 @@ export const AdminGallery: React.FC = () => {
     } finally {
       setLoading(false);
     }
-  }
+  }, []);
+
+  useEffect(() => {
+    loadData();
+    if (searchParams.get('action') === 'new') {
+      handleCreateAlbum();
+    }
+  }, [loadData]);
+
+  useRealtimeSync(['gallery', 'academicYears', 'events'], loadData);
 
   const handleCreateAlbum = () => {
     setEditingAlbum(null);

@@ -1,10 +1,11 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { SectionHeader } from '../components/ui/SectionHeader';
 import { Badge } from '../components/ui/Badge';
 import { Modal } from '../components/ui/Modal';
 import { EmptyState } from '../components/ui/EmptyState';
 import { LoadingState } from '../components/ui/LoadingState';
 import { api } from '../services/api';
+import { useRealtimeSync } from '../services/realtime';
 import { GalleryAlbum, EventItem } from '../types';
 import { Image as ImageIcon, Eye, Calendar, FileText, Download } from 'lucide-react';
 
@@ -18,24 +19,27 @@ export const Gallery: React.FC = () => {
 
   const categories = ['All', 'Events', 'Workshops', 'Bootcamp', 'Achievements'];
 
-  useEffect(() => {
-    async function load() {
-      setLoading(true);
-      try {
-        const [galleryData, eventData] = await Promise.all([
-          api.getGallery(selectedCategory),
-          api.getEvents()
-        ]);
-        setAlbums(galleryData);
-        setEvents(eventData.filter(e => !!e.posterUrl));
-      } catch (err) {
-        console.error('Failed to load gallery data:', err);
-      } finally {
-        setLoading(false);
-      }
+  const load = useCallback(async () => {
+    setLoading(true);
+    try {
+      const [galleryData, eventData] = await Promise.all([
+        api.getGallery(selectedCategory),
+        api.getEvents()
+      ]);
+      setAlbums(galleryData);
+      setEvents(eventData.filter(e => !!e.posterUrl));
+    } catch (err) {
+      console.error('Failed to load gallery data:', err);
+    } finally {
+      setLoading(false);
     }
-    load();
   }, [selectedCategory]);
+
+  useEffect(() => {
+    load();
+  }, [load]);
+
+  useRealtimeSync(['gallery', 'events', 'posters'], load);
 
   return (
     <div className="max-w-[1700px] mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-10 font-sans">

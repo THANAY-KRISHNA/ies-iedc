@@ -1,10 +1,11 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { SectionHeader } from '../components/ui/SectionHeader';
 import { Badge } from '../components/ui/Badge';
 import { Button } from '../components/ui/Button';
 import { LoadingState } from '../components/ui/LoadingState';
 import { api } from '../services/api';
+import { useRealtimeSync } from '../services/realtime';
 import { EventItem } from '../types';
 import {
   Calendar,
@@ -22,20 +23,23 @@ export const EventDetail: React.FC = () => {
   const [event, setEvent] = useState<EventItem | null>(null);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    async function load() {
-      if (!slug) return;
-      try {
-        const item = await api.getEventBySlug(slug);
-        setEvent(item);
-      } catch (err) {
-        console.error('Error loading event:', err);
-      } finally {
-        setLoading(false);
-      }
+  const load = useCallback(async () => {
+    if (!slug) return;
+    try {
+      const item = await api.getEventBySlug(slug);
+      setEvent(item);
+    } catch (err) {
+      console.error('Error loading event:', err);
+    } finally {
+      setLoading(false);
     }
-    load();
   }, [slug]);
+
+  useEffect(() => {
+    load();
+  }, [load]);
+
+  useRealtimeSync(['events'], load);
 
   if (loading) {
     return <LoadingState message="Loading event details..." />;

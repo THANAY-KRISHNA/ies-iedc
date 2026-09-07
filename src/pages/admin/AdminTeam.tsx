@@ -1,7 +1,8 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState, useRef, useCallback } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { AdminLayout } from '../../components/admin/AdminLayout';
 import { api } from '../../services/api';
+import { useRealtimeSync } from '../../services/realtime';
 import { TeamMember, AcademicYear } from '../../types';
 import { INITIAL_DEPARTMENTS, ROLE_RESPONSIBILITIES } from '../../data/initialData';
 import {
@@ -86,17 +87,6 @@ export const AdminTeam: React.FC = () => {
     isFeatured: false
   });
 
-  useEffect(() => {
-    loadAcademicYears();
-    if (searchParams.get('action') === 'new') {
-      handleOpenAdd();
-    }
-  }, []);
-
-  useEffect(() => {
-    loadTeam();
-  }, [selectedYear]);
-
   async function loadAcademicYears() {
     try {
       const years = await api.getAcademicYears();
@@ -111,7 +101,14 @@ export const AdminTeam: React.FC = () => {
     }
   }
 
-  async function loadTeam() {
+  useEffect(() => {
+    loadAcademicYears();
+    if (searchParams.get('action') === 'new') {
+      handleOpenAdd();
+    }
+  }, []);
+
+  const loadTeam = useCallback(async () => {
     setLoading(true);
     try {
       const members = await api.adminGetTeam(selectedYear);
@@ -121,7 +118,13 @@ export const AdminTeam: React.FC = () => {
     } finally {
       setLoading(false);
     }
-  }
+  }, [selectedYear]);
+
+  useEffect(() => {
+    loadTeam();
+  }, [loadTeam]);
+
+  useRealtimeSync(['team', 'academicYears'], loadTeam);
 
   const handleOpenAdd = () => {
     setEditingMember(null);

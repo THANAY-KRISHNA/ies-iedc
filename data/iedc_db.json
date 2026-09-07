@@ -5,7 +5,7 @@
       "name": "Prof. Shahaziya Parvez",
       "email": "nodal.officer@iesce.info",
       "role": "Super Admin",
-      "lastLogin": "2026-09-04T12:07:36.849Z"
+      "lastLogin": "2026-09-07T17:30:52.217Z"
     },
     {
       "id": "usr_content",
@@ -92,6 +92,31 @@
     }
   ],
   "teamMembers": [
+    {
+      "name": "Dr. Realtime Tester",
+      "roleType": "CEO",
+      "position": "Tester Lead",
+      "department": "CSE",
+      "designation": "",
+      "responsibility": "Chief Executive Officer along with the student community, whose main responsibility is the overall coordination of the IEDC.",
+      "email": "",
+      "linkedinUrl": "",
+      "photoUrl": "",
+      "academicYear": "2025–26",
+      "status": "Archived",
+      "sortOrder": 4,
+      "isFeatured": false,
+      "id": "tm_1788802392822_9wuu"
+    },
+    {
+      "name": "Dr. Test Realtime Member",
+      "roleType": "Nodal Officer",
+      "position": "Chief Innovation Officer",
+      "department": "CSE",
+      "academicYear": "2025–26",
+      "status": "Published",
+      "id": "tm_1788802237655_knrk"
+    },
     {
       "id": "tm_24_01",
       "academicYear": "2024–25",
@@ -1396,6 +1421,56 @@
   ],
   "submissions": [],
   "activityLogs": [
+    {
+      "userName": "Prof. Shahaziya Parvez",
+      "userRole": "Team Admin",
+      "action": "Archived",
+      "contentType": "Team Member",
+      "contentId": "tm_1788802392822_9wuu",
+      "contentSummary": "Updated team member Dr. Realtime Tester",
+      "id": "log_1788802652206_1xfp",
+      "timestamp": "2026-09-07T17:37:32.206Z"
+    },
+    {
+      "userName": "Prof. Shahaziya Parvez",
+      "userRole": "Team Admin",
+      "action": "Created",
+      "contentType": "Team Member",
+      "contentId": "tm_1788802392822_9wuu",
+      "contentSummary": "Added team member Dr. Realtime Tester (Tester Lead)",
+      "id": "log_1788802392825_cr0d",
+      "timestamp": "2026-09-07T17:33:12.825Z"
+    },
+    {
+      "userName": "Prof. Shahaziya Parvez",
+      "userRole": "Team Admin",
+      "action": "Deleted",
+      "contentType": "Team Member",
+      "contentId": "tm_1788802252726_pz5z",
+      "contentSummary": "Removed team member Dr. Test Realtime Member",
+      "id": "log_1788802252733_gqym",
+      "timestamp": "2026-09-07T17:30:52.733Z"
+    },
+    {
+      "userName": "Prof. Shahaziya Parvez",
+      "userRole": "Team Admin",
+      "action": "Created",
+      "contentType": "Team Member",
+      "contentId": "tm_1788802252726_pz5z",
+      "contentSummary": "Added team member Dr. Test Realtime Member (Chief Innovation Officer)",
+      "id": "log_1788802252727_jc4r",
+      "timestamp": "2026-09-07T17:30:52.727Z"
+    },
+    {
+      "userName": "Prof. Shahaziya Parvez",
+      "userRole": "Team Admin",
+      "action": "Created",
+      "contentType": "Team Member",
+      "contentId": "tm_1788802237655_knrk",
+      "contentSummary": "Added team member Dr. Test Realtime Member (Chief Innovation Officer)",
+      "id": "log_1788802237656_o44w",
+      "timestamp": "2026-09-07T17:30:37.656Z"
+    },
     {
       "userName": "Prof. Shahaziya Parvez",
       "userRole": "Team Admin",

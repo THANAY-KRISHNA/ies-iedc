@@ -1,10 +1,11 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { SectionHeader } from '../components/ui/SectionHeader';
 import { Badge } from '../components/ui/Badge';
 import { Button } from '../components/ui/Button';
 import { EmptyState } from '../components/ui/EmptyState';
 import { LoadingState } from '../components/ui/LoadingState';
 import { api } from '../services/api';
+import { useRealtimeSync } from '../services/realtime';
 import { StudentIdea, Department } from '../types';
 import { INITIAL_DEPARTMENTS } from '../data/initialData';
 import { Sparkles, Send, CheckCircle2, Cpu, HelpCircle, Layers, ShieldCheck, Rocket } from 'lucide-react';
@@ -31,19 +32,22 @@ export const Ideas: React.FC = () => {
   const [submitSuccess, setSubmitSuccess] = useState<string | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
-  useEffect(() => {
-    async function loadIdeas() {
-      try {
-        const data = await api.getIdeas();
-        setIdeas(data || []);
-      } catch (err) {
-        console.error('Failed to load ideas:', err);
-      } finally {
-        setLoading(false);
-      }
+  const loadIdeas = useCallback(async () => {
+    try {
+      const data = await api.getIdeas();
+      setIdeas(data || []);
+    } catch (err) {
+      console.error('Failed to load ideas:', err);
+    } finally {
+      setLoading(false);
     }
-    loadIdeas();
   }, []);
+
+  useEffect(() => {
+    loadIdeas();
+  }, [loadIdeas]);
+
+  useRealtimeSync(['ideas'], loadIdeas);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

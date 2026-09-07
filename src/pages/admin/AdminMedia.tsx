@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { AdminLayout } from '../../components/admin/AdminLayout';
 import { api } from '../../services/api';
+import { useRealtimeSync } from '../../services/realtime';
 import { Upload, Search, Trash2, Copy, Check, Image as ImageIcon } from 'lucide-react';
 
 interface MediaItem {
@@ -16,18 +17,20 @@ export const AdminMedia: React.FC = () => {
   const [search, setSearch] = useState('');
   const [copiedId, setCopiedId] = useState<string | null>(null);
 
-  React.useEffect(() => {
-    loadMedia();
-  }, []);
-
-  async function loadMedia() {
+  const loadMedia = useCallback(async () => {
     try {
       const items = await api.adminGetMedia();
       setMediaList(items || []);
     } catch (err) {
       console.error('Failed to load media items:', err);
     }
-  }
+  }, []);
+
+  useEffect(() => {
+    loadMedia();
+  }, [loadMedia]);
+
+  useRealtimeSync(['media'], loadMedia);
 
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;

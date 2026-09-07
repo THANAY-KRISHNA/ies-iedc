@@ -1,7 +1,8 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { AdminLayout } from '../../components/admin/AdminLayout';
 import { api } from '../../services/api';
+import { useRealtimeSync } from '../../services/realtime';
 import { EventItem, AcademicYear } from '../../types';
 import { Plus, Edit, Eye, Trash2, CheckCircle2, Archive, Globe, Search, Image as ImageIcon } from 'lucide-react';
 
@@ -44,24 +45,7 @@ export const AdminEvents: React.FC = () => {
     status: 'Upcoming' as EventItem['status']
   });
 
-  useEffect(() => {
-    loadAcademicYears();
-    loadEvents();
-    if (searchParams.get('action') === 'new') {
-      handleOpenAdd();
-    }
-  }, []);
-
-  async function loadAcademicYears() {
-    try {
-      const years = await api.getAcademicYears();
-      setAcademicYears(years);
-    } catch (err) {
-      console.error('Failed to load academic years:', err);
-    }
-  }
-
-  async function loadEvents() {
+  const loadEvents = useCallback(async () => {
     setLoading(true);
     try {
       const list = await api.adminGetEvents();
@@ -70,6 +54,25 @@ export const AdminEvents: React.FC = () => {
       console.error('Failed to load events:', err);
     } finally {
       setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    loadAcademicYears();
+    loadEvents();
+    if (searchParams.get('action') === 'new') {
+      handleOpenAdd();
+    }
+  }, [loadEvents]);
+
+  useRealtimeSync(['events', 'academicYears'], loadEvents);
+
+  async function loadAcademicYears() {
+    try {
+      const years = await api.getAcademicYears();
+      setAcademicYears(years);
+    } catch (err) {
+      console.error('Failed to load academic years:', err);
     }
   }
 

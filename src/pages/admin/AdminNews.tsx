@@ -1,7 +1,8 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { AdminLayout } from '../../components/admin/AdminLayout';
 import { api } from '../../services/api';
+import { useRealtimeSync } from '../../services/realtime';
 import { NewsItem, AcademicYear } from '../../types';
 import { Plus, Edit, Trash2, Newspaper, Eye, Search } from 'lucide-react';
 
@@ -29,14 +30,7 @@ export const AdminNews: React.FC = () => {
     status: 'Published' as NewsItem['status']
   });
 
-  useEffect(() => {
-    loadData();
-    if (searchParams.get('action') === 'new') {
-      handleOpenAdd();
-    }
-  }, []);
-
-  async function loadData() {
+  const loadData = useCallback(async () => {
     setLoading(true);
     try {
       const [newsList, years] = await Promise.all([
@@ -50,7 +44,16 @@ export const AdminNews: React.FC = () => {
     } finally {
       setLoading(false);
     }
-  }
+  }, []);
+
+  useEffect(() => {
+    loadData();
+    if (searchParams.get('action') === 'new') {
+      handleOpenAdd();
+    }
+  }, [loadData]);
+
+  useRealtimeSync(['news', 'academicYears'], loadData);
 
   const handleOpenAdd = () => {
     setEditingNews(null);

@@ -1,9 +1,10 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { Badge } from '../components/ui/Badge';
 import { Button } from '../components/ui/Button';
 import { LoadingState } from '../components/ui/LoadingState';
 import { api } from '../services/api';
+import { useRealtimeSync } from '../services/realtime';
 import { NewsItem } from '../types';
 import { Calendar, User, ArrowLeft } from 'lucide-react';
 
@@ -12,20 +13,23 @@ export const NewsDetail: React.FC = () => {
   const [article, setArticle] = useState<NewsItem | null>(null);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    async function load() {
-      if (!slug) return;
-      try {
-        const item = await api.getNewsBySlug(slug);
-        setArticle(item);
-      } catch (err) {
-        console.error('Failed to load article:', err);
-      } finally {
-        setLoading(false);
-      }
+  const load = useCallback(async () => {
+    if (!slug) return;
+    try {
+      const item = await api.getNewsBySlug(slug);
+      setArticle(item);
+    } catch (err) {
+      console.error('Failed to load article:', err);
+    } finally {
+      setLoading(false);
     }
-    load();
   }, [slug]);
+
+  useEffect(() => {
+    load();
+  }, [load]);
+
+  useRealtimeSync(['news'], load);
 
   if (loading) {
     return <LoadingState message="Loading announcement..." />;

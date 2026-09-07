@@ -1,6 +1,7 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { AdminLayout } from '../../components/admin/AdminLayout';
 import { api } from '../../services/api';
+import { useRealtimeSync } from '../../services/realtime';
 import { EventItem } from '../../types';
 import { Upload, Copy, Check, Trash2, Image as ImageIcon, FileText, Search, Link as LinkIcon, Download } from 'lucide-react';
 
@@ -22,11 +23,7 @@ export const AdminPosters: React.FC = () => {
   const [uploading, setUploading] = useState(false);
   const [copiedId, setCopiedId] = useState<string | null>(null);
 
-  useEffect(() => {
-    loadData();
-  }, []);
-
-  async function loadData() {
+  const loadData = useCallback(async () => {
     try {
       const [evtList, posterList] = await Promise.all([
         api.adminGetEvents(),
@@ -37,7 +34,13 @@ export const AdminPosters: React.FC = () => {
     } catch (err) {
       console.error('Failed to load posters data:', err);
     }
-  }
+  }, []);
+
+  useEffect(() => {
+    loadData();
+  }, [loadData]);
+
+  useRealtimeSync(['posters', 'events'], loadData);
 
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;

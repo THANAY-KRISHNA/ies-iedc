@@ -1,6 +1,7 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { AdminLayout } from '../../components/admin/AdminLayout';
 import { api } from '../../services/api';
+import { useRealtimeSync } from '../../services/realtime';
 import { SiteSettings } from '../../types';
 import { INITIAL_SITE_SETTINGS } from '../../data/initialData';
 import { Save, Check } from 'lucide-react';
@@ -11,19 +12,22 @@ export const AdminSettings: React.FC = () => {
   const [saving, setSaving] = useState(false);
   const [successMsg, setSuccessMsg] = useState<string | null>(null);
 
-  useEffect(() => {
-    async function load() {
-      try {
-        const data = await api.getSettings();
-        setSettings(data);
-      } catch (err) {
-        console.error(err);
-      } finally {
-        setLoading(false);
-      }
+  const load = useCallback(async () => {
+    try {
+      const data = await api.getSettings();
+      setSettings(data);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
     }
-    load();
   }, []);
+
+  useEffect(() => {
+    load();
+  }, [load]);
+
+  useRealtimeSync(['settings'], load);
 
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import {
   ArrowRight,
@@ -12,6 +12,7 @@ import {
   Image as ImageIcon
 } from 'lucide-react';
 import { api } from '../services/api';
+import { useRealtimeSync } from '../services/realtime';
 import { EventItem, GalleryAlbum, SiteSettings } from '../types';
 import { IdeaWizardModal } from '../components/modals/IdeaWizardModal';
 
@@ -38,23 +39,26 @@ export const Home: React.FC = () => {
   }, [navigate]);
 
   // Fetch real settings, events and gallery data from API
-  useEffect(() => {
-    async function fetchData() {
-      try {
-        const [siteSettings, evts, gallery] = await Promise.all([
-          api.getSettings(),
-          api.getEvents(),
-          api.getGallery()
-        ]);
-        setSettings(siteSettings || null);
-        setEvents(evts || []);
-        setGalleryAlbums(gallery || []);
-      } catch (e) {
-        console.error('Error fetching homepage data', e);
-      }
+  const fetchData = useCallback(async () => {
+    try {
+      const [siteSettings, evts, gallery] = await Promise.all([
+        api.getSettings(),
+        api.getEvents(),
+        api.getGallery()
+      ]);
+      setSettings(siteSettings || null);
+      setEvents(evts || []);
+      setGalleryAlbums(gallery || []);
+    } catch (e) {
+      console.error('Error fetching homepage data', e);
     }
-    fetchData();
   }, []);
+
+  useEffect(() => {
+    fetchData();
+  }, [fetchData]);
+
+  useRealtimeSync(['settings', 'events', 'gallery', 'team'], fetchData);
 
   return (
     <div className="flex flex-col w-full bg-[#EFEFF2] text-[#1E232A] antialiased selection:bg-[#1E232A] selection:text-white">

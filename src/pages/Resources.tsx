@@ -1,9 +1,10 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { SectionHeader } from '../components/ui/SectionHeader';
 import { Badge } from '../components/ui/Badge';
 import { EmptyState } from '../components/ui/EmptyState';
 import { LoadingState } from '../components/ui/LoadingState';
 import { api } from '../services/api';
+import { useRealtimeSync } from '../services/realtime';
 import { ResourceItem } from '../types';
 import { FileText, Download, ExternalLink, BookOpen, Layers } from 'lucide-react';
 
@@ -20,20 +21,23 @@ export const Resources: React.FC = () => {
     'Project Ideas'
   ];
 
-  useEffect(() => {
-    async function load() {
-      setLoading(true);
-      try {
-        const data = await api.getResources(selectedCategory);
-        setResources(data);
-      } catch (err) {
-        console.error('Failed to load resources:', err);
-      } finally {
-        setLoading(false);
-      }
+  const load = useCallback(async () => {
+    setLoading(true);
+    try {
+      const data = await api.getResources(selectedCategory);
+      setResources(data);
+    } catch (err) {
+      console.error('Failed to load resources:', err);
+    } finally {
+      setLoading(false);
     }
-    load();
   }, [selectedCategory]);
+
+  useEffect(() => {
+    load();
+  }, [load]);
+
+  useRealtimeSync(['resources'], load);
 
   return (
     <div className="max-w-[1700px] mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-12">

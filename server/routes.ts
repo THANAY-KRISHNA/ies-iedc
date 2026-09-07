@@ -6,6 +6,49 @@ import { uploadToSupabaseStorage } from './supabase';
 export const apiRouter = Router();
 
 // ==========================================
+// REAL-TIME SERVER-SENT EVENTS (SSE) STREAM
+// ==========================================
+const sseClients = new Set<Response>();
+
+apiRouter.get('/realtime/stream', (req: Request, res: Response) => {
+  res.setHeader('Content-Type', 'text/event-stream');
+  res.setHeader('Cache-Control', 'no-cache, no-transform');
+  res.setHeader('Connection', 'keep-alive');
+  res.setHeader('X-Accel-Buffering', 'no');
+  res.flushHeaders?.();
+
+  res.write(`data: ${JSON.stringify({ type: 'connected', timestamp: new Date().toISOString() })}\n\n`);
+
+  sseClients.add(res);
+
+  req.on('close', () => {
+    sseClients.delete(res);
+  });
+});
+
+export function broadcastDataChange(entity: string, action: string, data?: any) {
+  const payload = JSON.stringify({ entity, action, data, timestamp: new Date().toISOString() });
+  for (const client of sseClients) {
+    try {
+      client.write(`data: ${payload}\n\n`);
+    } catch {
+      sseClients.delete(client);
+    }
+  }
+}
+
+// SSE Keepalive Ping (Every 25s)
+setInterval(() => {
+  for (const client of sseClients) {
+    try {
+      client.write(`:keepalive\n\n`);
+    } catch {
+      sseClients.delete(client);
+    }
+  }
+}, 25000);
+
+// ==========================================
 // AUTH & USERS
 // ==========================================
 apiRouter.get('/auth/demo-users', async (_req: Request, res: Response) => {
@@ -122,6 +165,7 @@ apiRouter.post('/public/ideas/submit', async (req: Request, res: Response) => {
     imageUrl
   });
 
+  broadcastDataChange('ideas', 'create', idea);
   res.status(201).json({ message: 'Idea successfully submitted for review by the IEDC team.', idea });
 });
 
@@ -175,6 +219,7 @@ apiRouter.post('/public/join/submit', async (req: Request, res: Response) => {
     whyJoin
   });
 
+  broadcastDataChange('submissions', 'create', submission);
   res.status(201).json({ message: 'Application submitted successfully. The executive team will review your application.', submission });
 });
 
@@ -199,18 +244,21 @@ apiRouter.get('/admin/team', authenticateToken, requireRole(['Team Admin']), asy
 
 apiRouter.post('/admin/team', authenticateToken, requireRole(['Team Admin']), async (req: AuthRequest, res: Response) => {
   const member = await db.addTeamMember(req.body, req.user?.name);
+  broadcastDataChange('team', 'create', member);
   res.status(201).json(member);
 });
 
 apiRouter.put('/admin/team/:id', authenticateToken, requireRole(['Team Admin']), async (req: AuthRequest, res: Response) => {
   const updated = await db.updateTeamMember(req.params.id, req.body, req.user?.name);
   if (!updated) return res.status(404).json({ error: 'Team member not found.' });
+  broadcastDataChange('team', 'update', updated);
   res.json(updated);
 });
 
 apiRouter.delete('/admin/team/:id', authenticateToken, requireRole(['Team Admin']), async (req: AuthRequest, res: Response) => {
   const success = await db.deleteTeamMember(req.params.id, req.user?.name);
   if (!success) return res.status(404).json({ error: 'Team member not found.' });
+  broadcastDataChange('team', 'delete', { id: req.params.id });
   res.json({ message: 'Team member removed.' });
 });
 
@@ -224,6 +272,7 @@ apiRouter.post('/admin/academic-years', authenticateToken, requireRole(['Team Ad
     notes,
     isCurrent: !!isCurrent
   }, req.user?.name);
+  broadcastDataChange('academicYears', 'create', newYear);
   res.status(201).json(newYear);
 });
 
@@ -241,18 +290,21 @@ apiRouter.get('/admin/events', authenticateToken, requireRole(['Content Admin'])
 
 apiRouter.post('/admin/events', authenticateToken, requireRole(['Content Admin']), async (req: AuthRequest, res: Response) => {
   const event = await db.addEvent(req.body, req.user?.name);
+  broadcastDataChange('events', 'create', event);
   res.status(201).json(event);
 });
 
 apiRouter.put('/admin/events/:id', authenticateToken, requireRole(['Content Admin']), async (req: AuthRequest, res: Response) => {
   const updated = await db.updateEvent(req.params.id, req.body, req.user?.name);
   if (!updated) return res.status(404).json({ error: 'Event not found.' });
+  broadcastDataChange('events', 'update', updated);
   res.json(updated);
 });
 
 apiRouter.delete('/admin/events/:id', authenticateToken, requireRole(['Content Admin']), async (req: AuthRequest, res: Response) => {
   const success = await db.deleteEvent(req.params.id, req.user?.name);
   if (!success) return res.status(404).json({ error: 'Event not found.' });
+  broadcastDataChange('events', 'delete', { id: req.params.id });
   res.json({ message: 'Event deleted.' });
 });
 
@@ -264,18 +316,21 @@ apiRouter.get('/admin/achievements', authenticateToken, requireRole(['Achievemen
 
 apiRouter.post('/admin/achievements', authenticateToken, requireRole(['Achievement Admin']), async (req: AuthRequest, res: Response) => {
   const achievement = await db.addAchievement(req.body, req.user?.name);
+  broadcastDataChange('achievements', 'create', achievement);
   res.status(201).json(achievement);
 });
 
 apiRouter.put('/admin/achievements/:id', authenticateToken, requireRole(['Achievement Admin']), async (req: AuthRequest, res: Response) => {
   const updated = await db.updateAchievement(req.params.id, req.body, req.user?.name);
   if (!updated) return res.status(404).json({ error: 'Achievement not found.' });
+  broadcastDataChange('achievements', 'update', updated);
   res.json(updated);
 });
 
 apiRouter.delete('/admin/achievements/:id', authenticateToken, requireRole(['Achievement Admin']), async (req: AuthRequest, res: Response) => {
   const success = await db.deleteAchievement(req.params.id, req.user?.name);
   if (!success) return res.status(404).json({ error: 'Achievement not found.' });
+  broadcastDataChange('achievements', 'delete', { id: req.params.id });
   res.json({ message: 'Achievement deleted.' });
 });
 
@@ -288,6 +343,7 @@ apiRouter.get('/admin/ideas', authenticateToken, requireRole(['Content Admin']),
 apiRouter.put('/admin/ideas/:id', authenticateToken, requireRole(['Content Admin']), async (req: AuthRequest, res: Response) => {
   const updated = await db.updateIdea(req.params.id, req.body, req.user?.name);
   if (!updated) return res.status(404).json({ error: 'Idea not found.' });
+  broadcastDataChange('ideas', 'update', updated);
   res.json(updated);
 });
 
@@ -298,18 +354,21 @@ apiRouter.get('/admin/startups', authenticateToken, requireRole(['Content Admin'
 
 apiRouter.post('/admin/startups', authenticateToken, requireRole(['Content Admin']), async (req: AuthRequest, res: Response) => {
   const startup = await db.addStartup(req.body, req.user?.name);
+  broadcastDataChange('startups', 'create', startup);
   res.status(201).json(startup);
 });
 
 apiRouter.put('/admin/startups/:id', authenticateToken, requireRole(['Content Admin']), async (req: AuthRequest, res: Response) => {
   const updated = await db.updateStartup(req.params.id, req.body, req.user?.name);
   if (!updated) return res.status(404).json({ error: 'Startup not found.' });
+  broadcastDataChange('startups', 'update', updated);
   res.json(updated);
 });
 
 apiRouter.delete('/admin/startups/:id', authenticateToken, requireRole(['Content Admin']), async (req: AuthRequest, res: Response) => {
   const success = await db.deleteStartup(req.params.id, req.user?.name);
   if (!success) return res.status(404).json({ error: 'Startup not found.' });
+  broadcastDataChange('startups', 'delete', { id: req.params.id });
   res.json({ message: 'Startup removed.' });
 });
 
@@ -320,18 +379,21 @@ apiRouter.get('/admin/workshops', authenticateToken, requireRole(['Content Admin
 
 apiRouter.post('/admin/workshops', authenticateToken, requireRole(['Content Admin']), async (req: AuthRequest, res: Response) => {
   const ws = await db.addWorkshop(req.body, req.user?.name);
+  broadcastDataChange('workshops', 'create', ws);
   res.status(201).json(ws);
 });
 
 apiRouter.put('/admin/workshops/:id', authenticateToken, requireRole(['Content Admin']), async (req: AuthRequest, res: Response) => {
   const updated = await db.updateWorkshop(req.params.id, req.body, req.user?.name);
   if (!updated) return res.status(404).json({ error: 'Workshop not found.' });
+  broadcastDataChange('workshops', 'update', updated);
   res.json(updated);
 });
 
 apiRouter.delete('/admin/workshops/:id', authenticateToken, requireRole(['Content Admin']), async (req: AuthRequest, res: Response) => {
   const success = await db.deleteWorkshop(req.params.id, req.user?.name);
   if (!success) return res.status(404).json({ error: 'Workshop not found.' });
+  broadcastDataChange('workshops', 'delete', { id: req.params.id });
   res.json({ message: 'Workshop deleted.' });
 });
 
@@ -343,18 +405,21 @@ apiRouter.get('/admin/resources', authenticateToken, requireRole(['Content Admin
 
 apiRouter.post('/admin/resources', authenticateToken, requireRole(['Content Admin']), async (req: AuthRequest, res: Response) => {
   const resItem = await db.addResource(req.body, req.user?.name);
+  broadcastDataChange('resources', 'create', resItem);
   res.status(201).json(resItem);
 });
 
 apiRouter.put('/admin/resources/:id', authenticateToken, requireRole(['Content Admin']), async (req: AuthRequest, res: Response) => {
   const updated = await db.updateResource(req.params.id, req.body, req.user?.name);
   if (!updated) return res.status(404).json({ error: 'Resource not found.' });
+  broadcastDataChange('resources', 'update', updated);
   res.json(updated);
 });
 
 apiRouter.delete('/admin/resources/:id', authenticateToken, requireRole(['Content Admin']), async (req: AuthRequest, res: Response) => {
   const success = await db.deleteResource(req.params.id, req.user?.name);
   if (!success) return res.status(404).json({ error: 'Resource not found.' });
+  broadcastDataChange('resources', 'delete', { id: req.params.id });
   res.json({ message: 'Resource deleted.' });
 });
 
@@ -366,18 +431,21 @@ apiRouter.get('/admin/gallery', authenticateToken, requireRole(['Content Admin']
 
 apiRouter.post('/admin/gallery', authenticateToken, requireRole(['Content Admin']), async (req: AuthRequest, res: Response) => {
   const album = await db.addGalleryAlbum(req.body, req.user?.name);
+  broadcastDataChange('gallery', 'create', album);
   res.status(201).json(album);
 });
 
 apiRouter.put('/admin/gallery/:id', authenticateToken, requireRole(['Content Admin']), async (req: AuthRequest, res: Response) => {
   const updated = await db.updateGalleryAlbum(req.params.id, req.body, req.user?.name);
   if (!updated) return res.status(404).json({ error: 'Album not found.' });
+  broadcastDataChange('gallery', 'update', updated);
   res.json(updated);
 });
 
 apiRouter.delete('/admin/gallery/:id', authenticateToken, requireRole(['Content Admin']), async (req: AuthRequest, res: Response) => {
   const success = await db.deleteGalleryAlbum(req.params.id, req.user?.name);
   if (!success) return res.status(404).json({ error: 'Album not found.' });
+  broadcastDataChange('gallery', 'delete', { id: req.params.id });
   res.json({ message: 'Gallery album deleted.' });
 });
 
@@ -389,18 +457,21 @@ apiRouter.get('/admin/news', authenticateToken, requireRole(['Content Admin']), 
 
 apiRouter.post('/admin/news', authenticateToken, requireRole(['Content Admin']), async (req: AuthRequest, res: Response) => {
   const article = await db.addNews(req.body, req.user?.name);
+  broadcastDataChange('news', 'create', article);
   res.status(201).json(article);
 });
 
 apiRouter.put('/admin/news/:id', authenticateToken, requireRole(['Content Admin']), async (req: AuthRequest, res: Response) => {
   const updated = await db.updateNews(req.params.id, req.body, req.user?.name);
   if (!updated) return res.status(404).json({ error: 'Article not found.' });
+  broadcastDataChange('news', 'update', updated);
   res.json(updated);
 });
 
 apiRouter.delete('/admin/news/:id', authenticateToken, requireRole(['Content Admin']), async (req: AuthRequest, res: Response) => {
   const success = await db.deleteNews(req.params.id, req.user?.name);
   if (!success) return res.status(404).json({ error: 'Article not found.' });
+  broadcastDataChange('news', 'delete', { id: req.params.id });
   res.json({ message: 'News article deleted.' });
 });
 
@@ -423,6 +494,7 @@ apiRouter.get('/admin/submissions', authenticateToken, requireRole(['Team Admin'
 apiRouter.put('/admin/submissions/:id', authenticateToken, requireRole(['Team Admin']), async (req: AuthRequest, res: Response) => {
   const updated = await db.updateSubmission(req.params.id, req.body, req.user?.name);
   if (!updated) return res.status(404).json({ error: 'Submission not found.' });
+  broadcastDataChange('submissions', 'update', updated);
   res.json(updated);
 });
 
@@ -433,6 +505,7 @@ apiRouter.get('/admin/settings', authenticateToken, requireRole(['Super Admin'])
 
 apiRouter.put('/admin/settings', authenticateToken, requireRole(['Super Admin']), async (req: AuthRequest, res: Response) => {
   const updated = await db.updateSiteSettings(req.body, req.user?.name);
+  broadcastDataChange('settings', 'update', updated);
   res.json(updated);
 });
 
@@ -445,6 +518,7 @@ apiRouter.put('/admin/users/:id/role', authenticateToken, requireRole(['Super Ad
   const { role } = req.body;
   const updated = await db.updateUserRole(req.params.id, role, req.user?.name);
   if (!updated) return res.status(404).json({ error: 'User not found.' });
+  broadcastDataChange('users', 'update', updated);
   res.json(updated);
 });
 
@@ -455,12 +529,14 @@ apiRouter.get('/admin/posters', authenticateToken, requireRole(['Content Admin']
 
 apiRouter.post('/admin/posters', authenticateToken, requireRole(['Content Admin']), async (req: AuthRequest, res: Response) => {
   const item = await db.addPoster(req.body, req.user?.name);
+  broadcastDataChange('posters', 'create', item);
   res.status(201).json(item);
 });
 
 apiRouter.delete('/admin/posters/:id', authenticateToken, requireRole(['Content Admin']), async (req: AuthRequest, res: Response) => {
   const success = await db.deletePoster(req.params.id, req.user?.name);
   if (!success) return res.status(404).json({ error: 'Poster not found.' });
+  broadcastDataChange('posters', 'delete', { id: req.params.id });
   res.json({ message: 'Poster deleted.' });
 });
 
@@ -471,11 +547,13 @@ apiRouter.get('/admin/media', authenticateToken, async (_req: AuthRequest, res: 
 
 apiRouter.post('/admin/media', authenticateToken, async (req: AuthRequest, res: Response) => {
   const item = await db.addMediaItem(req.body, req.user?.name);
+  broadcastDataChange('media', 'create', item);
   res.status(201).json(item);
 });
 
 apiRouter.delete('/admin/media/:id', authenticateToken, async (req: AuthRequest, res: Response) => {
   const success = await db.deleteMediaItem(req.params.id, req.user?.name);
   if (!success) return res.status(404).json({ error: 'Media file not found.' });
+  broadcastDataChange('media', 'delete', { id: req.params.id });
   res.json({ message: 'Media file deleted.' });
 });

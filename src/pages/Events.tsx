@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { SectionHeader } from '../components/ui/SectionHeader';
 import { Badge } from '../components/ui/Badge';
@@ -7,6 +7,7 @@ import { LoadingState } from '../components/ui/LoadingState';
 import { EmptyState } from '../components/ui/EmptyState';
 import { Button } from '../components/ui/Button';
 import { api } from '../services/api';
+import { useRealtimeSync } from '../services/realtime';
 import { EventItem, AcademicYear } from '../types';
 import { Calendar, MapPin, Users, AlertCircle, ArrowRight, CheckCircle2 } from 'lucide-react';
 
@@ -31,25 +32,28 @@ export const Events: React.FC = () => {
     loadYears();
   }, []);
 
-  useEffect(() => {
-    async function loadEvents() {
-      setLoading(true);
-      try {
-        const data = await api.getEvents({
-          year: selectedYear === 'All' ? undefined : selectedYear,
-          category: selectedCategory === 'All' ? undefined : selectedCategory,
-          status: selectedStatus === 'All' ? undefined : selectedStatus,
-          search: search || undefined
-        });
-        setEvents(data);
-      } catch (err) {
-        console.error('Failed to load events:', err);
-      } finally {
-        setLoading(false);
-      }
+  const loadEvents = useCallback(async () => {
+    setLoading(true);
+    try {
+      const data = await api.getEvents({
+        year: selectedYear === 'All' ? undefined : selectedYear,
+        category: selectedCategory === 'All' ? undefined : selectedCategory,
+        status: selectedStatus === 'All' ? undefined : selectedStatus,
+        search: search || undefined
+      });
+      setEvents(data);
+    } catch (err) {
+      console.error('Failed to load events:', err);
+    } finally {
+      setLoading(false);
     }
-    loadEvents();
   }, [selectedYear, selectedCategory, selectedStatus, search]);
+
+  useEffect(() => {
+    loadEvents();
+  }, [loadEvents]);
+
+  useRealtimeSync(['events', 'academicYears'], loadEvents);
 
   return (
     <div className="max-w-[1700px] mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-12">

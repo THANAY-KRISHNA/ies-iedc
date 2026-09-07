@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { SectionHeader } from '../components/ui/SectionHeader';
 import { Badge } from '../components/ui/Badge';
 import { EmptyState } from '../components/ui/EmptyState';
@@ -6,6 +6,7 @@ import { LoadingState } from '../components/ui/LoadingState';
 import { Button } from '../components/ui/Button';
 import { Link } from 'react-router-dom';
 import { api } from '../services/api';
+import { useRealtimeSync } from '../services/realtime';
 import { StartupItem } from '../types';
 import { Rocket, ExternalLink, ShieldCheck, Building2, CheckCircle, Sparkles } from 'lucide-react';
 
@@ -13,19 +14,22 @@ export const Startups: React.FC = () => {
   const [startups, setStartups] = useState<StartupItem[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
 
-  useEffect(() => {
-    async function loadStartups() {
-      try {
-        const data = await api.getStartups();
-        setStartups(data);
-      } catch (err) {
-        console.error('Failed to load startups:', err);
-      } finally {
-        setLoading(false);
-      }
+  const loadStartups = useCallback(async () => {
+    try {
+      const data = await api.getStartups();
+      setStartups(data);
+    } catch (err) {
+      console.error('Failed to load startups:', err);
+    } finally {
+      setLoading(false);
     }
-    loadStartups();
   }, []);
+
+  useEffect(() => {
+    loadStartups();
+  }, [loadStartups]);
+
+  useRealtimeSync(['startups'], loadStartups);
 
   return (
     <div className="max-w-[1700px] mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-16">

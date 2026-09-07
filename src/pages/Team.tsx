@@ -1,10 +1,11 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { SectionHeader } from '../components/ui/SectionHeader';
 import { Badge } from '../components/ui/Badge';
 import { SearchFilterBar } from '../components/ui/SearchFilterBar';
 import { LoadingState } from '../components/ui/LoadingState';
 import { EmptyState } from '../components/ui/EmptyState';
 import { api } from '../services/api';
+import { useRealtimeSync } from '../services/realtime';
 import { TeamMember, AcademicYear } from '../types';
 import { ROLE_RESPONSIBILITIES } from '../data/initialData';
 import { Mail, Linkedin, Shield, User, Award, ArrowUpRight, CheckCircle2 } from 'lucide-react';
@@ -71,20 +72,23 @@ export const Team: React.FC = () => {
     loadAcademicYears();
   }, []);
 
-  useEffect(() => {
-    async function loadTeam() {
-      setLoading(true);
-      try {
-        const members = await api.getTeam(selectedYear);
-        setTeamMembers(members);
-      } catch (err) {
-        console.error('Failed to load team:', err);
-      } finally {
-        setLoading(false);
-      }
+  const loadTeam = useCallback(async () => {
+    setLoading(true);
+    try {
+      const members = await api.getTeam(selectedYear);
+      setTeamMembers(members);
+    } catch (err) {
+      console.error('Failed to load team:', err);
+    } finally {
+      setLoading(false);
     }
-    loadTeam();
   }, [selectedYear]);
+
+  useEffect(() => {
+    loadTeam();
+  }, [loadTeam]);
+
+  useRealtimeSync(['team', 'academicYears'], loadTeam);
 
   // Filtered members by search and role filter dropdown
   const publishedMembers = teamMembers.filter(m => m.status === 'Published');

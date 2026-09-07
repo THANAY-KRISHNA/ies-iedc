@@ -1,6 +1,7 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { AdminLayout } from '../../components/admin/AdminLayout';
 import { api } from '../../services/api';
+import { useRealtimeSync } from '../../services/realtime';
 import { WorkshopItem, AcademicYear } from '../../types';
 import { Plus, Edit, Trash2, BookOpen, Search, Eye } from 'lucide-react';
 
@@ -31,25 +32,27 @@ export const AdminWorkshops: React.FC = () => {
     published: true
   });
 
-  useEffect(() => {
-    loadData();
-  }, []);
-
-  async function loadData() {
+  const loadData = useCallback(async () => {
     setLoading(true);
     try {
-      const [list, years] = await Promise.all([
+      const [wsList, ayList] = await Promise.all([
         api.adminGetWorkshops(),
         api.getAcademicYears()
       ]);
-      setWorkshops(list);
-      setAcademicYears(years);
+      setWorkshops(wsList);
+      setAcademicYears(ayList);
     } catch (err) {
-      console.error('Failed to load workshops:', err);
+      console.error('Failed to load workshops data:', err);
     } finally {
       setLoading(false);
     }
-  }
+  }, []);
+
+  useEffect(() => {
+    loadData();
+  }, [loadData]);
+
+  useRealtimeSync(['workshops', 'academicYears'], loadData);
 
   const handleOpenAdd = () => {
     setEditingItem(null);

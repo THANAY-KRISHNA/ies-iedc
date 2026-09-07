@@ -1,9 +1,10 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { SectionHeader } from '../components/ui/SectionHeader';
 import { Badge } from '../components/ui/Badge';
 import { EmptyState } from '../components/ui/EmptyState';
 import { LoadingState } from '../components/ui/LoadingState';
 import { api } from '../services/api';
+import { useRealtimeSync } from '../services/realtime';
 import { Achievement, AcademicYear } from '../types';
 import { Award, CheckCircle, Calendar, ShieldCheck, Trophy } from 'lucide-react';
 
@@ -25,22 +26,25 @@ export const Achievements: React.FC = () => {
     loadYears();
   }, []);
 
-  useEffect(() => {
-    async function loadAchievements() {
-      setLoading(true);
-      try {
-        const data = await api.getAchievements({
-          year: selectedYear === 'All' ? undefined : selectedYear
-        });
-        setAchievements(data);
-      } catch (err) {
-        console.error('Error loading achievements:', err);
-      } finally {
-        setLoading(false);
-      }
+  const loadAchievements = useCallback(async () => {
+    setLoading(true);
+    try {
+      const data = await api.getAchievements({
+        year: selectedYear === 'All' ? undefined : selectedYear
+      });
+      setAchievements(data);
+    } catch (err) {
+      console.error('Error loading achievements:', err);
+    } finally {
+      setLoading(false);
     }
-    loadAchievements();
   }, [selectedYear]);
+
+  useEffect(() => {
+    loadAchievements();
+  }, [loadAchievements]);
+
+  useRealtimeSync(['achievements', 'academicYears'], loadAchievements);
 
   return (
     <div className="max-w-[1700px] mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-12">

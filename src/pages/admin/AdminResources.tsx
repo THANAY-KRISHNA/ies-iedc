@@ -1,6 +1,7 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { AdminLayout } from '../../components/admin/AdminLayout';
 import { api } from '../../services/api';
+import { useRealtimeSync } from '../../services/realtime';
 import { ResourceItem } from '../../types';
 import { Plus, Edit, Trash2, FolderDown, ExternalLink, Search } from 'lucide-react';
 
@@ -23,11 +24,7 @@ export const AdminResources: React.FC = () => {
     published: true
   });
 
-  useEffect(() => {
-    loadData();
-  }, []);
-
-  async function loadData() {
+  const loadData = useCallback(async () => {
     setLoading(true);
     try {
       const list = await api.adminGetResources();
@@ -37,7 +34,13 @@ export const AdminResources: React.FC = () => {
     } finally {
       setLoading(false);
     }
-  }
+  }, []);
+
+  useEffect(() => {
+    loadData();
+  }, [loadData]);
+
+  useRealtimeSync(['resources'], loadData);
 
   const handleOpenAdd = () => {
     setEditingItem(null);
