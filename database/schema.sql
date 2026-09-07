@@ -265,3 +265,43 @@ CREATE TABLE IF NOT EXISTS site_settings (
   value JSONB NOT NULL,
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
+
+-- ==========================================================
+-- 15. ROW LEVEL SECURITY (RLS) & POLICIES
+-- ==========================================================
+
+-- Enable Row Level Security on all tables
+ALTER TABLE roles ENABLE ROW LEVEL SECURITY;
+ALTER TABLE users ENABLE ROW LEVEL SECURITY;
+ALTER TABLE academic_years ENABLE ROW LEVEL SECURITY;
+ALTER TABLE departments ENABLE ROW LEVEL SECURITY;
+ALTER TABLE team_members ENABLE ROW LEVEL SECURITY;
+ALTER TABLE events ENABLE ROW LEVEL SECURITY;
+ALTER TABLE achievements ENABLE ROW LEVEL SECURITY;
+ALTER TABLE student_ideas ENABLE ROW LEVEL SECURITY;
+ALTER TABLE startups ENABLE ROW LEVEL SECURITY;
+ALTER TABLE workshops ENABLE ROW LEVEL SECURITY;
+ALTER TABLE resources ENABLE ROW LEVEL SECURITY;
+ALTER TABLE gallery_albums ENABLE ROW LEVEL SECURITY;
+ALTER TABLE gallery_images ENABLE ROW LEVEL SECURITY;
+ALTER TABLE news ENABLE ROW LEVEL SECURITY;
+ALTER TABLE join_submissions ENABLE ROW LEVEL SECURITY;
+ALTER TABLE activity_logs ENABLE ROW LEVEL SECURITY;
+ALTER TABLE site_settings ENABLE ROW LEVEL SECURITY;
+
+-- Create permissive read/write policies for anon and authenticated roles
+DO $$
+DECLARE
+  t text;
+BEGIN
+  FOR t IN 
+    SELECT table_name 
+    FROM information_schema.tables 
+    WHERE table_schema = 'public' 
+      AND table_type = 'BASE TABLE'
+  LOOP
+    EXECUTE format('DROP POLICY IF EXISTS "Allow full access for all users" ON %I;', t);
+    EXECUTE format('CREATE POLICY "Allow full access for all users" ON %I FOR ALL USING (true) WITH CHECK (true);', t);
+  END LOOP;
+END $$;
+
