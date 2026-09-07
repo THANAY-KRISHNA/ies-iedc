@@ -1,33 +1,54 @@
 import React from 'react';
 import { SectionHeader } from '../components/ui/SectionHeader';
 import { Badge } from '../components/ui/Badge';
-import { CheckCircle2, ShieldCheck, Target, Award, Building, BookOpen } from 'lucide-react';
+import { CheckCircle2, ShieldCheck, Target, Award, Building, BookOpen, Lightbulb, Cpu, Rocket } from 'lucide-react';
 
 export const About: React.FC = () => {
   const objectives = [
     {
-      title: 'Culture of Innovation & Entrepreneurship',
-      desc: 'To cultivate an innovation-driven entrepreneurial mindset among engineering students, encouraging creative thinking and problem-solving methodologies.'
+      title: 'Culture of Innovation',
+      desc: 'To promote an innovation driven entrepreneurship culture among the students'
     },
     {
-      title: 'Mentorship & Venture Facilitation',
-      desc: 'To provide dedicated mentorship from industry veterans, alumni founders, and research mentors to help transform innovative ideas into viable ventures.'
+      title: 'Commercially Viable Solutions',
+      desc: 'To develop and promote commercially viable innovative products and solutions from the students.'
     },
     {
-      title: 'IPR & Technological Protection',
-      desc: 'To conduct intellectual property rights (IPR) awareness workshops and facilitate patent filing, copyright, and trademark procedures for student innovations.'
+      title: 'Technopreneurship Spirit',
+      desc: 'To promote a spirit of enterprise among budding technopreneurs'
     },
     {
-      title: 'Prototyping & Incubation Support',
-      desc: 'To provide laboratory infrastructure, maker space equipment, and early-stage seed assistance to validate prototypes.'
+      title: 'Industry-Academia Bridge',
+      desc: 'To bridge the gap between Industry and Academia'
+    }
+  ];
+
+  const functions = [
+    'To create awareness and interest among faculties and students through workshops and Hackathons and FDPs',
+    'To motivate, support and mentor students for identification, development and commercialisation of their innovative ideas',
+    'To create a platform for the young brains to develop their skills and to give proper technological exposure',
+    'To provide Technology & Management Skill Training to the students and Faculties in building their innovative product or solution.',
+    'To create specialization hubs for promoting the culture of Entrepreneurship among the student communities.'
+  ];
+
+  const programmePhases = [
+    {
+      phase: 'Phase 1: Innovation Phase',
+      icon: Lightbulb,
+      title: 'Ideation & Mindset',
+      description: 'Students experience innovation thinking, tools of innovation and an innovation mindset. Students gain experience in design thinking and ideation which helps develop a perspective towards social and community problems.'
     },
     {
-      title: 'Industry & Ecosystem Linkage',
-      desc: 'To bridge academic talent with Kerala Startup Mission (KSUM), MSME development institutes, EDI, and leading angel investor networks.'
+      phase: 'Phase 2: Technical Phase',
+      icon: Cpu,
+      title: 'Skill Appreciation & Prototyping',
+      description: 'Students undergo skill appreciation workshops and are introduced to new technologies, future of work, computational thinking, and sectoral areas to upgrade skills in their chosen fields.'
     },
     {
-      title: 'Diversity & Women Entrepreneurship',
-      desc: 'To encourage women engineering scholars to lead technology startups and participate in state and national startup summits.'
+      phase: 'Phase 3: Entrepreneurship Phase',
+      icon: Rocket,
+      title: 'Business & Commercialisation',
+      description: 'Students are exposed to business and entrepreneurship through workshops and case studies. Tools such as Business Canvas Modelling and Design Thinking workshops guide student teams toward solving identified problems.'
     }
   ];
 
@@ -44,27 +65,20 @@ export const About: React.FC = () => {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
         <div className="lg:col-span-2 space-y-5 text-sm text-[#4A4A4A] leading-relaxed">
           <p className="text-base font-semibold text-[#161616]">
-            Established in 2016, the Innovation and Entrepreneurship Development Centre (IEDC) at IES
-            College of Engineering functions as a flagship node under the Kerala Startup Mission
-            (KSUM) institutional network.
+            The Institute has an Innovation and Entrepreneurship Development Cell (IES IEDC) established in 2016. Innovation and Entrepreneurship Development Centre (IEDC) is a flagship initiative of Kerala Startup Mission to promote innovation and entrepreneurship among the student and academic fraternity in the educational institutions in the State of Kerala and considered as an umbrella programme that would play an instrumental role in fostering innovation culture in Academic institutions.
           </p>
           <p>
-            The Centre is committed to creating an institutional ecosystem where students from all
-            engineering departments—including Civil, Mechanical, Computer Science, Electrical,
-            Electronics, Robotics &amp; AI, and Data Science—can collaborate to solve pressing
-            societal and industrial problems.
+            It is a student's organization established in the institution devoted in promoting the spirit of entrepreneurship among themselves. It also aims to conduct ED courses for students with the help of Kerala Startup Mission, MSME &amp; EDI, India.
           </p>
           <p>
-            Through state-level hackathons, ideation camps, design thinking workshops, and mentorship
-            sessions with Kerala Startup Mission officers, IES IEDC provides students with a
-            structured bridge between engineering curricula and real-world technology entrepreneurship.
+            IES IEDC organizes seminars and various workshops periodically. Successful entrepreneurs are invited for interactive sessions with the students, for making the students understand business ethics and start-up procedures. The cell also organizes idea competitions and mentors them to transform their ideas into reality. Officials from different sectors are also invited as guest speakers for sessions to provide guidance on financial and registration aspects of startups.
           </p>
 
           <div className="pt-4 flex flex-wrap gap-2">
-            <Badge variant="dark">KSUM Approved Centre</Badge>
+            <Badge variant="dark">KSUM Flagship Initiative</Badge>
             <Badge variant="neutral">Established in 2016</Badge>
+            <Badge variant="neutral">MSME &amp; EDI Partner</Badge>
             <Badge variant="neutral">Autonomous Student Governance</Badge>
-            <Badge variant="neutral">Faculty Mentorship Panel</Badge>
           </div>
         </div>
 
@@ -87,7 +101,7 @@ export const About: React.FC = () => {
             </div>
             <div className="flex justify-between py-1 border-b border-[#F0F0ED]">
               <span className="text-[#777777]">Nodal Agency:</span>
-              <span className="font-semibold text-[#161616]">Kerala Startup Mission</span>
+              <span className="font-semibold text-[#161616]">Kerala Startup Mission (KSUM)</span>
             </div>
             <div className="flex justify-between py-1 border-b border-[#F0F0ED]">
               <span className="text-[#777777]">Host College:</span>
@@ -109,8 +123,7 @@ export const About: React.FC = () => {
             <h3 className="text-base font-bold text-[#161616]">Official Vision</h3>
           </div>
           <p className="text-sm text-[#4A4A4A] italic leading-relaxed">
-            "To become a premier centre of excellence in fostering innovation, technology-driven
-            entrepreneurship, and sustainable ventures that contribute to societal transformation."
+            "To inculcate an innovation culture among the students, to create future entrepreneurs and position the institution as a learning, innovation and entrepreneurial hub."
           </p>
         </div>
 
@@ -120,9 +133,7 @@ export const About: React.FC = () => {
             <h3 className="text-base font-bold text-[#161616]">Official Mission</h3>
           </div>
           <p className="text-sm text-[#4A4A4A] italic leading-relaxed">
-            "To nurture an innovation-driven entrepreneurial ecosystem, provide mentorship and incubation
-            support, encourage interdisciplinary research, and empower students to build viable
-            commercial solutions."
+            "To establish an innovation platform by introducing the State-of-the-art technologies through promoting innovation and entrepreneurship."
           </p>
         </div>
       </div>
@@ -136,7 +147,7 @@ export const About: React.FC = () => {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           {objectives.map((obj, i) => (
             <div
               key={i}
@@ -152,26 +163,83 @@ export const About: React.FC = () => {
         </div>
       </div>
 
-      {/* 5. Governance & Ecosystem Partners */}
+      {/* 5. Functions of IEDC */}
+      <div className="space-y-6">
+        <div>
+          <h3 className="text-xl font-bold text-[#161616]">Functions of IEDC</h3>
+          <p className="text-xs text-[#777777] mt-1">
+            Core responsibilities and operational activities mandated for IES IEDC.
+          </p>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {functions.map((func, i) => (
+            <div
+              key={i}
+              className="neu-raised-soft rounded-xl p-6 border border-[#D8D8D3] flex items-start gap-3"
+            >
+              <CheckCircle2 className="w-5 h-5 text-[#161616] shrink-0 mt-0.5" />
+              <p className="text-xs text-[#4A4A4A] leading-relaxed">{func}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* 6. Programme Design of IEDC */}
+      <div className="space-y-6">
+        <div>
+          <h3 className="text-xl font-bold text-[#161616]">Programme Design of IEDC</h3>
+          <p className="text-xs text-[#777777] mt-1">
+            Structured 3-phase progression vertical (Innovation, Technical, Entrepreneurship).
+          </p>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {programmePhases.map((phase, i) => {
+            const Icon = phase.icon;
+            return (
+              <div
+                key={i}
+                className="neu-raised rounded-xl p-6 border border-[#D8D8D3] space-y-3"
+              >
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-lg neu-inset flex items-center justify-center text-[#161616]">
+                    <Icon className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <span className="text-[10px] uppercase tracking-wider font-bold text-[#777777]">
+                      {phase.phase}
+                    </span>
+                    <h4 className="text-sm font-bold text-[#161616]">{phase.title}</h4>
+                  </div>
+                </div>
+                <p className="text-xs text-[#4A4A4A] leading-relaxed">{phase.description}</p>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* 7. Ecosystem Collaborations */}
       <div className="neu-raised rounded-2xl p-8 md:p-12 border border-[#D8D8D3] space-y-6">
         <h3 className="text-lg font-bold text-[#161616]">Ecosystem Collaborations</h3>
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
           <div className="neu-raised-soft rounded-lg p-5 border border-[#D8D8D3] space-y-2">
             <h4 className="text-sm font-bold text-[#161616]">Kerala Startup Mission (KSUM)</h4>
             <p className="text-xs text-[#777777] leading-relaxed">
-              State nodal agency for entrepreneurship development providing funding grants, IEDC summits, and mentorship access.
+              State flagship initiative promoting innovation and entrepreneurship across educational institutions in Kerala.
             </p>
           </div>
           <div className="neu-raised-soft rounded-lg p-5 border border-[#D8D8D3] space-y-2">
-            <h4 className="text-sm font-bold text-[#161616]">MSME / EDI India</h4>
+            <h4 className="text-sm font-bold text-[#161616]">MSME &amp; EDI India</h4>
             <p className="text-xs text-[#777777] leading-relaxed">
-              National entrepreneurship promotion initiatives facilitating enterprise development and industrial training workshops.
+              National entrepreneurship promotion institutes facilitating ED courses, skill development, and industrial guidance.
             </p>
           </div>
           <div className="neu-raised-soft rounded-lg p-5 border border-[#D8D8D3] space-y-2">
             <h4 className="text-sm font-bold text-[#161616]">IES Innovation Cell</h4>
             <p className="text-xs text-[#777777] leading-relaxed">
-              Interdisciplinary faculty committee representing all 8 academic engineering departments of IES College of Engineering.
+              Interdisciplinary faculty and student body representing CE, ME, CSE, EEE, ECE, R&amp;AI, DS, and S&amp;H departments.
             </p>
           </div>
         </div>
@@ -179,3 +247,4 @@ export const About: React.FC = () => {
     </div>
   );
 };
+

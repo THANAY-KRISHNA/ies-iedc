@@ -225,6 +225,9 @@ export interface SiteSettings {
   tagline: string;
   vision: string;
   mission: string;
+  objectives?: string[];
+  functions?: string[];
+  programmeDesign?: any;
   nodalOfficerName: string;
   assistantNodalOfficerName: string;
   officialEmail: string;

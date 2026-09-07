@@ -611,21 +611,6 @@
       "status": "Published"
     },
     {
-      "name": "[dofigjs[droij",
-      "roleType": "Student Lead",
-      "position": "[pskfaw[",
-      "department": "CSE",
-      "designation": "",
-      "responsibility": "",
-      "email": "",
-      "linkedinUrl": "",
-      "photoUrl": "",
-      "academicYear": "2025–26",
-      "status": "Published",
-      "sortOrder": 1,
-      "id": "tm_1788524871491_n993"
-    },
-    {
       "name": "uhdgawed",
       "roleType": "CEO",
       "position": "CEO",
@@ -1414,6 +1399,36 @@
     {
       "userName": "Prof. Shahaziya Parvez",
       "userRole": "Team Admin",
+      "action": "Deleted",
+      "contentType": "Team Member",
+      "contentId": "tm_1788524871491_n993",
+      "contentSummary": "Removed team member [dofigjs[droij",
+      "id": "log_1788800332041_l2a4",
+      "timestamp": "2026-09-07T16:58:52.041Z"
+    },
+    {
+      "userName": "Prof. Shahaziya Parvez",
+      "userRole": "Team Admin",
+      "action": "Deleted",
+      "contentType": "Team Member",
+      "contentId": "tm_1788799089040_fe0n",
+      "contentSummary": "Removed team member hari nandhan",
+      "id": "log_1788800327313_kemp",
+      "timestamp": "2026-09-07T16:58:47.313Z"
+    },
+    {
+      "userName": "Prof. Shahaziya Parvez",
+      "userRole": "Team Admin",
+      "action": "Created",
+      "contentType": "Team Member",
+      "contentId": "tm_1788799089040_fe0n",
+      "contentSummary": "Added team member hari nandhan (CEO)",
+      "id": "log_1788799089042_ruem",
+      "timestamp": "2026-09-07T16:38:09.042Z"
+    },
+    {
+      "userName": "Prof. Shahaziya Parvez",
+      "userRole": "Team Admin",
       "action": "Created",
       "contentType": "Team Member",
       "contentId": "tm_1788550923997_s019",
@@ -1495,5 +1510,7 @@
       "news": true,
       "cta": true
     }
-  }
+  },
+  "posters": [],
+  "mediaItems": []
 }

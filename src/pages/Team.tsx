@@ -9,23 +9,12 @@ import { TeamMember, AcademicYear } from '../types';
 import { ROLE_RESPONSIBILITIES } from '../data/initialData';
 import { Mail, Linkedin, Shield, User, Award, ArrowUpRight, CheckCircle2 } from 'lucide-react';
 
-// Fallback high-quality avatar generator or neutral photo placeholder
+// Neutral photo placeholder getter
 const getPhotoUrl = (member: TeamMember): string => {
   if (member.photoUrl && member.photoUrl.trim() !== '') {
     return member.photoUrl;
   }
-  // Standardized high quality Unsplash avatar fallbacks by role/gender representation
-  const name = member.name.toLowerCase();
-  if (name.includes('shahaziya')) {
-    return 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=400';
-  }
-  if (name.includes('prabhavathi') || name.includes('angela') || name.includes('athira') || name.includes('nivya') || name.includes('bency') || name.includes('amitha') || name.includes('priya') || name.includes('fathima') || name.includes('rudhra') || name.includes('nidha') || name.includes('liya') || name.includes('aliya')) {
-    return 'https://images.unsplash.com/photo-1580489944761-15a19d654956?auto=format&fit=crop&q=80&w=400';
-  }
-  if (name.includes('edwin') || name.includes('ajmal') || name.includes('govind') || name.includes('faraz') || name.includes('vishnu') || name.includes('abhinav') || name.includes('ajay') || name.includes('muneef') || name.includes('anil')) {
-    return 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=400';
-  }
-  return `https://ui-avatars.com/api/?name=${encodeURIComponent(member.name)}&background=161616&color=ffffff&size=256&bold=true`;
+  return '';
 };
 
 // Role ordering hierarchy for structured organization
@@ -65,6 +54,8 @@ export const Team: React.FC = () => {
   const [roleFilter, setRoleFilter] = useState<string>('All');
   const [loading, setLoading] = useState<boolean>(true);
   const [activeTab, setActiveTab] = useState<string>('');
+  const [viewMode, setViewMode] = useState<'roster' | 'hierarchy'>('roster');
+
 
   useEffect(() => {
     async function loadAcademicYears() {
@@ -207,83 +198,213 @@ export const Team: React.FC = () => {
         </p>
       </div>
 
-      {/* 2. Academic Year Selector & Search Bar */}
-      <div className="neu-raised rounded-2xl p-6 border border-[#D8D8D3] space-y-6">
-        <div className="flex flex-col md:flex-row items-center justify-between gap-4 border-b border-[#EBEBE8] pb-5">
-          <div className="flex flex-wrap items-center gap-2">
-            <span className="text-xs font-bold text-[#777777] uppercase tracking-wider mr-2 flex items-center gap-1.5">
-              <Award className="w-4 h-4 text-[#161616]" />
-              Academic Year:
-            </span>
-            {academicYears.map(year => (
-              <button
-                key={year.id}
-                onClick={() => setSelectedYear(year.year)}
-                className={`px-4 py-2 text-xs font-bold rounded-xl transition-all cursor-pointer flex items-center gap-2 ${
-                  selectedYear === year.year
-                    ? 'bg-[#161616] text-white shadow-md'
-                    : 'neu-button text-[#4A4A4A] hover:text-[#161616]'
-                }`}
-              >
-                <span>{year.year}</span>
-                {year.isCurrent && (
-                  <span className="text-[10px] px-1.5 py-0.5 bg-emerald-500 text-white rounded font-extrabold uppercase">
-                    Current
-                  </span>
-                )}
-              </button>
-            ))}
+      {/* 2. View Mode Toggle & Academic Year Selector */}
+      <div className="flex justify-center gap-3">
+        <button
+          onClick={() => setViewMode('roster')}
+          className={`px-5 py-2.5 text-xs font-bold rounded-xl transition-all cursor-pointer ${
+            viewMode === 'roster'
+              ? 'bg-[#161616] text-white shadow-md'
+              : 'neu-button text-[#4A4A4A] hover:text-[#161616]'
+          }`}
+        >
+          Executive Team Roster
+        </button>
+        <button
+          onClick={() => setViewMode('hierarchy')}
+          className={`px-5 py-2.5 text-xs font-bold rounded-xl transition-all cursor-pointer ${
+            viewMode === 'hierarchy'
+              ? 'bg-[#161616] text-white shadow-md'
+              : 'neu-button text-[#4A4A4A] hover:text-[#161616]'
+          }`}
+        >
+          Institutional Hierarchy Structure
+        </button>
+      </div>
+
+      {viewMode === 'hierarchy' ? (
+        /* ======================================================== */
+        /* IES IEDC INSTITUTIONAL HIERARCHY TREE VIEW              */
+        /* ======================================================== */
+        <div className="neu-raised rounded-2xl p-6 sm:p-10 border border-[#D8D8D3] space-y-10">
+          <div className="text-center space-y-2 max-w-2xl mx-auto">
+            <Badge variant="dark" size="sm">
+              INSTITUTIONAL STRUCTURE &amp; GOVERNANCE HIERARCHY
+            </Badge>
+            <h2 className="text-2xl font-extrabold text-[#161616]">
+              IES IEDC Organisational Tree
+            </h2>
+            <p className="text-xs text-[#777777]">
+              Multi-tiered structure connecting faculty nodal leadership, executive student leads, domain verticals, and department representatives.
+            </p>
           </div>
 
-          <div className="text-xs font-semibold text-[#777777] bg-[#F5F5F3] px-3 py-1.5 rounded-lg border border-[#D8D8D3]">
-            Active Roster: <strong className="text-[#161616]">{filtered.length} Verified Members</strong>
+          {/* Hierarchy Chart Tree Node Grid */}
+          <div className="space-y-8">
+            {/* Level 1: Apex Governance */}
+            <div className="flex justify-center">
+              <div className="neu-raised rounded-xl p-4 bg-[#161616] text-white text-center w-72 shadow-lg">
+                <span className="text-[10px] uppercase font-bold text-gray-400">Apex Body</span>
+                <h3 className="text-sm font-extrabold">Innovation &amp; Entrepreneurship Development Centre</h3>
+                <p className="text-[11px] text-gray-300">IES College of Engineering</p>
+              </div>
+            </div>
+
+            {/* Level 2: Executive Committee */}
+            <div className="flex justify-center gap-6 flex-wrap">
+              <div className="neu-raised-soft rounded-lg p-3 bg-[#242424] text-white text-center w-56 border border-[#333]">
+                <span className="text-[9px] uppercase font-bold text-gray-400">Institute Council</span>
+                <h4 className="text-xs font-bold">Institute Innovation Council (IIC)</h4>
+              </div>
+              <div className="neu-raised-soft rounded-lg p-3 bg-[#242424] text-white text-center w-56 border border-[#333]">
+                <span className="text-[9px] uppercase font-bold text-gray-400">Governing Body</span>
+                <h4 className="text-xs font-bold">Executive Committee</h4>
+              </div>
+            </div>
+
+            {/* Level 3: Nodal Officers & Student Leads */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 max-w-4xl mx-auto">
+              <div className="neu-raised rounded-lg p-3 text-center border-l-4 border-rose-500 bg-[#FFFFFF]">
+                <span className="text-[10px] font-bold text-[#777777]">Nodal Officer I</span>
+                <p className="text-xs font-bold text-[#161616]">Ms. Shahaziya Parvez M</p>
+                <span className="text-[10px] text-[#777777]">R&amp;AI HOD / Asst. Prof</span>
+              </div>
+              <div className="neu-raised rounded-lg p-3 text-center border-l-4 border-rose-400 bg-[#FFFFFF]">
+                <span className="text-[10px] font-bold text-[#777777]">Nodal Officer II</span>
+                <p className="text-xs font-bold text-[#161616]">Ms. Prabhavathi P</p>
+                <span className="text-[10px] text-[#777777]">S&amp;H Asst. Prof</span>
+              </div>
+              <div className="neu-raised rounded-lg p-3 text-center border-l-4 border-emerald-500 bg-[#FFFFFF]">
+                <span className="text-[10px] font-bold text-[#777777]">Student Lead I (CEO)</span>
+                <p className="text-xs font-bold text-[#161616]">Student Lead / CEO</p>
+                <span className="text-[10px] text-[#777777]">Overall Coordination</span>
+              </div>
+              <div className="neu-raised rounded-lg p-3 text-center border-l-4 border-emerald-400 bg-[#FFFFFF]">
+                <span className="text-[10px] font-bold text-[#777777]">Student Lead II</span>
+                <p className="text-xs font-bold text-[#161616]">Student Lead II / Ex-CEO</p>
+                <span className="text-[10px] text-[#777777]">Guidance &amp; Mentorship</span>
+              </div>
+            </div>
+
+            {/* Level 4: Domain Verticals */}
+            <div className="space-y-2">
+              <span className="text-[10px] font-bold uppercase tracking-widest text-[#777777] block text-center">
+                Domain Executive Verticals &amp; Responsibilities
+              </span>
+              <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-3">
+                {[
+                  { role: 'Quality & Operations', lead: 'COO', desc: 'File management, reports, permission letters' },
+                  { role: 'Finance Lead', lead: 'CFO', desc: 'Financial activities & budget' },
+                  { role: 'Creative & Innovation', lead: 'CCO', desc: 'Logo/poster design & branding' },
+                  { role: 'Technology Lead', lead: 'CTO', desc: 'KSUM link & technical forms' },
+                  { role: 'Branding & Marketing', lead: 'CMO', desc: 'Notice boards, social media, press' },
+                  { role: 'Community Lead', lead: 'Community', desc: 'Student, alumni & mentor community' },
+                  { role: 'Women Innovation', lead: 'Women Lead', desc: 'Women participation in startup' },
+                  { role: 'IPR & Research', lead: 'IPR Lead', desc: 'Intellectual property rights' }
+                ].map((item, idx) => (
+                  <div key={idx} className="neu-raised-soft rounded-lg p-3 border border-[#D8D8D3] text-center space-y-1">
+                    <span className="text-[9px] font-extrabold uppercase text-[#777777] block">{item.lead}</span>
+                    <h5 className="text-[11px] font-bold text-[#161616] leading-tight">{item.role}</h5>
+                    <p className="text-[9px] text-[#777777] leading-tight">{item.desc}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Level 5: Department Representatives */}
+            <div className="neu-raised-soft rounded-xl p-4 border border-[#D8D8D3] text-center space-y-2">
+              <span className="text-[10px] font-bold uppercase text-[#777777]">Departmental Coordinators &amp; Representatives</span>
+              <div className="flex flex-wrap justify-center gap-2">
+                {['CE (Civil)', 'ME (Mechanical)', 'CSE (Computer Science)', 'EEE (Electrical)', 'ECE (Electronics)', 'R&AI (Robotics)', 'DS (Data Science)', 'S&H (Science & Humanities)'].map((dept, i) => (
+                  <span key={i} className="px-2.5 py-1 text-[11px] font-semibold bg-[#FFFFFF] border border-[#D8D8D3] rounded-md text-[#161616]">
+                    {dept}
+                  </span>
+                ))}
+              </div>
+            </div>
           </div>
         </div>
-
-        {/* Filter & Search Bar */}
-        <SearchFilterBar
-          searchValue={search}
-          onSearchChange={setSearch}
-          searchPlaceholder="Search member name, role, department, or responsibility..."
-          filters={[
-            {
-              name: 'role',
-              value: roleFilter,
-              placeholder: 'Filter All Roles',
-              options: [
-                { label: 'Faculty Leadership', value: 'Faculty' },
-                { label: 'Department Faculty', value: 'Department Coordinators' },
-                { label: 'Student Executive Team', value: 'Executive Team' }
-              ],
-              onChange: setRoleFilter
-            }
-          ]}
-        />
-
-        {/* 3. Sticky Quick-Role Navigation Links */}
-        {!loading && navTabs.length > 0 && (
-          <div className="pt-2 border-t border-[#EBEBE8]">
-            <p className="text-[11px] font-bold text-[#777777] uppercase tracking-wider mb-2.5">
-              Quick Role Jump:
-            </p>
-            <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-none">
-              {navTabs.map(tab => (
+      ) : (
+        /* ======================================================== */
+        /* TEAM ROSTER VIEW                                         */
+        /* ======================================================== */
+        <div className="neu-raised rounded-2xl p-6 border border-[#D8D8D3] space-y-6">
+          <div className="flex flex-col md:flex-row items-center justify-between gap-4 border-b border-[#EBEBE8] pb-5">
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="text-xs font-bold text-[#777777] uppercase tracking-wider mr-2 flex items-center gap-1.5">
+                <Award className="w-4 h-4 text-[#161616]" />
+                Academic Year:
+              </span>
+              {academicYears.map(year => (
                 <button
-                  key={tab.id}
-                  onClick={() => scrollToSection(tab.id)}
-                  className={`px-3 py-1.5 text-xs font-semibold rounded-lg whitespace-nowrap transition-all cursor-pointer border ${
-                    activeTab === tab.id
-                      ? 'bg-[#242424] text-white border-[#242424] shadow-sm'
-                      : 'bg-[#F0F0ED] text-[#4A4A4A] border-[#D8D8D3] hover:bg-[#EBEBE8] hover:text-[#161616]'
+                  key={year.id}
+                  onClick={() => setSelectedYear(year.year)}
+                  className={`px-4 py-2 text-xs font-bold rounded-xl transition-all cursor-pointer flex items-center gap-2 ${
+                    selectedYear === year.year
+                      ? 'bg-[#161616] text-white shadow-md'
+                      : 'neu-button text-[#4A4A4A] hover:text-[#161616]'
                   }`}
                 >
-                  {tab.label}
+                  <span>{year.year}</span>
+                  {year.isCurrent && (
+                    <span className="text-[10px] px-1.5 py-0.5 bg-emerald-500 text-white rounded font-extrabold uppercase">
+                      Current
+                    </span>
+                  )}
                 </button>
               ))}
             </div>
+
+            <div className="text-xs font-semibold text-[#777777] bg-[#F5F5F3] px-3 py-1.5 rounded-lg border border-[#D8D8D3]">
+              Active Roster: <strong className="text-[#161616]">{filtered.length} Verified Members</strong>
+            </div>
           </div>
-        )}
-      </div>
+
+          {/* Filter & Search Bar */}
+          <SearchFilterBar
+            searchValue={search}
+            onSearchChange={setSearch}
+            searchPlaceholder="Search member name, role, department, or responsibility..."
+            filters={[
+              {
+                name: 'role',
+                value: roleFilter,
+                placeholder: 'Filter All Roles',
+                options: [
+                  { label: 'Faculty Leadership', value: 'Faculty' },
+                  { label: 'Department Faculty', value: 'Department Coordinators' },
+                  { label: 'Student Executive Team', value: 'Executive Team' }
+                ],
+                onChange: setRoleFilter
+              }
+            ]}
+          />
+
+          {/* 3. Sticky Quick-Role Navigation Links */}
+          {!loading && navTabs.length > 0 && (
+            <div className="pt-2 border-t border-[#EBEBE8]">
+              <p className="text-[11px] font-bold text-[#777777] uppercase tracking-wider mb-2.5">
+                Quick Role Jump:
+              </p>
+              <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-none">
+                {navTabs.map(tab => (
+                  <button
+                    key={tab.id}
+                    onClick={() => scrollToSection(tab.id)}
+                    className={`px-3 py-1.5 text-xs font-semibold rounded-lg whitespace-nowrap transition-all cursor-pointer border ${
+                      activeTab === tab.id
+                        ? 'bg-[#242424] text-white border-[#242424] shadow-sm'
+                        : 'bg-[#F0F0ED] text-[#4A4A4A] border-[#D8D8D3] hover:bg-[#EBEBE8] hover:text-[#161616]'
+                    }`}
+                  >
+                    {tab.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+      )}
 
       {/* Loading & Empty States */}
       {loading ? (
@@ -319,15 +440,21 @@ export const Team: React.FC = () => {
                     className="neu-raised rounded-2xl p-6 border border-[#D8D8D3] flex flex-col sm:flex-row items-center sm:items-start gap-6 transition-all duration-300 hover:shadow-xl group"
                   >
                     {/* Member Photo Frame */}
-                    <div className="relative w-36 h-44 sm:w-40 sm:h-48 rounded-xl overflow-hidden neu-raised border-2 border-[#FFFFFF] shrink-0 bg-[#EBEBE8]">
-                      <img
-                        src={getPhotoUrl(member)}
-                        alt={member.name}
-                        className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-500"
-                        onError={(e) => {
-                          (e.target as HTMLImageElement).src = `https://ui-avatars.com/api/?name=${encodeURIComponent(member.name)}&background=161616&color=ffffff&size=256`;
-                        }}
-                      />
+                    <div className="relative w-36 h-44 sm:w-40 sm:h-48 rounded-xl overflow-hidden neu-raised border-2 border-[#FFFFFF] shrink-0 bg-[#EBEBE8] flex items-center justify-center">
+                      {member.photoUrl && member.photoUrl.trim() !== '' ? (
+                        <img
+                          src={member.photoUrl}
+                          alt={member.name}
+                          className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-500"
+                        />
+                      ) : (
+                        <div className="flex flex-col items-center justify-center p-3 text-center space-y-1.5">
+                          <div className="w-12 h-12 rounded-full neu-inset flex items-center justify-center text-[#777777] bg-[#E0E0DD]">
+                            <User className="w-6 h-6" />
+                          </div>
+                          <span className="text-[10px] font-bold text-[#777777]">Photo Pending</span>
+                        </div>
+                      )}
                       <div className="absolute top-2 left-2 px-2 py-0.5 bg-[#161616]/90 backdrop-blur-md text-white text-[10px] font-extrabold rounded">
                         {member.roleType}
                       </div>
@@ -396,15 +523,21 @@ export const Team: React.FC = () => {
                   >
                     <div className="space-y-3">
                       {/* Photo Thumbnail */}
-                      <div className="relative w-full h-44 rounded-xl overflow-hidden bg-[#EBEBE8] border border-[#D8D8D3]">
-                        <img
-                          src={getPhotoUrl(member)}
-                          alt={member.name}
-                          className="w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-300"
-                          onError={(e) => {
-                            (e.target as HTMLImageElement).src = `https://ui-avatars.com/api/?name=${encodeURIComponent(member.name)}&background=242424&color=ffffff&size=256`;
-                          }}
-                        />
+                      <div className="relative w-full h-44 rounded-xl overflow-hidden bg-[#EBEBE8] border border-[#D8D8D3] flex items-center justify-center">
+                        {member.photoUrl && member.photoUrl.trim() !== '' ? (
+                          <img
+                            src={member.photoUrl}
+                            alt={member.name}
+                            className="w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-300"
+                          />
+                        ) : (
+                          <div className="flex flex-col items-center justify-center p-3 text-center space-y-1">
+                            <div className="w-10 h-10 rounded-full neu-inset flex items-center justify-center text-[#777777] bg-[#E0E0DD]">
+                              <User className="w-5 h-5" />
+                            </div>
+                            <span className="text-[10px] font-bold text-[#777777]">Photo Pending</span>
+                          </div>
+                        )}
                         <div className="absolute top-2 right-2">
                           <Badge variant="dark" size="sm">
                             {member.department || 'General'}
@@ -493,15 +626,21 @@ export const Team: React.FC = () => {
                       className="neu-raised rounded-2xl overflow-hidden border border-[#D8D8D3] flex flex-col justify-between group hover:border-[#161616] hover:shadow-xl transition-all duration-300 bg-[#FFFFFF]"
                     >
                       {/* Photo Section */}
-                      <div className="relative w-full h-60 bg-[#EBEBE8] overflow-hidden">
-                        <img
-                          src={getPhotoUrl(member)}
-                          alt={member.name}
-                          className="w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-500"
-                          onError={(e) => {
-                            (e.target as HTMLImageElement).src = `https://ui-avatars.com/api/?name=${encodeURIComponent(member.name)}&background=161616&color=ffffff&size=256`;
-                          }}
-                        />
+                      <div className="relative w-full h-56 bg-[#EBEBE8] overflow-hidden flex items-center justify-center border-b border-[#D8D8D3]">
+                        {member.photoUrl && member.photoUrl.trim() !== '' ? (
+                          <img
+                            src={member.photoUrl}
+                            alt={member.name}
+                            className="w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-500"
+                          />
+                        ) : (
+                          <div className="flex flex-col items-center justify-center p-4 text-center space-y-1.5">
+                            <div className="w-14 h-14 rounded-full neu-inset flex items-center justify-center text-[#777777] bg-[#E0E0DD]">
+                              <User className="w-7 h-7" />
+                            </div>
+                            <span className="text-xs font-bold text-[#4A4A4A]">Photo Pending</span>
+                          </div>
+                        )}
                         <div className="absolute bottom-3 left-3 right-3 flex items-center justify-between">
                           <span className="px-2.5 py-1 bg-[#161616]/90 backdrop-blur-md text-white text-[10px] font-extrabold rounded-lg shadow">
                             {group.role}

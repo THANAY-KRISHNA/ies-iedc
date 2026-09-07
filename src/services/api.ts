@@ -17,6 +17,7 @@ import {
 import {
   INITIAL_SITE_SETTINGS,
   INITIAL_ACADEMIC_YEARS,
+  INITIAL_TEAM_MEMBERS,
   INITIAL_EVENTS,
   INITIAL_ACHIEVEMENTS,
   INITIAL_STARTUPS,
@@ -28,6 +29,11 @@ import {
 } from '../data/initialData';
 
 const BASE_URL = '/api';
+
+function normalizeYear(year?: string): string {
+  if (!year) return '';
+  return year.replace(/[\u2010-\u2015\u2212-]/g, '-').trim();
+}
 
 function getAuthHeader(): Record<string, string> {
   const token = localStorage.getItem('iedc_admin_token');
@@ -66,11 +72,19 @@ export const api = {
   getAcademicYears: () => request<AcademicYear[]>('/public/academic-years', undefined, INITIAL_ACADEMIC_YEARS),
 
   // Team Methods
-  getTeam: (year?: string): Promise<TeamMember[]> =>
-    request<TeamMember[]>(`/public/team${year ? `?year=${encodeURIComponent(year)}` : ''}`, undefined, []),
+  getTeam: (year?: string): Promise<TeamMember[]> => {
+    const fallback = year && year !== 'all'
+      ? INITIAL_TEAM_MEMBERS.filter(m => normalizeYear(m.academicYear) === normalizeYear(year))
+      : INITIAL_TEAM_MEMBERS;
+    return request<TeamMember[]>(`/public/team${year ? `?year=${encodeURIComponent(year)}` : ''}`, undefined, fallback);
+  },
 
-  adminGetTeam: (year?: string): Promise<TeamMember[]> =>
-    request<TeamMember[]>(`/admin/team${year && year !== 'all' ? `?year=${encodeURIComponent(year)}` : ''}`, undefined, []),
+  adminGetTeam: (year?: string): Promise<TeamMember[]> => {
+    const fallback = year && year !== 'all'
+      ? INITIAL_TEAM_MEMBERS.filter(m => normalizeYear(m.academicYear) === normalizeYear(year))
+      : INITIAL_TEAM_MEMBERS;
+    return request<TeamMember[]>(`/admin/team${year && year !== 'all' ? `?year=${encodeURIComponent(year)}` : ''}`, undefined, fallback);
+  },
 
   adminAddTeamMember: (data: Partial<TeamMember>): Promise<TeamMember> =>
     request<TeamMember>('/admin/team', {

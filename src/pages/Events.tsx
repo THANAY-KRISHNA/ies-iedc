@@ -103,11 +103,16 @@ export const Events: React.FC = () => {
               value: selectedCategory,
               placeholder: 'All Categories',
               options: [
-                { label: 'Ideathon', value: 'Ideathon' },
-                { label: 'Bootcamp', value: 'Bootcamp' },
-                { label: 'Awareness', value: 'Awareness' },
+                { label: 'Orientation', value: 'Orientation' },
                 { label: 'Workshop', value: 'Workshop' },
-                { label: 'Exhibition', value: 'Exhibition' }
+                { label: 'Seminar', value: 'Seminar' },
+                { label: 'Webinar', value: 'Webinar' },
+                { label: 'Hackathon', value: 'Hackathon' },
+                { label: 'Training', value: 'Training' },
+                { label: 'Camp', value: 'Camp' },
+                { label: 'Industry Visit', value: 'Industry Visit' },
+                { label: 'Ideation', value: 'Ideation' },
+                { label: 'Other', value: 'Other' }
               ],
               onChange: setSelectedCategory
             },
