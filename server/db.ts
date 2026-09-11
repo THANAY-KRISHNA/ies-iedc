@@ -176,7 +176,6 @@ function mapTeamMemberToDb(data: Partial<TeamMember>) {
     photo_url: data.photoUrl || '',
     sort_order: typeof data.sortOrder === 'number' ? data.sortOrder : 99,
     status: (data.status || 'Published').substring(0, 20),
-    is_featured: !!data.isFeatured,
     updated_at: new Date().toISOString()
   };
 }
@@ -510,6 +509,7 @@ class DatabaseEngine {
 
         if (error) {
           console.error('Supabase addTeamMember INSERT Error:', error.message);
+          throw new Error(`Supabase insert failed: ${error.message}`);
         } else if (insertedRow) {
           const syncedMember = mapTeamMemberFromDb(insertedRow);
           // Sync back to memory
