@@ -19,7 +19,7 @@ export const AdminLogin: React.FC = () => {
     }
     setError(null);
     setLoading(true);
-    const success = await login(email);
+    const success = await login(email, password);
     setLoading(false);
     if (success) {
       navigate('/admin');

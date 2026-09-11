@@ -171,18 +171,11 @@ export const api = {
 
   // --- AUTH ---
   getDemoUsers: () => request<{ users: User[] }>('/auth/demo-users'),
-  login: (email: string) => {
-    const fallbackUser: User = {
-      id: 'usr_super',
-      name: 'Prof. Shahaziya Parvez',
-      email: email || 'nodal.officer@iesce.info',
-      role: 'Super Admin',
-      lastLogin: new Date().toISOString()
-    };
+  login: (email: string, password?: string) => {
     return request<{ user: User; token: string }>('/auth/login', {
       method: 'POST',
-      body: JSON.stringify({ email })
-    }, { user: fallbackUser, token: 'token_usr_super' });
+      body: JSON.stringify({ email, password })
+    });
   },
   getMe: () => request<{ user: User }>('/auth/me'),
 

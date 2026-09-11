@@ -24,27 +24,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   useEffect(() => {
     async function checkAuth() {
       if (!token) {
-        try {
-          const res = await api.login('nodal.officer@iesce.info');
-          if (res?.token && res?.user) {
-            setUser(res.user);
-            setToken(res.token);
-            localStorage.setItem('iedc_admin_token', res.token);
-          }
-        } catch {
-          const fallbackUser: User = {
-            id: 'usr_super',
-            name: 'Prof. Shahaziya Parvez',
-            email: 'nodal.officer@iesce.info',
-            role: 'Super Admin',
-            lastLogin: new Date().toISOString()
-          };
-          setUser(fallbackUser);
-          setToken('token_usr_super');
-          localStorage.setItem('iedc_admin_token', 'token_usr_super');
-        } finally {
-          setIsLoading(false);
-        }
+        setUser(null);
+        setIsLoading(false);
         return;
       }
 
@@ -53,25 +34,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         if (res?.user) {
           setUser(res.user);
         } else {
-          const loginRes = await api.login('nodal.officer@iesce.info');
-          if (loginRes?.token && loginRes?.user) {
-            setUser(loginRes.user);
-            setToken(loginRes.token);
-            localStorage.setItem('iedc_admin_token', loginRes.token);
-          }
+          setUser(null);
+          setToken(null);
+          localStorage.removeItem('iedc_admin_token');
         }
       } catch {
-        const fallbackUser: User = {
-          id: 'usr_super',
-          name: 'Prof. Shahaziya Parvez',
-          email: 'nodal.officer@iesce.info',
-          role: 'Super Admin',
-          lastLogin: new Date().toISOString()
-        };
-        setUser(fallbackUser);
-        if (!localStorage.getItem('iedc_admin_token')) {
-          localStorage.setItem('iedc_admin_token', 'token_usr_super');
-        }
+        setUser(null);
+        setToken(null);
+        localStorage.removeItem('iedc_admin_token');
       } finally {
         setIsLoading(false);
       }
@@ -79,9 +49,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     checkAuth();
   }, [token]);
 
-  const login = async (email: string): Promise<boolean> => {
+  const login = async (email: string, password?: string): Promise<boolean> => {
     try {
-      const res = await api.login(email);
+      const res = await api.login(email, password);
       if (res?.user && res?.token) {
         setUser(res.user);
         setToken(res.token);

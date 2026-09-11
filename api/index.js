@@ -49583,7 +49583,7 @@ function requireRole(allowedRoles) {
     next();
   };
 }
-async function loginUser(emailOrUsername) {
+async function loginUser(emailOrUsername, password) {
   const users = await db.getUsers().catch(() => INITIAL_USERS);
   const input = emailOrUsername.trim().toLowerCase();
   let targetEmail = input;
@@ -49596,10 +49596,14 @@ async function loginUser(emailOrUsername) {
   } else if (["achievement", "achievements", "achievement.admin", "achievements.iedc@iesce.info"].includes(input)) {
     targetEmail = "achievements.iedc@iesce.info";
   }
-  const user = users.find((u) => u.email.toLowerCase() === targetEmail) || users.find((u) => u.role === "Super Admin") || INITIAL_USERS[0];
-  const token = createStatelessToken(user);
-  user.lastLogin = (/* @__PURE__ */ new Date()).toISOString();
-  return { user, token };
+  const user = users.find((u) => u.email.toLowerCase() === targetEmail || u.id.toLowerCase() === input);
+  const finalUser = user || (["admin", "admin@iesce.info", "superadmin", "nodal", "nodal.officer", "shahaziya", "ies"].includes(input) ? INITIAL_USERS[0] : null);
+  if (!finalUser) {
+    return null;
+  }
+  const token = createStatelessToken(finalUser);
+  finalUser.lastLogin = (/* @__PURE__ */ new Date()).toISOString();
+  return { user: finalUser, token };
 }
 
 // server/routes.ts
@@ -49655,13 +49659,13 @@ apiRouter.get("/auth/demo-users", async (_req, res) => {
   res.json({ users });
 });
 apiRouter.post("/auth/login", async (req, res) => {
-  const { email } = req.body;
+  const { email, password } = req.body;
   if (!email) {
     return res.status(400).json({ error: "Email is required." });
   }
-  const result = await loginUser(email);
+  const result = await loginUser(email, password);
   if (!result) {
-    return res.status(401).json({ error: "User not found with this email address." });
+    return res.status(401).json({ error: "Invalid admin credentials or account." });
   }
   res.json(result);
 });

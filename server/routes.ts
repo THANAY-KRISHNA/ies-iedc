@@ -65,14 +65,14 @@ apiRouter.get('/auth/demo-users', async (_req: Request, res: Response) => {
 });
 
 apiRouter.post('/auth/login', async (req: Request, res: Response) => {
-  const { email } = req.body;
+  const { email, password } = req.body;
   if (!email) {
     return res.status(400).json({ error: 'Email is required.' });
   }
 
-  const result = await loginUser(email);
+  const result = await loginUser(email, password);
   if (!result) {
-    return res.status(401).json({ error: 'User not found with this email address.' });
+    return res.status(401).json({ error: 'Invalid admin credentials or account.' });
   }
 
   res.json(result);

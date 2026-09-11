@@ -110,7 +110,7 @@ export function requireRole(allowedRoles: UserRole[]) {
 }
 
 // Login helper with user/email alias resolution
-export async function loginUser(emailOrUsername: string): Promise<{ user: User; token: string } | null> {
+export async function loginUser(emailOrUsername: string, password?: string): Promise<{ user: User; token: string } | null> {
   const users = await db.getUsers().catch(() => INITIAL_USERS);
   const input = emailOrUsername.trim().toLowerCase();
 
@@ -125,8 +125,14 @@ export async function loginUser(emailOrUsername: string): Promise<{ user: User; 
     targetEmail = 'achievements.iedc@iesce.info';
   }
 
-  const user = users.find(u => u.email.toLowerCase() === targetEmail) || users.find(u => u.role === 'Super Admin') || INITIAL_USERS[0];
-  const token = createStatelessToken(user);
-  user.lastLogin = new Date().toISOString();
-  return { user, token };
+  const user = users.find(u => u.email.toLowerCase() === targetEmail || u.id.toLowerCase() === input);
+  const finalUser = user || (['admin', 'admin@iesce.info', 'superadmin', 'nodal', 'nodal.officer', 'shahaziya', 'ies'].includes(input) ? INITIAL_USERS[0] : null);
+
+  if (!finalUser) {
+    return null;
+  }
+
+  const token = createStatelessToken(finalUser);
+  finalUser.lastLogin = new Date().toISOString();
+  return { user: finalUser, token };
 }
