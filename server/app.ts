@@ -22,17 +22,18 @@ export function createApp() {
   app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
   // Health check
-  app.get('/api/health', (_req, res) => {
+  app.get(['/api/health', '/health'], (_req, res) => {
     res.json({
       status: 'ok',
       service: 'IES IEDC CMS API',
-      databaseMode: process.env.DATABASE_URL || process.env.SUPABASE_URL ? 'Cloud PostgreSQL / Supabase' : 'Persistent File DB',
+      databaseMode: process.env.SUPABASE_URL ? 'Cloud PostgreSQL / Supabase' : 'Persistent File DB',
       timestamp: new Date().toISOString()
     });
   });
 
-  // Mount API Router
+  // Mount API Router at both /api and root / to handle Vercel serverless rewrites
   app.use('/api', apiRouter);
+  app.use('/', apiRouter);
 
   return app;
 }
