@@ -238,28 +238,45 @@ apiRouter.get('/admin/audit-logs', authenticateToken, async (_req: AuthRequest, 
 
 // Team Management
 apiRouter.get('/admin/team', authenticateToken, requireRole(['Team Admin']), async (req: AuthRequest, res: Response) => {
-  const year = req.query.year as string | undefined;
-  res.json(await db.getTeam(year, false));
+  try {
+    const year = req.query.year as string | undefined;
+    res.json(await db.getTeam(year, false));
+  } catch (err: any) {
+    res.status(500).json({ error: err.message || 'Failed to fetch team members.' });
+  }
 });
 
 apiRouter.post('/admin/team', authenticateToken, requireRole(['Team Admin']), async (req: AuthRequest, res: Response) => {
-  const member = await db.addTeamMember(req.body, req.user?.name);
-  broadcastDataChange('team', 'create', member);
-  res.status(201).json(member);
+  try {
+    const member = await db.addTeamMember(req.body, req.user?.name);
+    broadcastDataChange('team', 'create', member);
+    res.status(201).json(member);
+  } catch (err: any) {
+    console.error('Error adding team member:', err);
+    res.status(500).json({ error: err.message || 'Failed to add team member.' });
+  }
 });
 
 apiRouter.put('/admin/team/:id', authenticateToken, requireRole(['Team Admin']), async (req: AuthRequest, res: Response) => {
-  const updated = await db.updateTeamMember(req.params.id, req.body, req.user?.name);
-  if (!updated) return res.status(404).json({ error: 'Team member not found.' });
-  broadcastDataChange('team', 'update', updated);
-  res.json(updated);
+  try {
+    const updated = await db.updateTeamMember(req.params.id, req.body, req.user?.name);
+    if (!updated) return res.status(404).json({ error: 'Team member not found.' });
+    broadcastDataChange('team', 'update', updated);
+    res.json(updated);
+  } catch (err: any) {
+    res.status(500).json({ error: err.message || 'Failed to update team member.' });
+  }
 });
 
 apiRouter.delete('/admin/team/:id', authenticateToken, requireRole(['Team Admin']), async (req: AuthRequest, res: Response) => {
-  const success = await db.deleteTeamMember(req.params.id, req.user?.name);
-  if (!success) return res.status(404).json({ error: 'Team member not found.' });
-  broadcastDataChange('team', 'delete', { id: req.params.id });
-  res.json({ message: 'Team member removed.' });
+  try {
+    const success = await db.deleteTeamMember(req.params.id, req.user?.name);
+    if (!success) return res.status(404).json({ error: 'Team member not found.' });
+    broadcastDataChange('team', 'delete', { id: req.params.id });
+    res.json({ message: 'Team member removed.' });
+  } catch (err: any) {
+    res.status(500).json({ error: err.message || 'Failed to delete team member.' });
+  }
 });
 
 // Academic Years

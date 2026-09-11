@@ -110,31 +110,26 @@ async function ensureAcademicYearInDb(yearNameOrId?: string): Promise<string> {
   if (!isSupabaseConfigured()) return input;
 
   try {
-    const { data: existing } = await supabaseAdmin
-      .from('academic_years')
-      .select('id, year_name')
-      .or(`id.eq.${input},year_name.eq.${input}`);
+    const { data: byId } = await supabaseAdmin.from('academic_years').select('id').eq('id', input).maybeSingle();
+    if (byId) return byId.id;
 
-    if (existing && existing.length > 0) {
-      return existing[0].id;
-    }
+    const { data: byName } = await supabaseAdmin.from('academic_years').select('id').eq('year_name', input).maybeSingle();
+    if (byName) return byName.id;
 
     const cleanId = input.startsWith('ay_') ? input : `ay_${input.replace(/[^a-zA-Z0-9]/g, '_')}`;
-    const { data: inserted, error } = await supabaseAdmin
+    const { data: inserted } = await supabaseAdmin
       .from('academic_years')
       .upsert({
         id: cleanId,
         year_name: input,
         is_current: false
-      })
+      }, { onConflict: 'id' })
       .select('id')
-      .single();
+      .maybeSingle();
 
-    if (!error && inserted) {
-      return inserted.id;
-    }
+    if (inserted) return inserted.id;
   } catch (e) {
-    console.warn('ensureAcademicYearInDb error:', e);
+    console.warn('ensureAcademicYearInDb warning:', e);
   }
 
   return input;
@@ -145,12 +140,17 @@ async function ensureDepartmentInDb(deptCodeOrName?: string): Promise<string> {
   if (!isSupabaseConfigured()) return code;
 
   try {
+    const { data: existing } = await supabaseAdmin.from('departments').select('code').eq('code', code).maybeSingle();
+    if (existing) return existing.code;
+
     await supabaseAdmin.from('departments').upsert({
-      id: `dept_${code}`,
+      id: `dept_${code.toLowerCase()}`,
       code: code,
       name: deptCodeOrName || code
-    });
-  } catch (e) {}
+    }, { onConflict: 'code' });
+  } catch (e) {
+    console.warn('ensureDepartmentInDb warning:', e);
+  }
 
   return code;
 }
