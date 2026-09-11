@@ -1,3 +1,4 @@
+import { createRequire } from 'module'; const require = createRequire(import.meta.url);
 var __create = Object.create;
 var __defProp = Object.defineProperty;
 var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
@@ -47877,24 +47878,24 @@ if (shouldShowDeprecationWarning()) console.warn("\u26A0\uFE0F  Node.js 20 and b
 
 // server/supabase.ts
 var supabaseUrl = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL || "https://peollhilachrsmjcxqtg.supabase.co";
-var supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_ANON_KEY || process.env.VITE_SUPABASE_ANON_KEY || "";
+var supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_ANON_KEY || process.env.VITE_SUPABASE_ANON_KEY || "placeholder";
 var isSupabaseConfigured = () => {
-  return !!(supabaseUrl && supabaseServiceKey);
+  return !!(supabaseUrl && supabaseServiceKey && supabaseServiceKey !== "placeholder");
 };
 var clientInstance = null;
-if (supabaseUrl && supabaseServiceKey) {
-  try {
+try {
+  if (isSupabaseConfigured()) {
     clientInstance = createClient(supabaseUrl, supabaseServiceKey, {
       auth: {
         persistSession: false,
         autoRefreshToken: false
       }
     });
-  } catch (err) {
-    console.error("Failed initializing Supabase client:", err);
   }
+} catch (err) {
+  console.error("Failed initializing Supabase client:", err);
 }
-var supabaseAdmin = clientInstance || createClient(supabaseUrl, "placeholder-key", {
+var supabaseAdmin = clientInstance || createClient("https://peollhilachrsmjcxqtg.supabase.co", "placeholder-key", {
   auth: { persistSession: false, autoRefreshToken: false }
 });
 async function uploadToSupabaseStorage(bucketName, fileName, base64Data) {

@@ -10,29 +10,31 @@ const supabaseServiceKey =
   process.env.SUPABASE_SERVICE_ROLE_KEY ||
   process.env.SUPABASE_ANON_KEY ||
   process.env.VITE_SUPABASE_ANON_KEY ||
-  '';
+  'placeholder';
 
 export const isSupabaseConfigured = (): boolean => {
-  return !!(supabaseUrl && supabaseServiceKey);
+  return !!(supabaseUrl && supabaseServiceKey && supabaseServiceKey !== 'placeholder');
 };
 
 let clientInstance: SupabaseClient | null = null;
-if (supabaseUrl && supabaseServiceKey) {
-  try {
+try {
+  if (isSupabaseConfigured()) {
     clientInstance = createClient(supabaseUrl, supabaseServiceKey, {
       auth: {
         persistSession: false,
         autoRefreshToken: false
       }
     });
-  } catch (err) {
-    console.error('Failed initializing Supabase client:', err);
   }
+} catch (err) {
+  console.error('Failed initializing Supabase client:', err);
 }
 
-export const supabaseAdmin: SupabaseClient = clientInstance || createClient(supabaseUrl, 'placeholder-key', {
-  auth: { persistSession: false, autoRefreshToken: false }
-});
+export const supabaseAdmin: SupabaseClient =
+  clientInstance ||
+  createClient('https://peollhilachrsmjcxqtg.supabase.co', 'placeholder-key', {
+    auth: { persistSession: false, autoRefreshToken: false }
+  });
 
 /**
  * Upload Base64 Data URL or Buffer to Supabase Cloud Storage bucket.
