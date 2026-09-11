@@ -75,7 +75,10 @@ export const Footer: React.FC = () => {
 
         {/* Footer Bottom Bar */}
         <div className="pt-8 border-t border-[#D8D8D3] flex flex-col sm:flex-row items-center justify-between gap-4 text-xs font-mono text-[#777777]">
-          <span>© {new Date().getFullYear()} IES IEDC — IES College of Engineering. All rights reserved.</span>
+          <div className="flex flex-col gap-1">
+            <span>© {new Date().getFullYear()} IES IEDC — IES College of Engineering. All rights reserved.</span>
+            <span className="text-[11px] text-[#888888]">Developed by <span className="font-semibold text-[#333333]">THANAY KRISHNA C U</span></span>
+          </div>
           <div className="flex items-center gap-4">
             <a href="https://instagram.com" target="_blank" rel="noreferrer" className="hover:text-[#161616] transition-colors">
               <Instagram className="w-4 h-4" />
