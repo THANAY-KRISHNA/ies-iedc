@@ -13,6 +13,12 @@ ON CONFLICT (id) DO NOTHING;
 
 -- Academic Years
 INSERT INTO academic_years (id, year_name, is_current, notes) VALUES
+  ('2025–26', '2025–26', TRUE, 'Current Academic Year - 2025-26 ExeCom & Activities'),
+  ('2024–25', '2024–25', FALSE, 'Academic Year 2024-25 ExeCom & Activities'),
+  ('2023–24', '2023–24', FALSE, 'Academic Year 2023-24 ExeCom & Activities'),
+  ('2025-26', '2025-26', TRUE, 'Current Academic Year - 2025-26 ExeCom & Activities'),
+  ('2024-25', '2024-25', FALSE, 'Academic Year 2024-25 ExeCom & Activities'),
+  ('2023-24', '2023-24', FALSE, 'Academic Year 2023-24 ExeCom & Activities'),
   ('ay_25_26', '2025–26', TRUE, 'Current Academic Year - 2025-26 ExeCom & Activities'),
   ('ay_24_25', '2024–25', FALSE, 'Academic Year 2024-25 ExeCom & Activities'),
   ('ay_23_24', '2023–24', FALSE, 'Academic Year 2023-24 ExeCom & Activities')
