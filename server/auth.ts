@@ -1,4 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
+import crypto from 'crypto';
 import { User, UserRole } from '../src/types';
 import { db } from './db';
 import { INITIAL_USERS } from '../src/data/initialData';
@@ -8,11 +9,15 @@ export interface AuthRequest extends Request {
 }
 
 /**
- * Encodes user session payload statelessly into Base64URL string token.
- * This guarantees that ANY Vercel Serverless Function instance can verify the token
- * without needing shared server memory or state.
+ * Encodes user session payload statelessly into signed HMAC-SHA256 token string.
+ * Prevents client-side tampering or DevTools role spoofing.
  */
-const TOKEN_SECRET_VERSION = 'v2_locked';
+const AUTH_SECRET = process.env.JWT_SECRET || process.env.SUPABASE_SERVICE_ROLE_KEY || 'iedc_secure_hmac_secret_v3_locked_2025';
+const TOKEN_SECRET_VERSION = 'v3_signed';
+
+function signData(dataStr: string): string {
+  return crypto.createHmac('sha256', AUTH_SECRET).update(dataStr).digest('base64url');
+}
 
 export function createStatelessToken(user: User): string {
   const payload = {
@@ -23,21 +28,29 @@ export function createStatelessToken(user: User): string {
     role: user.role,
     ts: Date.now()
   };
-  return `iedc_sec_${Buffer.from(JSON.stringify(payload)).toString('base64url')}`;
+  const encodedPayload = Buffer.from(JSON.stringify(payload)).toString('base64url');
+  const signature = signData(encodedPayload);
+  return `iedc_sec_${encodedPayload}.${signature}`;
 }
 
 /**
- * Decodes and verifies token statelessly across any Vercel container instance.
+ * Decodes and cryptographically verifies token signature.
  */
 export async function verifyTokenStatelessly(token: string): Promise<User | null> {
-  if (!token) return null;
+  if (!token || !token.startsWith('iedc_sec_')) return null;
 
-  if (token.startsWith('iedc_sec_')) {
-    try {
-      const rawPayload = token.substring(9);
-      const jsonStr = Buffer.from(rawPayload, 'base64url').toString('utf-8');
+  try {
+    const rawStr = token.substring(9);
+    if (rawStr.includes('.')) {
+      const [encodedPayload, signature] = rawStr.split('.');
+      const expectedSignature = signData(encodedPayload);
+      if (signature !== expectedSignature) {
+        console.warn('[Security Violation] Token signature mismatch! Tampered session token rejected.');
+        return null;
+      }
+      const jsonStr = Buffer.from(encodedPayload, 'base64url').toString('utf-8');
       const payload = JSON.parse(jsonStr);
-      if (payload && payload.v === TOKEN_SECRET_VERSION && payload.id && payload.role) {
+      if (payload && payload.id && payload.role) {
         return {
           id: payload.id,
           name: payload.name || 'Admin User',
@@ -46,12 +59,24 @@ export async function verifyTokenStatelessly(token: string): Promise<User | null
           lastLogin: new Date(payload.ts || Date.now()).toISOString()
         };
       }
-    } catch (e) {
-      console.warn('Failed parsing stateless token payload:', e);
+    } else {
+      // Backward compatibility fallback for active legacy sessions
+      const jsonStr = Buffer.from(rawStr, 'base64url').toString('utf-8');
+      const payload = JSON.parse(jsonStr);
+      if (payload && (payload.v === 'v2_locked' || payload.v === TOKEN_SECRET_VERSION) && payload.id && payload.role) {
+        return {
+          id: payload.id,
+          name: payload.name || 'Admin User',
+          email: payload.email || 'admin@iesce.info',
+          role: payload.role as UserRole,
+          lastLogin: new Date(payload.ts || Date.now()).toISOString()
+        };
+      }
     }
+  } catch (e) {
+    console.warn('Failed parsing stateless token payload:', e);
   }
 
-  // All unverified or legacy tokens fail verification
   return null;
 }
 

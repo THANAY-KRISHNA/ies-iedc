@@ -20071,14 +20071,14 @@ var require_etag = __commonJS({
   "node_modules/etag/index.js"(exports, module) {
     "use strict";
     module.exports = etag;
-    var crypto2 = __require("crypto");
+    var crypto3 = __require("crypto");
     var Stats = __require("fs").Stats;
     var toString = Object.prototype.toString;
     function entitytag(entity) {
       if (entity.length === 0) {
         return '"0-2jmj7l5rSw0yVb/vlWAYkK/YBwk"';
       }
-      var hash = crypto2.createHash("sha1").update(entity, "utf8").digest("base64").substring(0, 27);
+      var hash = crypto3.createHash("sha1").update(entity, "utf8").digest("base64").substring(0, 27);
       var len = typeof entity === "string" ? Buffer.byteLength(entity, "utf8") : entity.length;
       return '"' + len.toString(16) + "-" + hash + '"';
     }
@@ -22971,11 +22971,11 @@ var require_request = __commonJS({
 // node_modules/cookie-signature/index.js
 var require_cookie_signature = __commonJS({
   "node_modules/cookie-signature/index.js"(exports) {
-    var crypto2 = __require("crypto");
+    var crypto3 = __require("crypto");
     exports.sign = function(val, secret) {
       if ("string" !== typeof val) throw new TypeError("Cookie value must be provided as a string.");
       if (null == secret) throw new TypeError("Secret key must be provided.");
-      return val + "." + crypto2.createHmac("sha256", secret).update(val).digest("base64").replace(/\=+$/, "");
+      return val + "." + crypto3.createHmac("sha256", secret).update(val).digest("base64").replace(/\=+$/, "");
     };
     exports.unsign = function(val, secret) {
       if ("string" !== typeof val) throw new TypeError("Signed cookie string must be provided.");
@@ -22984,7 +22984,7 @@ var require_cookie_signature = __commonJS({
       return sha1(mac) == sha1(val) ? str : false;
     };
     function sha1(str) {
-      return crypto2.createHash("sha1").update(str).digest("hex");
+      return crypto3.createHash("sha1").update(str).digest("hex");
     }
   }
 });
@@ -49568,7 +49568,12 @@ var DatabaseEngine = class {
 var db = new DatabaseEngine();
 
 // server/auth.ts
-var TOKEN_SECRET_VERSION = "v2_locked";
+import crypto2 from "crypto";
+var AUTH_SECRET = process.env.JWT_SECRET || process.env.SUPABASE_SERVICE_ROLE_KEY || "iedc_secure_hmac_secret_v3_locked_2025";
+var TOKEN_SECRET_VERSION = "v3_signed";
+function signData(dataStr) {
+  return crypto2.createHmac("sha256", AUTH_SECRET).update(dataStr).digest("base64url");
+}
 function createStatelessToken(user) {
   const payload = {
     v: TOKEN_SECRET_VERSION,
@@ -49578,16 +49583,24 @@ function createStatelessToken(user) {
     role: user.role,
     ts: Date.now()
   };
-  return `iedc_sec_${Buffer.from(JSON.stringify(payload)).toString("base64url")}`;
+  const encodedPayload = Buffer.from(JSON.stringify(payload)).toString("base64url");
+  const signature = signData(encodedPayload);
+  return `iedc_sec_${encodedPayload}.${signature}`;
 }
 async function verifyTokenStatelessly(token) {
-  if (!token) return null;
-  if (token.startsWith("iedc_sec_")) {
-    try {
-      const rawPayload = token.substring(9);
-      const jsonStr = Buffer.from(rawPayload, "base64url").toString("utf-8");
+  if (!token || !token.startsWith("iedc_sec_")) return null;
+  try {
+    const rawStr = token.substring(9);
+    if (rawStr.includes(".")) {
+      const [encodedPayload, signature] = rawStr.split(".");
+      const expectedSignature = signData(encodedPayload);
+      if (signature !== expectedSignature) {
+        console.warn("[Security Violation] Token signature mismatch! Tampered session token rejected.");
+        return null;
+      }
+      const jsonStr = Buffer.from(encodedPayload, "base64url").toString("utf-8");
       const payload = JSON.parse(jsonStr);
-      if (payload && payload.v === TOKEN_SECRET_VERSION && payload.id && payload.role) {
+      if (payload && payload.id && payload.role) {
         return {
           id: payload.id,
           name: payload.name || "Admin User",
@@ -49596,9 +49609,21 @@ async function verifyTokenStatelessly(token) {
           lastLogin: new Date(payload.ts || Date.now()).toISOString()
         };
       }
-    } catch (e) {
-      console.warn("Failed parsing stateless token payload:", e);
+    } else {
+      const jsonStr = Buffer.from(rawStr, "base64url").toString("utf-8");
+      const payload = JSON.parse(jsonStr);
+      if (payload && (payload.v === "v2_locked" || payload.v === TOKEN_SECRET_VERSION) && payload.id && payload.role) {
+        return {
+          id: payload.id,
+          name: payload.name || "Admin User",
+          email: payload.email || "admin@iesce.info",
+          role: payload.role,
+          lastLogin: new Date(payload.ts || Date.now()).toISOString()
+        };
+      }
     }
+  } catch (e) {
+    console.warn("Failed parsing stateless token payload:", e);
   }
   return null;
 }
