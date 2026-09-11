@@ -35,7 +35,7 @@ export const Footer: React.FC = () => {
               Recognized partner hub under Kerala Startup Mission (KSUM), Department of Electronics &amp; IT, Government of Kerala.
             </p>
             <div className="flex items-center gap-2 pt-1 text-xs font-mono text-[#161616] font-semibold">
-              <span>Nodal Code: KL-TCR-IES-2016</span>
+              <span>Institutional Code: KL-TCR-IES-2016</span>
             </div>
           </div>
 
