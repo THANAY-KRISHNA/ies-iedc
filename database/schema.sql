@@ -62,8 +62,8 @@ CREATE TABLE IF NOT EXISTS team_members (
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE INDEX idx_team_academic_year ON team_members(academic_year_id);
-CREATE INDEX idx_team_status ON team_members(status);
+CREATE INDEX IF NOT EXISTS idx_team_academic_year ON team_members(academic_year_id);
+CREATE INDEX IF NOT EXISTS idx_team_status ON team_members(status);
 
 -- 4. EVENTS & ACTIVITIES
 CREATE TABLE IF NOT EXISTS events (
@@ -94,9 +94,9 @@ CREATE TABLE IF NOT EXISTS events (
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE INDEX idx_events_year ON events(academic_year_id);
-CREATE INDEX idx_events_status ON events(status);
-CREATE INDEX idx_events_category ON events(category);
+CREATE INDEX IF NOT EXISTS idx_events_year ON events(academic_year_id);
+CREATE INDEX IF NOT EXISTS idx_events_status ON events(status);
+CREATE INDEX IF NOT EXISTS idx_events_category ON events(category);
 
 -- 5. ACHIEVEMENTS
 CREATE TABLE IF NOT EXISTS achievements (
