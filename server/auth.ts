@@ -12,15 +12,18 @@ export interface AuthRequest extends Request {
  * This guarantees that ANY Vercel Serverless Function instance can verify the token
  * without needing shared server memory or state.
  */
+const TOKEN_SECRET_VERSION = 'v2_locked';
+
 export function createStatelessToken(user: User): string {
   const payload = {
+    v: TOKEN_SECRET_VERSION,
     id: user.id,
     name: user.name,
     email: user.email,
     role: user.role,
     ts: Date.now()
   };
-  return `iedc_tok_${Buffer.from(JSON.stringify(payload)).toString('base64url')}`;
+  return `iedc_sec_${Buffer.from(JSON.stringify(payload)).toString('base64url')}`;
 }
 
 /**
@@ -29,13 +32,12 @@ export function createStatelessToken(user: User): string {
 export async function verifyTokenStatelessly(token: string): Promise<User | null> {
   if (!token) return null;
 
-  // 1. Decode stateless JWT-like token (iedc_tok_...)
-  if (token.startsWith('iedc_tok_')) {
+  if (token.startsWith('iedc_sec_')) {
     try {
       const rawPayload = token.substring(9);
       const jsonStr = Buffer.from(rawPayload, 'base64url').toString('utf-8');
       const payload = JSON.parse(jsonStr);
-      if (payload && payload.id && payload.role) {
+      if (payload && payload.v === TOKEN_SECRET_VERSION && payload.id && payload.role) {
         return {
           id: payload.id,
           name: payload.name || 'Admin User',
@@ -49,19 +51,7 @@ export async function verifyTokenStatelessly(token: string): Promise<User | null
     }
   }
 
-  // 2. Fallback to static user IDs (e.g. token_usr_super, token_usr_team, etc.)
-  const users = await db.getUsers().catch(() => INITIAL_USERS);
-  const matchedUser = users.find(u => token === `token_${u.id}` || token.includes(u.id) || token === u.id);
-  if (matchedUser) {
-    return matchedUser;
-  }
-
-  // 3. Fallback for generic admin tokens
-  if (token.startsWith('token_') || token.length > 5) {
-    const superAdmin = users.find(u => u.role === 'Super Admin') || INITIAL_USERS[0];
-    return superAdmin;
-  }
-
+  // All unverified or legacy tokens fail verification
   return null;
 }
 

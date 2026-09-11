@@ -49511,24 +49511,26 @@ var DatabaseEngine = class {
 var db = new DatabaseEngine();
 
 // server/auth.ts
+var TOKEN_SECRET_VERSION = "v2_locked";
 function createStatelessToken(user) {
   const payload = {
+    v: TOKEN_SECRET_VERSION,
     id: user.id,
     name: user.name,
     email: user.email,
     role: user.role,
     ts: Date.now()
   };
-  return `iedc_tok_${Buffer.from(JSON.stringify(payload)).toString("base64url")}`;
+  return `iedc_sec_${Buffer.from(JSON.stringify(payload)).toString("base64url")}`;
 }
 async function verifyTokenStatelessly(token) {
   if (!token) return null;
-  if (token.startsWith("iedc_tok_")) {
+  if (token.startsWith("iedc_sec_")) {
     try {
       const rawPayload = token.substring(9);
       const jsonStr = Buffer.from(rawPayload, "base64url").toString("utf-8");
       const payload = JSON.parse(jsonStr);
-      if (payload && payload.id && payload.role) {
+      if (payload && payload.v === TOKEN_SECRET_VERSION && payload.id && payload.role) {
         return {
           id: payload.id,
           name: payload.name || "Admin User",
@@ -49540,15 +49542,6 @@ async function verifyTokenStatelessly(token) {
     } catch (e) {
       console.warn("Failed parsing stateless token payload:", e);
     }
-  }
-  const users = await db.getUsers().catch(() => INITIAL_USERS);
-  const matchedUser = users.find((u) => token === `token_${u.id}` || token.includes(u.id) || token === u.id);
-  if (matchedUser) {
-    return matchedUser;
-  }
-  if (token.startsWith("token_") || token.length > 5) {
-    const superAdmin = users.find((u) => u.role === "Super Admin") || INITIAL_USERS[0];
-    return superAdmin;
   }
   return null;
 }
