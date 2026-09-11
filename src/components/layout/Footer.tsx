@@ -77,7 +77,17 @@ export const Footer: React.FC = () => {
         <div className="pt-8 border-t border-[#D8D8D3] flex flex-col sm:flex-row items-center justify-between gap-4 text-xs font-mono text-[#777777]">
           <div className="flex flex-col gap-1">
             <span>© {new Date().getFullYear()} IES IEDC — IES College of Engineering. All rights reserved.</span>
-            <span className="text-[11px] text-[#888888]">Developed by <span className="font-semibold text-[#333333]">THANAY KRISHNA C U</span></span>
+            <span className="text-[11px] text-[#888888]">
+              Developed by{' '}
+              <a
+                href="https://www.linkedin.com/in/thanay-krishna-c-u-a1b67831b"
+                target="_blank"
+                rel="noreferrer"
+                className="font-semibold text-[#333333] hover:text-[#161616] hover:underline transition-colors"
+              >
+                THANAY KRISHNA C U
+              </a>
+            </span>
           </div>
           <div className="flex items-center gap-4">
             <a href="https://instagram.com" target="_blank" rel="noreferrer" className="hover:text-[#161616] transition-colors">
