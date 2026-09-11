@@ -16,16 +16,23 @@ export const isSupabaseConfigured = (): boolean => {
   return !!(supabaseUrl && supabaseServiceKey);
 };
 
-export const supabaseAdmin: SupabaseClient = createClient(
-  supabaseUrl,
-  supabaseServiceKey || 'placeholder-key',
-  {
-    auth: {
-      persistSession: false,
-      autoRefreshToken: false
-    }
+let clientInstance: SupabaseClient | null = null;
+if (supabaseUrl && supabaseServiceKey) {
+  try {
+    clientInstance = createClient(supabaseUrl, supabaseServiceKey, {
+      auth: {
+        persistSession: false,
+        autoRefreshToken: false
+      }
+    });
+  } catch (err) {
+    console.error('Failed initializing Supabase client:', err);
   }
-);
+}
+
+export const supabaseAdmin: SupabaseClient = clientInstance || createClient(supabaseUrl, 'placeholder-key', {
+  auth: { persistSession: false, autoRefreshToken: false }
+});
 
 /**
  * Upload Base64 Data URL or Buffer to Supabase Cloud Storage bucket.
