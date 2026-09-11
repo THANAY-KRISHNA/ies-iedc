@@ -50009,7 +50009,7 @@ function createApp() {
 }
 var app = createApp();
 
-// api/index.ts
+// server/api_entry.ts
 function handler(req, res) {
   try {
     return app(req, res);
