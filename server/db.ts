@@ -302,6 +302,9 @@ class DatabaseEngine {
   }
 
   private saveMemory(state: DatabaseState) {
+    if (process.env.VERCEL || process.env.NOW_REGION) {
+      return;
+    }
     try {
       if (!fs.existsSync(DATA_DIR)) {
         fs.mkdirSync(DATA_DIR, { recursive: true });

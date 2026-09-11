@@ -38,7 +38,7 @@ export function broadcastDataChange(entity: string, action: string, data?: any) 
 }
 
 // SSE Keepalive Ping (Every 25s)
-setInterval(() => {
+const sseInterval = setInterval(() => {
   for (const client of sseClients) {
     try {
       client.write(`:keepalive\n\n`);
@@ -47,6 +47,9 @@ setInterval(() => {
     }
   }
 }, 25000);
+if (sseInterval && typeof sseInterval.unref === 'function') {
+  sseInterval.unref();
+}
 
 // ==========================================
 // AUTH & USERS
