@@ -6,7 +6,7 @@ export const Footer: React.FC = () => {
   return (
     <footer className="w-full bg-[#EBEBE8] border-t border-[#D8D8D3] py-16 px-6 lg:px-16 text-[#242424]" id="contact">
       <div className="max-w-7xl mx-auto flex flex-col gap-12">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
           
           {/* Col 1: Brand Info */}
           <div className="flex flex-col gap-3">
@@ -52,23 +52,6 @@ export const Footer: React.FC = () => {
               <Link className="hover:text-[#161616] transition-colors" to="/team">Team &amp; Officers</Link>
               <Link className="hover:text-[#161616] transition-colors" to="/contact">Get in Touch</Link>
             </div>
-          </div>
-
-          {/* Col 4: Nodal Portal */}
-          <div className="flex flex-col gap-3">
-            <span className="text-xs font-mono font-bold uppercase tracking-wider text-[#161616]">
-              Nodal Office Access
-            </span>
-            <p className="text-xs text-[#777777] leading-relaxed">
-              Administrative CMS access for nodal officers and executive leads to manage events, gallery photos, and team updates.
-            </p>
-            <Link
-              to="/admin"
-              className="text-left text-xs font-mono font-bold text-[#161616] hover:underline uppercase tracking-wider pt-2 flex items-center gap-1.5 cursor-pointer"
-            >
-              <span>Nodal Officer Portal</span>
-              <ArrowRight className="w-4 h-4" />
-            </Link>
           </div>
 
         </div>
