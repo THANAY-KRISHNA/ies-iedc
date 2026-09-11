@@ -116,9 +116,6 @@ export const AdminTeam: React.FC = () => {
 
   useEffect(() => {
     loadAcademicYears();
-    if (searchParams.get('action') === 'new') {
-      handleOpenAdd();
-    }
   }, []);
 
   const loadTeam = useCallback(async () => {

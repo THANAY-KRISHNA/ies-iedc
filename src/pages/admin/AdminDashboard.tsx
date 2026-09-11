@@ -98,7 +98,7 @@ export const AdminDashboard: React.FC = () => {
       title: 'Add Team Member',
       desc: 'Add executive leads, coordinators or nodal officers to the roster.',
       icon: <Users className="w-5 h-5 text-[#161616]" />,
-      link: '/admin/team?action=new',
+      link: '/admin/team',
       badge: 'Team CMS'
     },
     {
