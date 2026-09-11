@@ -49586,6 +49586,11 @@ function requireRole(allowedRoles) {
 async function loginUser(emailOrUsername, password) {
   const users = await db.getUsers().catch(() => INITIAL_USERS);
   const input = emailOrUsername.trim().toLowerCase();
+  const pwd = (password || "").trim().toLowerCase();
+  const validPasswords = ["admin123", "iedc123", "iesce2025", "admin", "iedc", "iedc2025", "iesiedc"];
+  if (!pwd || !validPasswords.includes(pwd)) {
+    return null;
+  }
   let targetEmail = input;
   if (["admin", "admin@iesce.info", "superadmin", "nodal", "nodal.officer", "shahaziya", "ies"].includes(input)) {
     targetEmail = "nodal.officer@iesce.info";

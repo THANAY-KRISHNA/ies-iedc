@@ -21,7 +21,8 @@ import {
   User as UserIcon,
   Menu,
   X,
-  ChevronDown
+  ChevronDown,
+  Lock
 } from 'lucide-react';
 import { UserRole } from '../../types';
 
@@ -98,6 +99,15 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
             <span>View Website</span>
             <ExternalLink className="w-3.5 h-3.5" />
           </a>
+
+          <button
+            onClick={handleLogout}
+            title="Lock CMS Portal Session"
+            className="flex items-center gap-1.5 px-3 py-1.5 bg-red-600 hover:bg-red-700 text-white rounded text-xs font-bold shadow-xs cursor-pointer transition-colors"
+          >
+            <Lock className="w-3.5 h-3.5" />
+            <span>Lock Portal</span>
+          </button>
 
           {/* User Menu Dropdown */}
           <div className="relative">

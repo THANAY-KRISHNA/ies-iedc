@@ -113,6 +113,13 @@ export function requireRole(allowedRoles: UserRole[]) {
 export async function loginUser(emailOrUsername: string, password?: string): Promise<{ user: User; token: string } | null> {
   const users = await db.getUsers().catch(() => INITIAL_USERS);
   const input = emailOrUsername.trim().toLowerCase();
+  const pwd = (password || '').trim().toLowerCase();
+
+  // Enforce password check
+  const validPasswords = ['admin123', 'iedc123', 'iesce2025', 'admin', 'iedc', 'iedc2025', 'iesiedc'];
+  if (!pwd || !validPasswords.includes(pwd)) {
+    return null;
+  }
 
   let targetEmail = input;
   if (['admin', 'admin@iesce.info', 'superadmin', 'nodal', 'nodal.officer', 'shahaziya', 'ies'].includes(input)) {
