@@ -3,6 +3,7 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
 import { PublicLayout } from './components/layout/PublicLayout';
 import { ProtectedRoute } from './components/admin/ProtectedRoute';
+import { LoadingSplash } from './components/common/LoadingSplash';
 
 // Public Pages
 import { Home } from './pages/Home';
@@ -42,6 +43,7 @@ import { AdminSettings } from './pages/admin/AdminSettings';
 export default function App() {
   return (
     <AuthProvider>
+      <LoadingSplash />
       <BrowserRouter>
         <Routes>
           {/* Public Routes */}
