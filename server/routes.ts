@@ -287,7 +287,7 @@ apiRouter.post('/admin/academic-years', authenticateToken, requireRole(['Team Ad
   const { year, notes, isCurrent } = req.body;
   if (!year) return res.status(400).json({ error: 'Academic year name is required.' });
   const newYear = await db.addAcademicYear({
-    id: `ay_${year.replace(/[^a-zA-Z0-9]/g, '_')}`,
+    id: year,
     year,
     notes,
     isCurrent: !!isCurrent
@@ -295,6 +295,29 @@ apiRouter.post('/admin/academic-years', authenticateToken, requireRole(['Team Ad
   broadcastDataChange('academicYears', 'create', newYear);
   res.status(201).json(newYear);
 });
+
+apiRouter.put('/admin/academic-years/:id', authenticateToken, requireRole(['Team Admin']), async (req: AuthRequest, res: Response) => {
+  try {
+    const updated = await db.updateAcademicYear(req.params.id, req.body, req.user?.name);
+    if (!updated) return res.status(404).json({ error: 'Academic year not found.' });
+    broadcastDataChange('academicYears', 'update', updated);
+    res.json(updated);
+  } catch (err: any) {
+    res.status(500).json({ error: err.message || 'Failed to update academic year.' });
+  }
+});
+
+apiRouter.delete('/admin/academic-years/:id', authenticateToken, requireRole(['Team Admin']), async (req: AuthRequest, res: Response) => {
+  try {
+    const success = await db.deleteAcademicYear(req.params.id, req.user?.name);
+    if (!success) return res.status(404).json({ error: 'Academic year not found.' });
+    broadcastDataChange('academicYears', 'delete', { id: req.params.id });
+    res.json({ message: 'Academic year deleted.' });
+  } catch (err: any) {
+    res.status(500).json({ error: err.message || 'Failed to delete academic year.' });
+  }
+});
+
 
 // Events Management
 apiRouter.get('/admin/events', authenticateToken, requireRole(['Content Admin']), async (req: AuthRequest, res: Response) => {

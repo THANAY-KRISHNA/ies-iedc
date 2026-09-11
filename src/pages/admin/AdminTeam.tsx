@@ -62,6 +62,9 @@ export const AdminTeam: React.FC = () => {
   const [editingMember, setEditingMember] = useState<TeamMember | null>(null);
   const [isYearModalOpen, setIsYearModalOpen] = useState(false);
   const [newYearName, setNewYearName] = useState('');
+  const [editingYear, setEditingYear] = useState<AcademicYear | null>(null);
+  const [editingYearName, setEditingYearName] = useState('');
+  const [editingYearIsCurrent, setEditingYearIsCurrent] = useState(false);
   const [isCustomRole, setIsCustomRole] = useState(false);
   const [customRoleInput, setCustomRoleInput] = useState('');
 
@@ -90,11 +93,20 @@ export const AdminTeam: React.FC = () => {
   async function loadAcademicYears() {
     try {
       const years = await api.getAcademicYears();
-      setAcademicYears(years);
-      if (years.length > 0 && !years.some(y => y.year === selectedYear)) {
-        const current = years.find(y => y.isCurrent);
+      const seen = new Set<string>();
+      const uniqueYears: AcademicYear[] = [];
+      for (const y of years) {
+        const norm = y.year ? y.year.replace(/[\u2010-\u2015\u2212-]/g, '-').trim() : '';
+        if (norm && !seen.has(norm)) {
+          seen.add(norm);
+          uniqueYears.push(y);
+        }
+      }
+      setAcademicYears(uniqueYears);
+      if (uniqueYears.length > 0 && !uniqueYears.some(y => y.year === selectedYear)) {
+        const current = uniqueYears.find(y => y.isCurrent);
         if (current) setSelectedYear(current.year);
-        else setSelectedYear(years[0].year);
+        else setSelectedYear(uniqueYears[0].year);
       }
     } catch (err) {
       console.error('Failed to load academic years:', err);
@@ -266,11 +278,43 @@ export const AdminTeam: React.FC = () => {
     if (!newYearName.trim()) return;
     try {
       await api.adminAddAcademicYear({ year: newYearName.trim(), isCurrent: false });
-      setIsYearModalOpen(false);
       setNewYearName('');
       loadAcademicYears();
     } catch (err) {
       console.error('Failed to add academic year:', err);
+    }
+  };
+
+  const handleStartEditYear = (y: AcademicYear) => {
+    setEditingYear(y);
+    setEditingYearName(y.year);
+    setEditingYearIsCurrent(!!y.isCurrent);
+  };
+
+  const handleSaveEditYear = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editingYear || !editingYearName.trim()) return;
+    try {
+      await api.adminUpdateAcademicYear(editingYear.id, {
+        year: editingYearName.trim(),
+        isCurrent: editingYearIsCurrent
+      });
+      setEditingYear(null);
+      loadAcademicYears();
+    } catch (err: any) {
+      console.error('Failed to update academic year:', err);
+      alert(`Error updating academic year: ${err?.message || 'Please try again.'}`);
+    }
+  };
+
+  const handleDeleteAcademicYear = async (id: string, yearName: string) => {
+    if (!window.confirm(`Are you sure you want to delete academic year "${yearName}"?`)) return;
+    try {
+      await api.adminDeleteAcademicYear(id);
+      loadAcademicYears();
+    } catch (err: any) {
+      console.error('Failed to delete academic year:', err);
+      alert(`Error deleting academic year: ${err?.message || 'Please try again.'}`);
     }
   };
 
@@ -303,9 +347,10 @@ export const AdminTeam: React.FC = () => {
           <div className="flex gap-2">
             <button
               onClick={() => setIsYearModalOpen(true)}
-              className="px-3.5 py-2 bg-[#F0F0ED] hover:bg-[#EBEBE8] border border-[#D8D8D3] rounded-xl text-xs font-bold text-[#242424] cursor-pointer transition-colors"
+              className="px-3.5 py-2 bg-[#F0F0ED] hover:bg-[#EBEBE8] border border-[#D8D8D3] rounded-xl text-xs font-bold text-[#242424] flex items-center gap-1.5 cursor-pointer transition-colors"
             >
-              + Add Academic Year
+              <Edit className="w-3.5 h-3.5" />
+              <span>Manage / Edit Academic Years</span>
             </button>
             <button
               onClick={handleOpenAdd}
@@ -767,39 +812,110 @@ export const AdminTeam: React.FC = () => {
           </div>
         )}
 
-        {/* Add Academic Year Modal */}
+        {/* Manage & Edit Academic Year Modal */}
         {isYearModalOpen && (
           <div className="fixed inset-0 z-50 bg-black/70 flex items-center justify-center p-4">
-            <div className="bg-white rounded-2xl border border-[#D8D8D3] w-full max-w-sm p-6 space-y-4 shadow-2xl">
-              <h3 className="font-extrabold text-sm text-[#161616]">Add Academic Year Cycle</h3>
-              <form onSubmit={handleAddYear} className="space-y-4 text-xs">
-                <div className="space-y-1.5">
-                  <label className="font-bold text-[#242424]">Academic Year Format *</label>
+            <div className="bg-white rounded-2xl border border-[#D8D8D3] w-full max-w-md p-6 space-y-5 shadow-2xl">
+              <div className="flex items-center justify-between border-b border-[#E5E5E0] pb-3">
+                <div>
+                  <h3 className="font-extrabold text-sm text-[#161616]">Manage Academic Years</h3>
+                  <p className="text-[11px] text-[#777777]">Edit, delete, or create academic year cycles</p>
+                </div>
+                <button
+                  onClick={() => { setIsYearModalOpen(false); setEditingYear(null); }}
+                  className="p-1 text-gray-400 hover:text-gray-600 rounded-lg cursor-pointer"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+
+              {/* Existing Academic Years List */}
+              <div className="space-y-2.5 max-h-60 overflow-y-auto pr-1">
+                <span className="text-[10px] font-extrabold text-[#777777] uppercase tracking-wider">
+                  Active Academic Cycles ({academicYears.length})
+                </span>
+                {academicYears.map(y => (
+                  <div key={y.id} className="p-3 bg-[#F8F8F6] border border-[#E5E5E0] rounded-xl flex items-center justify-between gap-2">
+                    {editingYear?.id === y.id ? (
+                      <form onSubmit={handleSaveEditYear} className="flex-1 flex items-center gap-2">
+                        <input
+                          type="text"
+                          required
+                          value={editingYearName}
+                          onChange={e => setEditingYearName(e.target.value)}
+                          className="px-2.5 py-1 text-xs bg-white border border-[#D8D8D3] rounded-lg flex-1 font-bold"
+                        />
+                        <label className="flex items-center gap-1 text-[11px] font-semibold text-gray-700 cursor-pointer">
+                          <input
+                            type="checkbox"
+                            checked={editingYearIsCurrent}
+                            onChange={e => setEditingYearIsCurrent(e.target.checked)}
+                          />
+                          Current
+                        </label>
+                        <button type="submit" className="p-1.5 bg-green-600 text-white rounded-lg hover:bg-green-700 cursor-pointer" title="Save changes">
+                          <CheckCircle2 className="w-4 h-4" />
+                        </button>
+                        <button type="button" onClick={() => setEditingYear(null)} className="p-1.5 bg-gray-300 text-gray-700 rounded-lg cursor-pointer" title="Cancel">
+                          <X className="w-4 h-4" />
+                        </button>
+                      </form>
+                    ) : (
+                      <>
+                        <div className="flex items-center gap-2">
+                          <span className="text-xs font-extrabold text-[#161616]">{y.year}</span>
+                          {y.isCurrent && (
+                            <span className="px-2 py-0.5 text-[9px] font-extrabold bg-green-100 text-green-700 rounded-full border border-green-200">
+                              Current Cycle
+                            </span>
+                          )}
+                        </div>
+                        <div className="flex items-center gap-1">
+                          <button
+                            type="button"
+                            onClick={() => handleStartEditYear(y)}
+                            title="Edit Year Name"
+                            className="p-1.5 text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors cursor-pointer"
+                          >
+                            <Edit className="w-3.5 h-3.5" />
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => handleDeleteAcademicYear(y.id, y.year)}
+                            title="Delete Academic Year"
+                            className="p-1.5 text-gray-500 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors cursor-pointer"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </button>
+                        </div>
+                      </>
+                    )}
+                  </div>
+                ))}
+              </div>
+
+              {/* Add New Academic Year Section */}
+              <div className="pt-3 border-t border-[#E5E5E0] space-y-2">
+                <span className="text-[10px] font-extrabold text-[#777777] uppercase tracking-wider block">
+                  + Add New Academic Cycle
+                </span>
+                <form onSubmit={handleAddYear} className="flex gap-2">
                   <input
                     type="text"
                     required
                     placeholder="e.g. 2026–27"
                     value={newYearName}
                     onChange={e => setNewYearName(e.target.value)}
-                    className="w-full px-3 py-2 bg-[#F5F5F3] border border-[#D8D8D3] rounded-xl text-xs"
+                    className="flex-1 px-3 py-2 bg-[#F5F5F3] border border-[#D8D8D3] rounded-xl text-xs font-bold"
                   />
-                </div>
-                <div className="flex justify-end gap-2">
-                  <button
-                    type="button"
-                    onClick={() => setIsYearModalOpen(false)}
-                    className="px-3.5 py-2 bg-[#F0F0ED] rounded-xl text-xs font-bold text-[#242424]"
-                  >
-                    Cancel
-                  </button>
                   <button
                     type="submit"
-                    className="px-4 py-2 bg-[#161616] text-white rounded-xl text-xs font-bold"
+                    className="px-4 py-2 bg-[#161616] hover:bg-[#242424] text-white rounded-xl text-xs font-bold transition-all cursor-pointer"
                   >
                     Create Year
                   </button>
-                </div>
-              </form>
+                </form>
+              </div>
             </div>
           </div>
         )}

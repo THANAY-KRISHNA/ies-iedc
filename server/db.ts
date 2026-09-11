@@ -387,11 +387,12 @@ class DatabaseEngine {
 
   // --- ACADEMIC YEARS ---
   public async getAcademicYears(): Promise<AcademicYear[]> {
+    let list: AcademicYear[] = [];
     if (isSupabaseConfigured()) {
       try {
         const { data, error } = await supabaseAdmin.from('academic_years').select('*').order('year_name', { ascending: false });
         if (!error && data && data.length > 0) {
-          return data.map(r => ({
+          list = data.map(r => ({
             id: r.id,
             year: r.year_name,
             isCurrent: !!r.is_current,
@@ -400,7 +401,20 @@ class DatabaseEngine {
         }
       } catch (e) {}
     }
-    return this.memoryState.academicYears;
+    if (list.length === 0) {
+      list = this.memoryState.academicYears;
+    }
+
+    const seen = new Set<string>();
+    const unique: AcademicYear[] = [];
+    for (const item of list) {
+      const norm = item.year ? item.year.replace(/[\u2010-\u2015\u2212-]/g, '-').trim() : '';
+      if (norm && !seen.has(norm)) {
+        seen.add(norm);
+        unique.push(item);
+      }
+    }
+    return unique;
   }
 
   public async addAcademicYear(year: AcademicYear, actor = 'Admin'): Promise<AcademicYear> {
@@ -433,6 +447,81 @@ class DatabaseEngine {
       contentSummary: `Added academic year ${year.year}`
     });
     return year;
+  }
+
+  public async updateAcademicYear(id: string, updates: Partial<AcademicYear>, actor = 'Admin'): Promise<AcademicYear | null> {
+    const idx = this.memoryState.academicYears.findIndex(y => y.id === id || y.year === id);
+    let target = idx !== -1 ? { ...this.memoryState.academicYears[idx], ...updates } : null;
+
+    if (isSupabaseConfigured()) {
+      try {
+        const payload: any = {};
+        if (updates.year !== undefined) payload.year_name = updates.year;
+        if (updates.isCurrent !== undefined) payload.is_current = updates.isCurrent;
+        if (updates.notes !== undefined) payload.notes = updates.notes;
+
+        const { data, error } = await supabaseAdmin
+          .from('academic_years')
+          .update(payload)
+          .eq('id', id)
+          .select()
+          .single();
+
+        if (!error && data) {
+          target = {
+            id: data.id,
+            year: data.year_name,
+            isCurrent: !!data.is_current,
+            notes: data.notes || ''
+          };
+        }
+      } catch (e) {
+        console.warn('Supabase updateAcademicYear error:', e);
+      }
+    }
+
+    if (target) {
+      if (idx !== -1) this.memoryState.academicYears[idx] = target;
+      this.saveMemory(this.memoryState);
+      await this.logActivity({
+        userName: actor,
+        userRole: 'Admin',
+        action: 'Updated',
+        contentType: 'Academic Year',
+        contentId: id,
+        contentSummary: `Updated academic year ${target.year}`
+      });
+    }
+    return target;
+  }
+
+  public async deleteAcademicYear(id: string, actor = 'Admin'): Promise<boolean> {
+    const idx = this.memoryState.academicYears.findIndex(y => y.id === id || y.year === id);
+    if (idx !== -1) {
+      this.memoryState.academicYears.splice(idx, 1);
+    }
+
+    if (isSupabaseConfigured()) {
+      try {
+        const { error } = await supabaseAdmin.from('academic_years').delete().eq('id', id);
+        if (error) {
+          console.warn('Supabase deleteAcademicYear error:', error.message);
+        }
+      } catch (e) {
+        console.warn('Supabase deleteAcademicYear exception:', e);
+      }
+    }
+
+    this.saveMemory(this.memoryState);
+    await this.logActivity({
+      userName: actor,
+      userRole: 'Admin',
+      action: 'Deleted',
+      contentType: 'Academic Year',
+      contentId: id,
+      contentSummary: `Deleted academic year ${id}`
+    });
+    return true;
   }
 
   // --- TEAM MEMBERS ---

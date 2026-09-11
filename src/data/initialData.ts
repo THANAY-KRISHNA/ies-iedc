@@ -46,9 +46,9 @@ export const INITIAL_USERS: User[] = [
 ];
 
 export const INITIAL_ACADEMIC_YEARS: AcademicYear[] = [
-  { id: 'ay_25_26', year: '2025–26', isCurrent: true, notes: 'Current Academic Year (2025-26 ExeCom & Activities)' },
-  { id: 'ay_24_25', year: '2024–25', isCurrent: false, notes: 'Academic Year 2024-25 ExeCom & Activities' },
-  { id: 'ay_23_24', year: '2023–24', isCurrent: false, notes: 'Academic Year 2023-24 ExeCom & Activities' }
+  { id: '2025–26', year: '2025–26', isCurrent: true, notes: 'Current Academic Year (2025-26 ExeCom & Activities)' },
+  { id: '2024–25', year: '2024–25', isCurrent: false, notes: 'Academic Year 2024-25 ExeCom & Activities' },
+  { id: '2023–24', year: '2023–24', isCurrent: false, notes: 'Academic Year 2023-24 ExeCom & Activities' }
 ];
 
 export const INITIAL_DEPARTMENTS: Department[] = [

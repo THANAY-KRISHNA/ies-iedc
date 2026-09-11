@@ -196,6 +196,16 @@ export const api = {
     notifyDataChange('academicYears', 'create', res);
     return res;
   },
+  adminUpdateAcademicYear: async (id: string, updates: Partial<AcademicYear>) => {
+    const res = await request<AcademicYear>(`/admin/academic-years/${encodeURIComponent(id)}`, { method: 'PUT', body: JSON.stringify(updates) });
+    notifyDataChange('academicYears', 'update', res);
+    return res;
+  },
+  adminDeleteAcademicYear: async (id: string) => {
+    const res = await request<{ message: string }>(`/admin/academic-years/${encodeURIComponent(id)}`, { method: 'DELETE' });
+    notifyDataChange('academicYears', 'delete', { id });
+    return res;
+  },
 
   // Admin Events
   adminGetEvents: (params?: any) => {

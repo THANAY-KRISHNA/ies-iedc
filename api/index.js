@@ -37675,9 +37675,9 @@ var INITIAL_USERS = [
   }
 ];
 var INITIAL_ACADEMIC_YEARS = [
-  { id: "ay_25_26", year: "2025\u201326", isCurrent: true, notes: "Current Academic Year (2025-26 ExeCom & Activities)" },
-  { id: "ay_24_25", year: "2024\u201325", isCurrent: false, notes: "Academic Year 2024-25 ExeCom & Activities" },
-  { id: "ay_23_24", year: "2023\u201324", isCurrent: false, notes: "Academic Year 2023-24 ExeCom & Activities" }
+  { id: "2025\u201326", year: "2025\u201326", isCurrent: true, notes: "Current Academic Year (2025-26 ExeCom & Activities)" },
+  { id: "2024\u201325", year: "2024\u201325", isCurrent: false, notes: "Academic Year 2024-25 ExeCom & Activities" },
+  { id: "2023\u201324", year: "2023\u201324", isCurrent: false, notes: "Academic Year 2023-24 ExeCom & Activities" }
 ];
 var INITIAL_DEPARTMENTS = [
   { id: "dept_ce", code: "CE", name: "Civil Engineering" },
@@ -48211,11 +48211,12 @@ var DatabaseEngine = class {
   }
   // --- ACADEMIC YEARS ---
   async getAcademicYears() {
+    let list = [];
     if (isSupabaseConfigured()) {
       try {
         const { data, error } = await supabaseAdmin.from("academic_years").select("*").order("year_name", { ascending: false });
         if (!error && data && data.length > 0) {
-          return data.map((r) => ({
+          list = data.map((r) => ({
             id: r.id,
             year: r.year_name,
             isCurrent: !!r.is_current,
@@ -48225,7 +48226,19 @@ var DatabaseEngine = class {
       } catch (e) {
       }
     }
-    return this.memoryState.academicYears;
+    if (list.length === 0) {
+      list = this.memoryState.academicYears;
+    }
+    const seen = /* @__PURE__ */ new Set();
+    const unique = [];
+    for (const item of list) {
+      const norm = item.year ? item.year.replace(/[\u2010-\u2015\u2212-]/g, "-").trim() : "";
+      if (norm && !seen.has(norm)) {
+        seen.add(norm);
+        unique.push(item);
+      }
+    }
+    return unique;
   }
   async addAcademicYear(year, actor = "Admin") {
     const idx = this.memoryState.academicYears.findIndex((y) => y.id === year.id);
@@ -48256,6 +48269,68 @@ var DatabaseEngine = class {
       contentSummary: `Added academic year ${year.year}`
     });
     return year;
+  }
+  async updateAcademicYear(id, updates, actor = "Admin") {
+    const idx = this.memoryState.academicYears.findIndex((y) => y.id === id || y.year === id);
+    let target = idx !== -1 ? { ...this.memoryState.academicYears[idx], ...updates } : null;
+    if (isSupabaseConfigured()) {
+      try {
+        const payload = {};
+        if (updates.year !== void 0) payload.year_name = updates.year;
+        if (updates.isCurrent !== void 0) payload.is_current = updates.isCurrent;
+        if (updates.notes !== void 0) payload.notes = updates.notes;
+        const { data, error } = await supabaseAdmin.from("academic_years").update(payload).eq("id", id).select().single();
+        if (!error && data) {
+          target = {
+            id: data.id,
+            year: data.year_name,
+            isCurrent: !!data.is_current,
+            notes: data.notes || ""
+          };
+        }
+      } catch (e) {
+        console.warn("Supabase updateAcademicYear error:", e);
+      }
+    }
+    if (target) {
+      if (idx !== -1) this.memoryState.academicYears[idx] = target;
+      this.saveMemory(this.memoryState);
+      await this.logActivity({
+        userName: actor,
+        userRole: "Admin",
+        action: "Updated",
+        contentType: "Academic Year",
+        contentId: id,
+        contentSummary: `Updated academic year ${target.year}`
+      });
+    }
+    return target;
+  }
+  async deleteAcademicYear(id, actor = "Admin") {
+    const idx = this.memoryState.academicYears.findIndex((y) => y.id === id || y.year === id);
+    if (idx !== -1) {
+      this.memoryState.academicYears.splice(idx, 1);
+    }
+    if (isSupabaseConfigured()) {
+      try {
+        const { error } = await supabaseAdmin.from("academic_years").delete().eq("id", id);
+        if (error) {
+          console.warn("Supabase deleteAcademicYear error:", error.message);
+        }
+      } catch (e) {
+        console.warn("Supabase deleteAcademicYear exception:", e);
+      }
+    }
+    this.saveMemory(this.memoryState);
+    await this.logActivity({
+      userName: actor,
+      userRole: "Admin",
+      action: "Deleted",
+      contentType: "Academic Year",
+      contentId: id,
+      contentSummary: `Deleted academic year ${id}`
+    });
+    return true;
   }
   // --- TEAM MEMBERS ---
   async getTeam(academicYear, publishedOnly = false) {
@@ -49749,13 +49824,33 @@ apiRouter.post("/admin/academic-years", authenticateToken, requireRole(["Team Ad
   const { year, notes, isCurrent } = req.body;
   if (!year) return res.status(400).json({ error: "Academic year name is required." });
   const newYear = await db.addAcademicYear({
-    id: `ay_${year.replace(/[^a-zA-Z0-9]/g, "_")}`,
+    id: year,
     year,
     notes,
     isCurrent: !!isCurrent
   }, req.user?.name);
   broadcastDataChange("academicYears", "create", newYear);
   res.status(201).json(newYear);
+});
+apiRouter.put("/admin/academic-years/:id", authenticateToken, requireRole(["Team Admin"]), async (req, res) => {
+  try {
+    const updated = await db.updateAcademicYear(req.params.id, req.body, req.user?.name);
+    if (!updated) return res.status(404).json({ error: "Academic year not found." });
+    broadcastDataChange("academicYears", "update", updated);
+    res.json(updated);
+  } catch (err) {
+    res.status(500).json({ error: err.message || "Failed to update academic year." });
+  }
+});
+apiRouter.delete("/admin/academic-years/:id", authenticateToken, requireRole(["Team Admin"]), async (req, res) => {
+  try {
+    const success = await db.deleteAcademicYear(req.params.id, req.user?.name);
+    if (!success) return res.status(404).json({ error: "Academic year not found." });
+    broadcastDataChange("academicYears", "delete", { id: req.params.id });
+    res.json({ message: "Academic year deleted." });
+  } catch (err) {
+    res.status(500).json({ error: err.message || "Failed to delete academic year." });
+  }
 });
 apiRouter.get("/admin/events", authenticateToken, requireRole(["Content Admin"]), async (req, res) => {
   const { year, category, status, search } = req.query;
