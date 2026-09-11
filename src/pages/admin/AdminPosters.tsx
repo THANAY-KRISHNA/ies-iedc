@@ -2,6 +2,7 @@ import React, { useEffect, useState, useCallback } from 'react';
 import { AdminLayout } from '../../components/admin/AdminLayout';
 import { api } from '../../services/api';
 import { useRealtimeSync } from '../../services/realtime';
+import { convertToWebP } from '../../utils/imageCompressor';
 import { EventItem } from '../../types';
 import { Upload, Copy, Check, Trash2, Image as ImageIcon, FileText, Search, Link as LinkIcon, Download } from 'lucide-react';
 
@@ -42,34 +43,44 @@ export const AdminPosters: React.FC = () => {
 
   useRealtimeSync(['posters', 'events'], loadData);
 
-  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (!files || files.length === 0) return;
 
     setUploading(true);
-    (Array.from(files) as File[]).forEach((file: File) => {
-      const reader = new FileReader();
-      reader.onload = async (event) => {
-        const fileData = event.target?.result as string;
-        try {
-          const isDoc = file.type.includes('pdf') || file.name.endsWith('.pdf') || file.name.endsWith('.doc') || file.name.endsWith('.docx');
-          const payload = {
-            title: file.name.replace(/\.[^/.]+$/, ''),
-            url: fileData,
-            fileType: isDoc ? 'document' : 'image',
-            uploadedAt: new Date().toLocaleDateString(),
-            size: `${(file.size / 1024).toFixed(1)} KB`
-          };
-          const created = await api.adminAddPoster(payload);
-          setPosters(prev => [created, ...prev]);
-        } catch (err) {
-          console.error('Failed to upload poster:', err);
-        } finally {
-          setUploading(false);
+    const fileList = Array.from(files) as File[];
+
+    for (const file of fileList) {
+      try {
+        const isDoc = file.type.includes('pdf') || file.name.endsWith('.pdf') || file.name.endsWith('.doc') || file.name.endsWith('.docx');
+        let fileData: string;
+
+        if (!isDoc && file.type.startsWith('image/')) {
+          const res = await convertToWebP(file, { quality: 0.82, maxWidth: 1600 });
+          fileData = res.dataUrl;
+        } else {
+          fileData = await new Promise<string>((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = () => resolve(reader.result as string);
+            reader.onerror = reject;
+            reader.readAsDataURL(file);
+          });
         }
-      };
-      reader.readAsDataURL(file);
-    });
+
+        const payload = {
+          title: file.name.replace(/\.[^/.]+$/, ''),
+          url: fileData,
+          fileType: isDoc ? ('document' as const) : ('image' as const),
+          uploadedAt: new Date().toLocaleDateString(),
+          size: `${(file.size / 1024).toFixed(1)} KB`
+        };
+        const created = await api.adminAddPoster(payload);
+        setPosters(prev => [created, ...prev]);
+      } catch (err) {
+        console.error('Failed to upload poster:', err);
+      }
+    }
+    setUploading(false);
   };
 
   const handleAttachToEvent = async (posterId: string, eventId: string) => {

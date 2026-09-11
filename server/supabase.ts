@@ -1,4 +1,5 @@
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
+import { convertImageWithPython } from './imageConverter';
 
 const supabaseUrl =
   process.env.SUPABASE_URL ||
@@ -38,6 +39,7 @@ export const supabaseAdmin: SupabaseClient =
 
 /**
  * Upload Base64 Data URL or Buffer to Supabase Cloud Storage bucket.
+ * Automatically converts JPG/JPEG/PNG images to WebP format using Python script.
  * Returns public access URL.
  */
 export async function uploadToSupabaseStorage(
@@ -45,24 +47,28 @@ export async function uploadToSupabaseStorage(
   fileName: string,
   base64Data: string
 ): Promise<string> {
+  // Pass image through Python WebP converter first
+  const processedData = await convertImageWithPython(base64Data);
+
   if (!isSupabaseConfigured()) {
-    return base64Data; // fallback
+    return processedData; // fallback to converted base64 data
   }
 
   try {
-    // Parse Base64 data string (data:image/jpeg;base64,...)
-    const matches = base64Data.match(/^data:(.+);base64,(.+)$/);
+    // Parse Base64 data string (data:image/webp;base64,...)
+    const matches = processedData.match(/^data:(.+);base64,(.+)$/);
     let buffer: Buffer;
-    let contentType = 'image/jpeg';
+    let contentType = 'image/webp';
 
     if (matches && matches.length === 3) {
       contentType = matches[1];
       buffer = Buffer.from(matches[2], 'base64');
     } else {
-      buffer = Buffer.from(base64Data, 'base64');
+      buffer = Buffer.from(processedData, 'base64');
     }
 
-    const cleanFileName = `${Date.now()}_${fileName.replace(/[^a-zA-Z0-9._-]/g, '_')}`;
+    const webpFileName = fileName.replace(/\.[^/.]+$/, '') + '.webp';
+    const cleanFileName = `${Date.now()}_${webpFileName.replace(/[^a-zA-Z0-9._-]/g, '_')}`;
 
     // Ensure bucket exists or upload file
     const { error: uploadErr } = await supabaseAdmin.storage
@@ -74,16 +80,17 @@ export async function uploadToSupabaseStorage(
 
     if (uploadErr) {
       console.warn(`Supabase Storage upload error for bucket "${bucketName}":`, uploadErr.message);
-      return base64Data;
+      return processedData;
     }
 
     const { data: publicUrlData } = supabaseAdmin.storage
       .from(bucketName)
       .getPublicUrl(cleanFileName);
 
-    return publicUrlData?.publicUrl || base64Data;
+    return publicUrlData?.publicUrl || processedData;
   } catch (err) {
     console.error('Failed to upload file to Supabase Storage:', err);
-    return base64Data;
+    return processedData;
   }
 }
+

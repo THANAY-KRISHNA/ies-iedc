@@ -3,6 +3,7 @@ import { useSearchParams } from 'react-router-dom';
 import { AdminLayout } from '../../components/admin/AdminLayout';
 import { api } from '../../services/api';
 import { useRealtimeSync } from '../../services/realtime';
+import { convertToWebP } from '../../utils/imageCompressor';
 import { TeamMember, AcademicYear } from '../../types';
 import { INITIAL_DEPARTMENTS, ROLE_RESPONSIBILITIES } from '../../data/initialData';
 import {
@@ -185,24 +186,31 @@ export const AdminTeam: React.FC = () => {
     setIsModalOpen(true);
   };
 
-  // Image Upload Handler
-  const handleFileSelect = (file: File) => {
+  // Image Upload Handler (Converts JPG/PNG to WebP to save memory)
+  const handleFileSelect = async (file: File) => {
     if (!file.type.startsWith('image/')) {
       alert('Please upload a valid image file (JPG, PNG, WEBP).');
       return;
     }
-    if (file.size > 5 * 1024 * 1024) {
-      alert('File size exceeds 5MB limit. Please upload a smaller image.');
+    if (file.size > 10 * 1024 * 1024) {
+      alert('File size exceeds 10MB limit. Please upload a smaller image.');
       return;
     }
 
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      const dataUrl = e.target?.result as string;
+    try {
+      const { dataUrl } = await convertToWebP(file, { quality: 0.82, maxWidth: 1600 });
       setPhotoPreview(dataUrl);
       setFormData(prev => ({ ...prev, photoUrl: dataUrl }));
-    };
-    reader.readAsDataURL(file);
+    } catch (err) {
+      console.warn('WebP conversion fallback to standard reader:', err);
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const dataUrl = e.target?.result as string;
+        setPhotoPreview(dataUrl);
+        setFormData(prev => ({ ...prev, photoUrl: dataUrl }));
+      };
+      reader.readAsDataURL(file);
+    }
   };
 
   const handleDrop = (e: React.DragEvent) => {

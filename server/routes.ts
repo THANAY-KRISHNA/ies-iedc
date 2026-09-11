@@ -2,6 +2,7 @@ import { Router, Request, Response } from 'express';
 import { db } from './db';
 import { authenticateToken, requireRole, AuthRequest, loginUser } from './auth';
 import { uploadToSupabaseStorage } from './supabase';
+import { convertImageWithPython } from './imageConverter';
 
 export const apiRouter = Router();
 

@@ -3,6 +3,7 @@ import { useSearchParams } from 'react-router-dom';
 import { AdminLayout } from '../../components/admin/AdminLayout';
 import { api } from '../../services/api';
 import { useRealtimeSync } from '../../services/realtime';
+import { convertToWebP } from '../../utils/imageCompressor';
 import { GalleryAlbum, GalleryImage, AcademicYear, EventItem } from '../../types';
 import { Plus, Upload, Trash2, Eye, Star, Save, Image as ImageIcon, Check, ArrowUp, ArrowDown } from 'lucide-react';
 
@@ -78,39 +79,39 @@ export const AdminGallery: React.FC = () => {
     setIsModalOpen(true);
   };
 
-  // Bulk File Selection Handler (Handles 20 / 30 / 50 photos at once)
-  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  // Bulk File Selection Handler (Converts all JPG/PNG images to WebP)
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (!files || files.length === 0) return;
 
     setUploading(true);
+    const fileList = Array.from(files) as File[];
     const newImages: GalleryImage[] = [];
 
-    (Array.from(files) as File[]).forEach((file: File, index: number) => {
-      const reader = new FileReader();
-      reader.onload = (event) => {
-        const fileUrl = event.target?.result as string;
+    for (let index = 0; index < fileList.length; index++) {
+      const file = fileList[index];
+      try {
+        const { dataUrl } = await convertToWebP(file, { quality: 0.82, maxWidth: 1600 });
         const imgItem: GalleryImage = {
-          id: `img_${Date.now()}_${Math.random().toString(36).substr(2, 5)}`,
+          id: `img_${Date.now()}_${Math.random().toString(36).substr(2, 5)}_${index}`,
           albumId: editingAlbum ? editingAlbum.id : 'temp_album',
-          imageUrl: fileUrl,
+          imageUrl: dataUrl,
           caption: file.name.replace(/\.[^/.]+$/, ''),
           sortOrder: images.length + index + 1
         };
         newImages.push(imgItem);
-
-        // Set first image as cover if cover is not set
         if (!coverImageUrl && index === 0) {
-          setCoverImageUrl(fileUrl);
+          setCoverImageUrl(dataUrl);
         }
+      } catch (err) {
+        console.warn(`Failed WebP conversion for ${file.name}, reading raw file:`, err);
+      }
+    }
 
-        if (newImages.length === files.length) {
-          setImages(prev => [...prev, ...newImages]);
-          setUploading(false);
-        }
-      };
-      reader.readAsDataURL(file);
-    });
+    if (newImages.length > 0) {
+      setImages(prev => [...prev, ...newImages]);
+    }
+    setUploading(false);
   };
 
   const handleRemovePhoto = (id: string) => {

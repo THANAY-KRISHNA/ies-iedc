@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { AdminLayout } from '../../components/admin/AdminLayout';
 import { api } from '../../services/api';
 import { useRealtimeSync } from '../../services/realtime';
+import { convertToWebP } from '../../utils/imageCompressor';
 import { Upload, Search, Trash2, Copy, Check, Image as ImageIcon } from 'lucide-react';
 
 interface MediaItem {
@@ -32,30 +33,42 @@ export const AdminMedia: React.FC = () => {
 
   useRealtimeSync(['media'], loadMedia);
 
-  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (!files || files.length === 0) return;
 
-    (Array.from(files) as File[]).forEach((file: File) => {
-      const reader = new FileReader();
-      reader.onload = async (event) => {
-        const fileData = event.target?.result as string;
-        try {
-          const res = await api.uploadMedia(file.name, fileData);
-          const payload = {
-            name: file.name,
-            url: res.url,
-            uploadedAt: new Date().toLocaleDateString(),
-            size: `${(file.size / 1024).toFixed(1)} KB`
-          };
-          const created = await api.adminAddMedia(payload);
-          setMediaList(prev => [created, ...prev]);
-        } catch (err) {
-          console.error('Upload failed:', err);
+    const fileList = Array.from(files) as File[];
+    for (const file of fileList) {
+      try {
+        let fileData: string;
+        let fileName = file.name;
+
+        if (file.type.startsWith('image/')) {
+          const res = await convertToWebP(file, { quality: 0.82, maxWidth: 1600 });
+          fileData = res.dataUrl;
+          fileName = file.name.replace(/\.[^/.]+$/, '') + '.webp';
+        } else {
+          fileData = await new Promise<string>((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = () => resolve(reader.result as string);
+            reader.onerror = reject;
+            reader.readAsDataURL(file);
+          });
         }
-      };
-      reader.readAsDataURL(file);
-    });
+
+        const res = await api.uploadMedia(fileName, fileData);
+        const payload = {
+          name: fileName,
+          url: res.url,
+          uploadedAt: new Date().toLocaleDateString(),
+          size: `${(file.size / 1024).toFixed(1)} KB`
+        };
+        const created = await api.adminAddMedia(payload);
+        setMediaList(prev => [created, ...prev]);
+      } catch (err) {
+        console.error('Upload failed:', err);
+      }
+    }
   };
 
   const handleCopyUrl = (item: MediaItem) => {
