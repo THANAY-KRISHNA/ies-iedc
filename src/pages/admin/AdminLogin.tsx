@@ -98,22 +98,10 @@ export const AdminLogin: React.FC = () => {
                 disabled={loading}
                 className="w-full py-2.5 px-4 rounded bg-[#161616] hover:bg-[#242424] text-white text-xs font-semibold tracking-wide transition-colors cursor-pointer"
               >
-                {loading ? 'Signing In...' : 'Unlock CMS Portal'}
+                {loading ? 'Signing In...' : 'Sign In'}
               </button>
             </div>
           </form>
-
-          <div className="pt-3 border-t border-[#EBEBE8] text-[11px] text-[#777777] space-y-1.5">
-            <p className="font-bold text-[#161616] flex items-center gap-1">
-              <Lock className="w-3.5 h-3.5 text-red-600 inline" />
-              <span>CMS Portal Security Lock</span>
-            </p>
-            <p>Authenticating credentials protects website management features.</p>
-            <div className="font-mono text-[10px] text-[#4A4A4A] bg-[#F5F5F3] p-2.5 rounded-lg border border-[#D8D8D3] space-y-0.5">
-              <div><strong>Admin Email:</strong> nodal.officer@iesce.info (or admin)</div>
-              <div><strong>Password:</strong> admin123 (or iedc123 / admin)</div>
-            </div>
-          </div>
         </div>
       </div>
     </div>
