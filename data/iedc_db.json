@@ -93,6 +93,15 @@
   ],
   "teamMembers": [
     {
+      "name": "thanay test",
+      "roleType": "CEO",
+      "position": "CEO",
+      "department": "CSE - Computer Science & Engineering",
+      "academicYear": "2025–26",
+      "status": "Published",
+      "id": "tm_1789153565188_gluw"
+    },
+    {
       "name": "Dr. Realtime Tester",
       "roleType": "CEO",
       "position": "Tester Lead",
@@ -1421,6 +1430,16 @@
   ],
   "submissions": [],
   "activityLogs": [
+    {
+      "userName": "TestUser",
+      "userRole": "Team Admin",
+      "action": "Created",
+      "contentType": "Team Member",
+      "contentId": "tm_1789153565188_gluw",
+      "contentSummary": "Added team member thanay test (CEO)",
+      "id": "log_1789153565189_mcvy",
+      "timestamp": "2026-09-11T19:06:05.189Z"
+    },
     {
       "userName": "Prof. Shahaziya Parvez",
       "userRole": "Team Admin",
